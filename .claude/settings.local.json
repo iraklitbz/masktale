@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pnpm add:*)",
+      "Bash(mkdir:*)",
+      "Bash(pnpm dev)",
+      "WebSearch",
+      "Bash(pnpm remove:*)",
+      "Bash(pnpm lint:*)",
+      "Bash(pnpm lint:fix:*)",
+      "WebFetch(domain:ai.google.dev)"
+    ]
+  }
+}
