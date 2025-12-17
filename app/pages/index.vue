@@ -3,32 +3,39 @@ const prompt = ref('')
 const imageUrl = ref(null)
 const loading = ref(false)
 const error = ref(null)
-const uploadedImage = ref<string | null>(null)
+const uploadedImages = ref<string[]>([])
 const fileInput = ref<HTMLInputElement | null>(null)
 
 function handleFileUpload(event: Event) {
   const target = event.target as HTMLInputElement
-  const file = target.files?.[0]
+  const files = target.files
 
-  if (file) {
-    const reader = new FileReader()
-    reader.onload = (e) => {
-      uploadedImage.value = e.target?.result as string
-    }
-    reader.readAsDataURL(file)
+  if (files && files.length > 0) {
+    // Limitar a 3 imágenes
+    const filesToProcess = Array.from(files).slice(0, 3 - uploadedImages.value.length)
+
+    filesToProcess.forEach((file) => {
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        if (uploadedImages.value.length < 3) {
+          uploadedImages.value.push(e.target?.result as string)
+        }
+      }
+      reader.readAsDataURL(file)
+    })
   }
 }
 
-function removeImage() {
-  uploadedImage.value = null
+function removeImage(index: number) {
+  uploadedImages.value.splice(index, 1)
   if (fileInput.value) {
     fileInput.value.value = ''
   }
 }
 
 async function generateImage() {
-  if (!uploadedImage.value) {
-    error.value = 'Por favor sube una foto primero'
+  if (uploadedImages.value.length === 0) {
+    error.value = 'Por favor sube al menos una foto'
     return
   }
 
@@ -39,7 +46,7 @@ async function generateImage() {
       method: 'POST',
       body: {
         prompt: prompt.value,
-        userImage: uploadedImage.value,
+        userImages: uploadedImages.value,
       },
     })
     imageUrl.value = response.image
@@ -58,44 +65,54 @@ async function generateImage() {
       Generador con Estilo Base
     </h1>
 
-    <!-- Upload de imagen -->
-    <div class="mb-8 rounded-lg border-2 border-dashed border-gray-300 p-6">
-      <h2 class="mb-4 text-lg font-semibold">
-        1. Sube una foto de la persona
-      </h2>
+    <!-- Upload de imágenes -->
+    <ClientOnly>
+      <div class="mb-8 rounded-lg border-2 border-dashed border-gray-300 p-6">
+        <h2 class="mb-4 text-lg font-semibold">
+          1. Sube fotos de la persona (1-3 fotos para mejor parecido)
+        </h2>
 
-      <input
-        ref="fileInput"
-        type="file"
-        accept="image/*"
-        class="hidden"
-        @change="handleFileUpload"
-      >
+        <input
+          ref="fileInput"
+          type="file"
+          accept="image/*"
+          multiple
+          class="hidden"
+          @change="handleFileUpload"
+        >
 
-      <div v-if="!uploadedImage">
+        <!-- Mostrar imágenes subidas -->
+        <div v-if="uploadedImages.length > 0" class="mb-4 grid grid-cols-3 gap-4">
+          <div
+            v-for="(img, index) in uploadedImages"
+            :key="index"
+            class="relative"
+          >
+            <img :src="img" alt="Foto subida" class="h-32 w-full rounded-lg object-cover">
+            <button
+              class="absolute right-1 top-1 rounded-full bg-red-500 p-1 text-sm text-white hover:bg-red-600"
+              @click="removeImage(index)"
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+
+        <!-- Botón para agregar más -->
         <button
-          class="w-full rounded-lg bg-gray-100 px-6 py-8 text-gray-600 transition hover:bg-gray-200"
+          v-if="uploadedImages.length < 3"
+          class="w-full rounded-lg bg-gray-100 px-6 py-4 text-gray-600 transition hover:bg-gray-200"
           @click="fileInput?.click()"
         >
-          <div class="text-4xl">
+          <div class="text-2xl">
             📸
           </div>
-          <div class="mt-2">
-            Haz clic para subir una foto
+          <div class="mt-2 text-sm">
+            {{ uploadedImages.length === 0 ? 'Haz clic para subir fotos' : `Agregar más (${uploadedImages.length}/3)` }}
           </div>
         </button>
       </div>
-
-      <div v-else class="relative">
-        <img :src="uploadedImage" alt="Foto subida" class="mx-auto max-h-64 rounded-lg">
-        <button
-          class="absolute right-0 top-0 rounded-full bg-red-500 p-2 text-white hover:bg-red-600"
-          @click="removeImage"
-        >
-          ✕
-        </button>
-      </div>
-    </div>
+    </ClientOnly>
 
     <!-- Prompt opcional -->
     <div class="mb-8">
@@ -111,7 +128,7 @@ async function generateImage() {
 
     <!-- Botón generar -->
     <button
-      :disabled="loading || !uploadedImage"
+      :disabled="loading || uploadedImages.length === 0"
       class="w-full rounded-lg bg-blue-500 px-8 py-3 text-lg font-semibold text-white transition hover:bg-blue-600 disabled:cursor-not-allowed disabled:bg-gray-300"
       @click="generateImage"
     >
