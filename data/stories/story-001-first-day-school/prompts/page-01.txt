@@ -1,0 +1,20 @@
+ESCENA: {SCENE_DESCRIPTION}
+TONO EMOCIONAL: {EMOTIONAL_TONE}
+ESTILO DE ILUSTRACIÓN: {ILLUSTRATION_STYLE}
+
+Usando la primera imagen como base, EDÍTALA reemplazando SOLAMENTE el área de la cara/cabeza del personaje con la cara del niño de la segunda imagen.
+
+REQUISITOS DE LA CARA:
+- Coincidir con las características faciales exactas del niño: color de ojos, forma de la nariz, boca, forma de la cara, tono de piel
+- Darle al niño una expresión {EMOTIONAL_TONE}, natural y auténtica
+- Asegurar que la cara esté posicionada aproximadamente al {FACE_POSITION_X}% desde la izquierda, {FACE_POSITION_Y}% desde arriba
+- La cara debe coincidir con las proporciones del cuerpo en la ilustración original
+
+PRESERVAR DE LA IMAGEN BASE:
+- Fondo exacto: escuela, puertas, patio
+- Toda la ropa: mochila, uniforme/outfit escolar
+- Pose del cuerpo: de pie con confianza
+- Paleta de colores: tonos cálidos de la mañana
+- Estilo de ilustración: acuarela con bordes suaves
+
+IMPORTANTE: Solo cambiar la cara. Toda la escena, ropa, fondo y estilo artístico deben permanecer idénticos a la imagen base.

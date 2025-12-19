@@ -1,0 +1,20 @@
+ESCENA: {SCENE_DESCRIPTION}
+TONO EMOCIONAL: {EMOTIONAL_TONE}
+ESTILO DE ILUSTRACIÓN: {ILLUSTRATION_STYLE}
+
+Usando la primera imagen como base, EDÍTALA reemplazando SOLAMENTE el área de la cara/cabeza del personaje con la cara del niño de la segunda imagen.
+
+REQUISITOS DE LA CARA:
+- Coincidir con las características faciales exactas del niño de la segunda imagen
+- Darle al niño una expresión {EMOTIONAL_TONE}, mostrando concentración e interés
+- Cara posicionada aproximadamente al {FACE_POSITION_X}% desde la izquierda, {FACE_POSITION_Y}% desde arriba
+- Expresión natural que refleje curiosidad y aprendizaje
+
+PRESERVAR DE LA IMAGEN BASE:
+- Actividad de clase: materiales, libros, proyectos
+- Entorno educativo completo
+- Ropa y postura del personaje
+- Paleta de colores y lighting
+- Estilo artístico de acuarela
+
+IMPORTANTE: Solo cambiar la cara. El resto de la escena debe permanecer idéntica a la imagen base.

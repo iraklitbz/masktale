@@ -1,0 +1,111 @@
+{
+  "id": "story-001-first-day-school",
+  "version": "1.0.0",
+  "title": {
+    "es": "Mi Primer Día de Escuela",
+    "en": "My First Day of School"
+  },
+  "description": {
+    "es": "Una aventura emocionante siguiendo a un niño en su primer día de clases, conociendo nuevos amigos y descubriendo el maravilloso mundo de la escuela.",
+    "en": "An exciting adventure following a child on their first day of school, meeting new friends and discovering the wonderful world of school."
+  },
+  "metadata": {
+    "author": "Mask Stories",
+    "illustrationStyle": "watercolor",
+    "theme": "education",
+    "ageRange": {
+      "min": 3,
+      "max": 8
+    },
+    "createdAt": "2025-12-19",
+    "updatedAt": "2025-12-19"
+  },
+  "pages": [
+    {
+      "pageNumber": 1,
+      "baseImagePath": "base-images/page-01.jpg",
+      "promptPath": "prompts/page-01.txt",
+      "aspectRatio": "3:4",
+      "metadata": {
+        "sceneDescription": "Llegando a la escuela con mochila, listo para el primer día",
+        "emotionalTone": "excited",
+        "facePosition": {
+          "x": 50,
+          "y": 35
+        },
+        "difficulty": "medium"
+      }
+    },
+    {
+      "pageNumber": 2,
+      "baseImagePath": "base-images/page-02.png",
+      "promptPath": "prompts/page-02.txt",
+      "aspectRatio": "3:4",
+      "metadata": {
+        "sceneDescription": "En el aula, conociendo al maestro y compañeros",
+        "emotionalTone": "happy",
+        "facePosition": {
+          "x": 45,
+          "y": 30
+        },
+        "difficulty": "medium"
+      }
+    },
+    {
+      "pageNumber": 3,
+      "baseImagePath": "base-images/page-03.jpg",
+      "promptPath": "prompts/page-03.txt",
+      "aspectRatio": "3:4",
+      "metadata": {
+        "sceneDescription": "Participando en actividades de clase, aprendiendo y divirtiéndose",
+        "emotionalTone": "curious",
+        "facePosition": {
+          "x": 50,
+          "y": 32
+        },
+        "difficulty": "easy"
+      }
+    },
+    {
+      "pageNumber": 4,
+      "baseImagePath": "base-images/page-04.jpg",
+      "promptPath": "prompts/page-04.txt",
+      "aspectRatio": "3:4",
+      "metadata": {
+        "sceneDescription": "Jugando en el recreo con nuevos amigos",
+        "emotionalTone": "adventurous",
+        "facePosition": {
+          "x": 48,
+          "y": 28
+        },
+        "difficulty": "medium"
+      }
+    },
+    {
+      "pageNumber": 5,
+      "baseImagePath": "base-images/page-05.png",
+      "promptPath": "prompts/page-05.txt",
+      "aspectRatio": "3:4",
+      "metadata": {
+        "sceneDescription": "Regresando a casa feliz, contando las aventuras del día",
+        "emotionalTone": "happy",
+        "facePosition": {
+          "x": 52,
+          "y": 33
+        },
+        "difficulty": "easy"
+      }
+    }
+  ],
+  "settings": {
+    "maxRegenerations": 3,
+    "defaultAspectRatio": "3:4",
+    "geminiModel": "gemini-2.5-flash-image",
+    "processingTimeout": 120,
+    "imageQuality": {
+      "compression": 85,
+      "maxWidth": 1200,
+      "maxHeight": 1600
+    }
+  }
+}

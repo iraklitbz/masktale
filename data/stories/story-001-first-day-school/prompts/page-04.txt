@@ -1,0 +1,20 @@
+ESCENA: {SCENE_DESCRIPTION}
+TONO EMOCIONAL: {EMOTIONAL_TONE}
+ESTILO DE ILUSTRACIÓN: {ILLUSTRATION_STYLE}
+
+Usando la primera imagen como base, EDÍTALA reemplazando SOLAMENTE el área de la cara/cabeza del personaje con la cara del niño de la segunda imagen.
+
+REQUISITOS DE LA CARA:
+- Coincidir con las características faciales exactas del niño de la segunda imagen
+- Darle al niño una expresión {EMOTIONAL_TONE}, llena de energía y diversión
+- Cara posicionada aproximadamente al {FACE_POSITION_X}% desde la izquierda, {FACE_POSITION_Y}% desde arriba
+- Expresión de alegría y dinamismo
+
+PRESERVAR DE LA IMAGEN BASE:
+- Área de recreo: juegos, patio, equipamiento
+- Otros niños jugando (si los hay)
+- Ropa y accesorios del personaje
+- Ambiente de juego y diversión
+- Estilo de ilustración en acuarela
+
+IMPORTANTE: Solo la cara cambia. Todo lo demás debe permanecer exactamente igual a la imagen original.
