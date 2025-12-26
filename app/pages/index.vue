@@ -1,151 +1,116 @@
 <script setup lang="ts">
-const prompt = ref('')
-const imageUrl = ref(null)
-const loading = ref(false)
-const error = ref(null)
-const uploadedImages = ref<string[]>([])
-const fileInput = ref<HTMLInputElement | null>(null)
+import type { StoryListItem } from '~/app/types/story'
 
-function handleFileUpload(event: Event) {
-  const target = event.target as HTMLInputElement
-  const files = target.files
+// Use session composable
+const { createSession, loading: sessionLoading, error: sessionError } = useSession()
 
-  if (files && files.length > 0) {
-    // Limitar a 3 imágenes
-    const filesToProcess = Array.from(files).slice(0, 3 - uploadedImages.value.length)
+// Fetch stories
+const { data: stories, pending, error } = await useFetch<StoryListItem[]>('/api/story')
 
-    filesToProcess.forEach((file) => {
-      const reader = new FileReader()
-      reader.onload = (e) => {
-        if (uploadedImages.value.length < 3) {
-          uploadedImages.value.push(e.target?.result as string)
-        }
-      }
-      reader.readAsDataURL(file)
-    })
-  }
-}
+async function handleStorySelect(storyId: string) {
+  console.log('Selected story:', storyId)
 
-function removeImage(index: number) {
-  uploadedImages.value.splice(index, 1)
-  if (fileInput.value) {
-    fileInput.value.value = ''
-  }
-}
+  // Create session for this story
+  const sessionId = await createSession(storyId)
 
-async function generateImage() {
-  if (uploadedImages.value.length === 0) {
-    error.value = 'Por favor sube al menos una foto'
-    return
-  }
-
-  loading.value = true
-  error.value = null
-  try {
-    const response = await $fetch('/api/generate-image', {
-      method: 'POST',
-      body: {
-        prompt: prompt.value,
-        userImages: uploadedImages.value,
-      },
-    })
-    imageUrl.value = response.image
-  } catch (e: any) {
-    console.error('Error capturado:', e.data?.statusMessage || e.message)
-    error.value = e.data?.statusMessage || e.message || 'Error generando la imagen'
-  } finally {
-    loading.value = false
+  if (sessionId) {
+    // Navigate to upload page
+    console.log('Session created:', sessionId)
+    await navigateTo(`/story/${storyId}/upload`)
   }
 }
 </script>
 
 <template>
-  <div class="mx-auto max-w-3xl p-8">
-    <h1 class="mb-8 text-center text-3xl font-bold">
-      Generador con Estilo Base
-    </h1>
+  <div class="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
+    <!-- Header -->
+    <header class="border-b border-white/50 bg-white/70 backdrop-blur-sm">
+      <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+        <h1 class="text-center text-4xl font-bold text-gray-900">
+          🎨 Mask Stories
+        </h1>
+        <p class="mt-2 text-center text-gray-600">
+          Crea cuentos personalizados con la cara de tu hijo/a
+        </p>
+      </div>
+    </header>
 
-    <!-- Upload de imágenes -->
-    <ClientOnly>
-      <div class="mb-8 rounded-lg border-2 border-dashed border-gray-300 p-6">
-        <h2 class="mb-4 text-lg font-semibold">
-          1. Sube fotos de la persona (1-3 fotos para mejor parecido)
-        </h2>
+    <!-- Main content -->
+    <main class="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+      <!-- Loading state -->
+      <div v-if="pending" class="flex items-center justify-center py-20">
+        <div class="text-center">
+          <div class="mx-auto h-12 w-12 animate-spin rounded-full border-4 border-blue-500 border-t-transparent" />
+          <p class="mt-4 text-gray-600">Cargando cuentos...</p>
+        </div>
+      </div>
 
-        <input
-          ref="fileInput"
-          type="file"
-          accept="image/*"
-          multiple
-          class="hidden"
-          @change="handleFileUpload"
-        >
+      <!-- Error state -->
+      <div v-else-if="error" class="mx-auto max-w-md rounded-lg bg-red-50 p-6 text-center">
+        <div class="text-4xl">⚠️</div>
+        <h3 class="mt-2 text-lg font-semibold text-red-900">
+          Error al cargar cuentos
+        </h3>
+        <p class="mt-1 text-sm text-red-600">
+          {{ error.message }}
+        </p>
+      </div>
 
-        <!-- Mostrar imágenes subidas -->
-        <div v-if="uploadedImages.length > 0" class="mb-4 grid grid-cols-3 gap-4">
-          <div
-            v-for="(img, index) in uploadedImages"
-            :key="index"
-            class="relative"
-          >
-            <img :src="img" alt="Foto subida" class="h-32 w-full rounded-lg object-cover">
-            <button
-              class="absolute right-1 top-1 rounded-full bg-red-500 p-1 text-sm text-white hover:bg-red-600"
-              @click="removeImage(index)"
-            >
-              ✕
-            </button>
-          </div>
+      <!-- Stories grid -->
+      <div v-else-if="stories && stories.length > 0">
+        <!-- Section header -->
+        <div class="mb-8">
+          <h2 class="text-2xl font-bold text-gray-900">
+            Elige tu cuento
+          </h2>
+          <p class="mt-1 text-gray-600">
+            Selecciona uno de nuestros cuentos mágicos para personalizar
+          </p>
         </div>
 
-        <!-- Botón para agregar más -->
-        <button
-          v-if="uploadedImages.length < 3"
-          class="w-full rounded-lg bg-gray-100 px-6 py-4 text-gray-600 transition hover:bg-gray-200"
-          @click="fileInput?.click()"
-        >
-          <div class="text-2xl">
-            📸
+        <!-- Grid -->
+        <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <StoryCard
+            v-for="story in stories"
+            :key="story.id"
+            :story="story"
+            @select="handleStorySelect"
+          />
+        </div>
+
+        <!-- Session error -->
+        <div v-if="sessionError" class="mt-6 rounded-lg bg-red-50 p-4 text-center text-red-600">
+          {{ sessionError }}
+        </div>
+
+        <!-- Session loading -->
+        <div v-if="sessionLoading" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+          <div class="rounded-2xl bg-white p-8 text-center shadow-2xl">
+            <div class="mx-auto h-16 w-16 animate-spin rounded-full border-4 border-blue-500 border-t-transparent" />
+            <p class="mt-4 text-lg font-semibold text-gray-900">
+              Creando tu sesión...
+            </p>
           </div>
-          <div class="mt-2 text-sm">
-            {{ uploadedImages.length === 0 ? 'Haz clic para subir fotos' : `Agregar más (${uploadedImages.length}/3)` }}
-          </div>
-        </button>
+        </div>
       </div>
-    </ClientOnly>
 
-    <!-- Prompt opcional -->
-    <div class="mb-8">
-      <h2 class="mb-4 text-lg font-semibold">
-        2. Personaliza (opcional)
-      </h2>
-      <input
-        v-model="prompt"
-        placeholder="Ej: estilo profesional, fondo azul..."
-        class="w-full rounded-lg border-2 border-gray-300 px-3 py-2 text-base focus:border-blue-500 focus:outline-none"
-      >
-    </div>
+      <!-- Empty state -->
+      <div v-else class="mx-auto max-w-md rounded-lg bg-white p-8 text-center shadow-sm">
+        <div class="text-6xl">📚</div>
+        <h3 class="mt-4 text-lg font-semibold text-gray-900">
+          No hay cuentos disponibles
+        </h3>
+        <p class="mt-1 text-sm text-gray-600">
+          Vuelve más tarde para ver nuevos cuentos
+        </p>
+      </div>
+    </main>
 
-    <!-- Botón generar -->
-    <button
-      :disabled="loading || uploadedImages.length === 0"
-      class="w-full rounded-lg bg-blue-500 px-8 py-3 text-lg font-semibold text-white transition hover:bg-blue-600 disabled:cursor-not-allowed disabled:bg-gray-300"
-      @click="generateImage"
-    >
-      {{ loading ? 'Generando...' : '3. Generar Imagen' }}
-    </button>
-
-    <!-- Error -->
-    <div v-if="error" class="mt-4 rounded-lg bg-red-50 p-4 text-red-600">
-      {{ error }}
-    </div>
-
-    <!-- Resultado -->
-    <div v-if="imageUrl" class="mt-8 rounded-lg bg-gray-100 p-8 text-center">
-      <h3 class="mb-4 text-lg font-semibold">
-        Resultado:
-      </h3>
-      <img :src="imageUrl" alt="Imagen generada" class="mx-auto max-w-full rounded-lg shadow-lg">
-    </div>
+    <!-- Footer -->
+    <footer class="mt-20 border-t border-gray-200 bg-white/50 py-6 backdrop-blur-sm">
+      <div class="mx-auto max-w-7xl px-4 text-center text-sm text-gray-600 sm:px-6 lg:px-8">
+        <p>Mask Stories © 2025 - Cuentos personalizados con IA</p>
+      </div>
+    </footer>
   </div>
 </template>

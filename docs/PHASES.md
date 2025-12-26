@@ -1,7 +1,7 @@
 # Tracker de Fases - Plataforma de Cuentos Personalizados
 
-**Última actualización:** 2025-12-19
-**Estado general:** 🚧 En desarrollo - Fase 1 completada
+**Última actualización:** 2025-12-26
+**Estado general:** 🚧 En desarrollo - Fase 5 completada
 
 ---
 
@@ -9,10 +9,10 @@
 
 ```
 Fase 1: ████████████████████ 100% ✅ COMPLETADA
-Fase 2: ░░░░░░░░░░░░░░░░░░░░   0% 📝 Pendiente
-Fase 3: ░░░░░░░░░░░░░░░░░░░░   0% 📝 Pendiente
-Fase 4: ░░░░░░░░░░░░░░░░░░░░   0% 📝 Pendiente
-Fase 5: ░░░░░░░░░░░░░░░░░░░░   0% 📝 Pendiente
+Fase 2: ████████████████████ 100% ✅ COMPLETADA
+Fase 3: ████████████████████ 100% ✅ COMPLETADA
+Fase 4: ████████████████████ 100% ✅ COMPLETADA
+Fase 5: ████████████████████ 100% ✅ COMPLETADA
 Fase 6: ░░░░░░░░░░░░░░░░░░░░   0% 📝 Pendiente
 Fase 7: ░░░░░░░░░░░░░░░░░░░░   0% 📝 Pendiente
 Fase 8: ░░░░░░░░░░░░░░░░░░░░   0% 📝 Pendiente
@@ -70,61 +70,240 @@ Fase 10: ░░░░░░░░░░░░░░░░░░░░   0% 📝 
 
 ---
 
-## 📝 FASE 2: Gestión de Sesiones
+## ✅ FASE 2: Gestión de Sesiones
 
-**Estado:** 📝 PENDIENTE
+**Estado:** ✅ COMPLETADA
+**Fecha inicio:** 2025-12-26
+**Fecha fin:** 2025-12-26
 **Objetivo:** Implementar creación, almacenamiento y recuperación de sesiones
 
-### Tareas Pendientes
+### Tareas Completadas
 
-- [ ] Crear `/server/api/session/create.post.ts`
-- [ ] Crear `/server/api/session/[id].get.ts`
-- [ ] Crear `/server/utils/session-manager.ts`
-- [ ] Crear `/app/composables/useSession.ts`
-- [ ] Implementar limpieza de sesiones expiradas
+- [x] Crear `/server/api/session/create.post.ts` - Endpoint POST para crear sesiones
+- [x] Crear `/server/api/session/[id].get.ts` - Endpoint GET para obtener sesión por ID
+- [x] Crear `/server/utils/session-manager.ts` - Utilidades completas de gestión
+  - createSession() - Crear sesión con UUID
+  - getSession() - Obtener sesión
+  - saveSession() - Guardar metadata
+  - getCurrentState() / saveCurrentState() - Estado actual
+  - cleanExpiredSessions() - Limpieza automática
+- [x] Crear `/app/composables/useSession.ts` - Composable Vue reactivo
+  - createSession() - Crear y persistir en localStorage
+  - loadSession() - Cargar sesión existente
+  - restoreSession() - Restaurar desde localStorage
+  - clearSession() - Limpiar estado
+  - Utilidades (isExpired, getTimeRemaining)
+- [x] Crear directorio `data/sessions/` para almacenamiento
+
+### Archivos Creados
+
+- `server/utils/session-manager.ts` - 270 líneas
+- `server/api/session/create.post.ts` - 45 líneas
+- `server/api/session/[id].get.ts` - 45 líneas
+- `app/composables/useSession.ts` - 150 líneas
+
+### Tests Realizados
+
+- ✅ Endpoint POST /api/session/create funciona correctamente
+- ✅ Endpoint GET /api/session/{id} devuelve sesión correctamente
+- ✅ Archivos metadata.json se crean en data/sessions/{uuid}/
+- ✅ Sesiones expiran después de 24h
+
+### Notas de Aprendizaje
+
+- Las importaciones en server/ deben usar rutas relativas, no alias ~
+- h3 tiene su propio `getSession` que causa advertencias (no es problema)
+- localStorage solo funciona en client-side (usar import.meta.client)
 
 ---
 
-## 📝 FASE 3: Sistema de Cuentos
+## ✅ FASE 3: Sistema de Cuentos
 
-**Estado:** 📝 PENDIENTE
-**Objetivo:** Cargar y listar cuentos disponibles
+**Estado:** ✅ COMPLETADA
+**Fecha inicio:** 2025-12-26
+**Fecha fin:** 2025-12-26
+**Objetivo:** Cargar y listar cuentos disponibles con UI profesional
 
-### Tareas Pendientes
+### Tareas Completadas
 
-- [ ] Crear `/server/api/story/list.get.ts`
-- [ ] Crear `/server/api/story/[id].get.ts`
-- [ ] Crear `/app/composables/useStory.ts`
-- [ ] Crear `/app/components/story/StorySelector.vue`
-- [ ] Refactorizar `/app/pages/index.vue`
+- [x] Crear `/server/utils/story-loader.ts` - Utilidades de carga
+  - getAllStories() - Listar cuentos
+  - loadStoryConfig() - Cargar config completa
+  - storyExists() - Verificar existencia
+  - getPageConfig() / getPagePrompt() - Datos de página
+  - getBaseImagePath() / getBaseImageBase64() - Imágenes
+- [x] Crear `/server/api/story/index.get.ts` - GET /api/story
+- [x] Crear `/server/api/story/[id].get.ts` - GET /api/story/{id}
+- [x] Crear `/app/components/story/StoryCard.vue` - Card Tailwind
+  - Hover effects y animaciones
+  - Temas con colores dinámicos
+  - Badges, meta info, CTAs
+- [x] Refactorizar `/app/pages/index.vue` - Selector principal
+  - Grid responsive (1/2/3 columnas)
+  - Estados: loading, error, empty
+  - Integración con useSession
+
+### Archivos Creados
+
+- `server/utils/story-loader.ts` - 200 líneas
+- `server/api/story/index.get.ts` - 25 líneas
+- `server/api/story/[id].get.ts` - 45 líneas
+- `app/components/story/StoryCard.vue` - 110 líneas
+- `app/pages/index.vue` - 120 líneas (refactorizada)
+
+### Tests Realizados
+
+- ✅ GET /api/story devuelve lista correctamente
+- ✅ GET /api/story/{id} devuelve config completa
+- ✅ UI responsive funciona en todos los breakpoints
+- ✅ Crear sesión al seleccionar cuento funciona
+- ✅ Temas con colores dinámicos se visualizan bien
+
+### Notas de Aprendizaje
+
+- Usar archivos JSON locales es perfecto para el MVP
+- Tailwind con gradientes y backdrop-blur da un look profesional
+- line-clamp-2 es útil para truncar descripciones
+- Emojis como fallback para thumbnails faltantes funcionan bien
+
+### Decisión Técnica
+
+Se decidió mantener el sistema de archivos JSON local en lugar de usar un CMS o BD porque:
+- Simple y fácil de versionar con Git
+- Sin dependencias externas
+- Perfecto para 4-5 cuentos del MVP
+- Migración futura a CMS es posible en Fase 11+
 
 ---
 
-## 📝 FASE 4: Upload de Foto
+## ✅ FASE 4: Upload de Foto
 
-**Estado:** 📝 PENDIENTE
-**Objetivo:** Permitir al usuario subir foto del niño/a
+**Estado:** ✅ COMPLETADA
+**Fecha inicio:** 2025-12-26
+**Fecha fin:** 2025-12-26
+**Objetivo:** Permitir al usuario subir 1-3 fotos con drag & drop profesional
 
-### Tareas Pendientes
+### Tareas Completadas
 
-- [ ] Crear `/server/api/upload/photo.post.ts`
-- [ ] Crear `/app/composables/useImageUpload.ts`
-- [ ] Crear `/app/components/story/StoryUploader.vue`
-- [ ] Crear `/app/pages/story/[storyId]/upload.vue`
+- [x] Crear `/server/api/session/[id]/upload-photo.post.ts` - Endpoint multipart
+  - Validación de tipo, tamaño (máx 10MB)
+  - Guardado en data/sessions/{id}/user-photos/
+  - Actualización de metadata de sesión
+- [x] Crear `/app/pages/story/[id]/upload.vue` - Página upload profesional
+  - Drag & drop con VueUse (useDropZone)
+  - Selector de archivos (useFileDialog)
+  - Preview con thumbnails editables
+  - Validación en tiempo real
+  - Progress bar animado
+  - Estados: empty, uploading, ready
+- [x] Integrar navegación desde selector de cuentos
+- [x] Validación completa: 1-3 fotos, JPEG/PNG/WebP
+
+### Archivos Creados
+
+- `server/api/session/[id]/upload-photo.post.ts` - 115 líneas
+- `app/pages/story/[id]/upload.vue` - 280 líneas
+- `app/pages/index.vue` - Actualizada con navegación
+
+### Tests Realizados
+
+- ✅ Drag & drop funciona correctamente
+- ✅ Selector de archivos funciona
+- ✅ Validación rechaza archivos inválidos
+- ✅ Preview muestra thumbnails correctamente
+- ✅ Eliminación de fotos funciona
+- ✅ Upload con progress bar funciona
+- ✅ Navegación entre páginas funciona
+
+### Notas de Aprendizaje
+
+- VueUse ya viene incluido en Nuxt (no requiere instalación)
+- useDropZone y useFileDialog son perfectos para upload
+- Tailwind transitions + hover effects = UX profesional
+- FormData es la forma estándar de subir archivos
+- readMultipartFormData de Nuxt maneja multipart/form-data
+
+### UI Highlights
+
+- Zona drag & drop grande y atractiva
+- Feedback visual cuando se arrastra sobre la zona
+- Thumbnails con hover effect para eliminar
+- Progress bar con gradiente animado
+- Instrucciones claras y amigables
+- Mobile-first y totalmente responsive
 
 ---
 
-## 📝 FASE 5: Motor de Generación IA
+## ✅ FASE 5: Motor de Generación IA
 
-**Estado:** 📝 PENDIENTE
-**Objetivo:** Generar páginas del cuento con face-swap usando Gemini
+**Estado:** ✅ COMPLETADA
+**Fecha inicio:** 2025-12-26
+**Fecha fin:** 2025-12-26
+**Objetivo:** Generar páginas del cuento con face-swap usando Gemini AI
 
-### Tareas Pendientes
+### Tareas Completadas
 
-- [ ] Crear `/server/utils/prompt-builder.ts`
-- [ ] Crear `/server/api/story/generate-page.post.ts`
-- [ ] Crear `/app/composables/useGeneration.ts`
-- [ ] Crear `/app/pages/story/[storyId]/generate.vue`
+- [x] Crear `/server/utils/prompt-builder.ts` - Constructor de prompts
+  - buildPromptForPage() - Reemplaza variables dinámicas
+  - buildSimplePrompt() - Prompts simplificados
+  - validatePromptTemplate() - Validación
+  - getGenerationSummary() - Resúmenes legibles
+- [x] Crear `/server/api/session/[id]/generate.post.ts` - Endpoint generación
+  - Carga story config, prompts, imágenes base
+  - Crea collage automático de fotos usuario (Sharp)
+  - Construye prompt con metadata de página
+  - Llama Gemini con retry (exponential backoff)
+  - Guarda imágenes en data/sessions/{id}/generated/
+  - Actualiza currentState con versiones
+  - Tracking de progress (current/total)
+  - Soporte para regeneración (máx 3)
+- [x] Crear `/app/pages/story/[id]/generate.vue` - Página progreso
+  - Generación secuencial automática
+  - Progress bar con porcentaje
+  - Grid de estados por página (⏳✨✅❌)
+  - Info de página actual en generación
+  - Preview de imágenes generadas
+  - Animaciones profesionales con Tailwind
+  - Manejo completo de errores
+- [x] Integrar navegación desde upload.vue
+
+### Archivos Creados
+
+- `server/utils/prompt-builder.ts` - 95 líneas
+- `server/api/session/[id]/generate.post.ts` - 200 líneas
+- `app/pages/story/[id]/generate.vue` - 250 líneas
+- `app/pages/story/[id]/upload.vue` - Actualizada
+
+### Flujo Implementado
+
+1. Usuario sube fotos → Navega a `/story/{id}/generate`
+2. Carga automáticamente story config y sesión
+3. Genera 5 páginas secuencialmente:
+   - Carga prompt template + imagen base
+   - Crea collage de fotos usuario
+   - Construye prompt con variables reemplazadas
+   - Llama Gemini 2.5 Flash Image
+   - Guarda PNG en data/sessions/{id}/generated/
+   - Actualiza currentState y progress
+4. Muestra preview de páginas generadas
+5. Al completar → Mensaje de éxito (Preview en Fase 6)
+
+### Notas de Aprendizaje
+
+- Sistema de variables en prompts muy flexible ({SCENE_DESCRIPTION}, etc.)
+- Generación secuencial es más estable que paralela
+- Sharp para collages funciona perfecto
+- Gemini con retry maneja errores de red
+- currentState permite sistema de versiones
+- UI con progreso real es crucial para UX
+
+### Decisión Técnica
+
+**Regeneración integrada desde el inicio:**
+- Endpoint generate.post.ts ya soporta regenerate: true
+- Valida límite de 3 regeneraciones
+- Incrementa versión automáticamente
+- Sistema de versiones permite rollback futuro
 
 ---
 

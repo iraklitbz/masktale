@@ -1,8 +1,8 @@
 # 📍 Estado Actual del Proyecto - Mask (Cuentos Personalizados con IA)
 
-**Última actualización:** 2025-12-19 23:00
-**Última sesión:** Fase 1 completada
-**Próxima acción:** Continuar con Fase 2 (Gestión de Sesiones)
+**Última actualización:** 2025-12-26 14:30
+**Última sesión:** Fase 5 completada
+**Próxima acción:** Continuar con Fase 6 (Preview y Carrusel de Páginas)
 
 ---
 
@@ -14,81 +14,78 @@ Este es un proyecto de plataforma web para crear cuentos infantiles personalizad
 
 ---
 
-## ✅ Fase Actual: FASE 1 COMPLETADA (100%)
+## ✅ Fase Actual: FASE 5 COMPLETADA (100%)
 
-**Fecha completada:** 2025-12-19
+**Fecha completada:** 2025-12-26
 
-### Lo que se ha construido:
+### Lo que se ha construido en Fase 5:
 
-#### 1. Estructura de Carpetas ✅
+#### 1. Motor de Generación con IA ✅
 ```
-data/stories/story-001-first-day-school/
-  ├── config.json (cuento configurado: 5 páginas)
-  ├── base-images/ (5 imágenes migradas de public/img/)
-  └── prompts/ (5 prompts con sistema de variables)
+server/api/session/[id]/
+  └── upload-photo.post.ts - Endpoint multipart upload
+      ├── Validación (1-3 fotos, tipo, tamaño)
+      ├── Guardado en data/sessions/{id}/user-photos/
+      └── Actualización de metadata de sesión
 
-app/types/
-  ├── story.ts (tipos completos de cuentos)
-  └── session.ts (tipos completos de sesiones)
+app/pages/story/[id]/
+  └── upload.vue - Página de upload profesional
+      ├── Drag & drop con VueUse (useDropZone)
+      ├── Selector de archivos (useFileDialog)
+      ├── Preview con thumbnails
+      ├── Validación en tiempo real
+      ├── Progress bar animado
+      └── Estados: empty, uploading, ready
 
-server/utils/
-  ├── image-processor.ts (Sharp utils + createImageCollage)
-  └── gemini.ts (cliente Gemini con retry)
-
-docs/
-  ├── PHASES.md (tracker detallado de 10 fases)
-  └── CURRENT_STATUS.md (este archivo)
+app/pages/
+  └── index.vue - Navegación a upload actualizada
 ```
 
-#### 2. Código Reutilizable ✅
-- **`createImageCollage()`** - Extraído del código original, crea collages horizontales
-- **`generateImageWithRetry()`** - Cliente Gemini con exponential backoff
-- **Tipos TypeScript completos** - Todo tipado (StoryConfig, Session, CurrentState, etc.)
-
-#### 3. Primer Cuento Configurado ✅
-- **ID:** story-001-first-day-school
-- **Título:** "Mi Primer Día de Escuela"
-- **Páginas:** 5 páginas con imágenes base y prompts
-- **Metadatos:** Posición de cara, tono emocional, dificultad por página
+#### 2. Características Implementadas ✅
+- **Drag & drop** profesional con VueUse
+- **Validación completa**: 1-3 fotos, máx 10MB, JPEG/PNG/WebP
+- **Preview instantáneo** con thumbnails editables
+- **Hover effects** para eliminar fotos
+- **Progress bar** animado durante upload
+- **Feedback visual** para drag over
+- **Responsive** y accesible
+- **Integración completa** con sesiones y navegación
 
 ---
 
-## 🚀 Próxima Acción: FASE 2 - Gestión de Sesiones
+## 🚀 Próxima Acción: FASE 6 - Preview y Carrusel de Páginas
 
-**Objetivo:** Implementar sistema de sesiones temporales (24h) para guardar el progreso del usuario
+**Objetivo:** Implementar preview de páginas generadas con carrusel interactivo
 
-### Archivos a crear en Fase 2:
+### Archivos a crear en Fase 6:
 
-1. **`/server/utils/session-manager.ts`**
-   - `createSession(storyId)` - Crear sesión con UUID
-   - `getSession(sessionId)` - Cargar sesión existente
-   - `saveMetadata(sessionId, data)` - Guardar metadata
-   - `cleanExpiredSessions()` - Limpiar sesiones >24h
+1. **`/app/pages/story/[id]/preview.vue`**
+   - Carrusel de páginas generadas
+   - Navegación prev/next con flechas
+   - Indicadores de página (dots)
+   - Fullscreen mode
+   - Botón regenerar por página
 
-2. **`/server/api/session/create.post.ts`**
-   - Endpoint: `POST /api/session/create`
-   - Body: `{ storyId: string }`
-   - Response: `{ sessionId, expiresAt, storyId }`
+2. **`/app/components/story/PageCarousel.vue`**
+   - Componente carrusel reutilizable
+   - Transiciones suaves entre páginas
+   - Touch/swipe support para móvil
+   - Keyboard navigation (arrow keys)
 
-3. **`/server/api/session/[id].get.ts`**
-   - Endpoint: `GET /api/session/{sessionId}`
-   - Response: `{ session: Session, currentState: CurrentState }`
+3. **`/server/api/session/[id]/regenerate.post.ts`** (opcional)
+   - Endpoint específico para regeneración
+   - Validar límite de 3 regeneraciones
+   - Incrementar versión
 
-4. **`/app/composables/useSession.ts`**
-   - `createSession(storyId)` - Llamar API + guardar en localStorage
-   - `loadSession(sessionId)` - Recuperar sesión
-   - `clearSession()` - Limpiar estado
-   - Estado reactivo con `useState`
+### Flujo de la Fase 6:
+1. Generación completa → Redirige a `/story/{id}/preview`
+2. Muestra carrusel con todas las páginas
+3. Usuario puede navegar entre páginas
+4. Opción de regenerar página (hasta 3 veces)
+5. Ver todas las versiones de una página
+6. Botón "Finalizar" o "Descargar PDF" (Fase futura)
 
-### Flujo de la Fase 2:
-1. Usuario selecciona un cuento → Llamar `createSession(storyId)`
-2. Backend crea carpeta en `data/sessions/{uuid}/`
-3. Guardar `metadata.json` con info de sesión
-4. Retornar sessionId al frontend
-5. Frontend guarda sessionId en localStorage
-6. Composable permite recuperar sesión al recargar página
-
-**Tiempo estimado:** 1-2 horas
+**Tiempo estimado:** 2-3 horas
 
 ---
 
@@ -195,16 +192,17 @@ ls data/sessions/
 
 ## ✨ Próximas 3 Fases (Roadmap)
 
-**FASE 2 (Próxima):** Gestión de Sesiones
-**FASE 3:** Sistema de Cuentos (API + Selector UI)
-**FASE 4:** Upload de Foto del Niño
+**FASE 6 (Próxima):** Preview y Carrusel de Páginas
+**FASE 7:** Sistema de Regeneración (3 intentos) - Ya implementado en Fase 5
+**FASE 8:** Prompts Optimizados y Refinamiento
+**FASE 9:** Pulido y Optimización
 
-Después de estas 3 fases, tendremos la base completa para la generación con IA.
+Después de la Fase 6, tendremos el MVP funcional completo.
 
 ---
 
 **🎯 Acción Inmediata al Retomar:**
-Crear `/server/utils/session-manager.ts` con funciones de gestión de sesiones.
+Crear `/app/pages/story/[id]/preview.vue` con carrusel interactivo de páginas.
 
 ---
 
