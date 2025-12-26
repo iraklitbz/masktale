@@ -1,20 +1,79 @@
-ESCENA: {SCENE_DESCRIPTION}
-TONO EMOCIONAL: {EMOTIONAL_TONE}
-ESTILO DE ILUSTRACIÓN: {ILLUSTRATION_STYLE}
+# GENERACIÓN DE ILUSTRACIÓN - PÁGINA 3: Aprendiendo y Participando
 
-Usando la primera imagen como base, EDÍTALA reemplazando SOLAMENTE el área de la cara/cabeza del personaje con la cara del niño de la segunda imagen.
+## TAREA
+Usando la PRIMERA imagen como base, edítala reemplazando ÚNICAMENTE la cara/cabeza del personaje con la cara del niño/a de la SEGUNDA imagen.
 
-REQUISITOS DE LA CARA:
-- Coincidir con las características faciales exactas del niño de la segunda imagen
-- Darle al niño una expresión {EMOTIONAL_TONE}, mostrando concentración e interés
-- Cara posicionada aproximadamente al {FACE_POSITION_X}% desde la izquierda, {FACE_POSITION_Y}% desde arriba
-- Expresión natural que refleje curiosidad y aprendizaje
+---
 
-PRESERVAR DE LA IMAGEN BASE:
-- Actividad de clase: materiales, libros, proyectos
-- Entorno educativo completo
-- Ropa y postura del personaje
-- Paleta de colores y lighting
-- Estilo artístico de acuarela
+## ESCENA
+{SCENE_DESCRIPTION}
 
-IMPORTANTE: Solo cambiar la cara. El resto de la escena debe permanecer idéntica a la imagen base.
+## EMOCIÓN OBJETIVO
+{EMOTIONAL_TONE} - El niño/a debe mostrar concentración e interés genuino en la actividad de aprendizaje
+
+## ESTILO
+{ILLUSTRATION_STYLE} con atmósfera educativa y acogedora
+
+---
+
+## ANÁLISIS DE CARA (Segunda Imagen)
+Identifica y replica EXACTAMENTE todas las características faciales del niño/a.
+
+## INTEGRACIÓN DE FACE-SWAP
+
+### Posicionamiento
+- Ubicación: {FACE_POSITION_X}% horizontal, {FACE_POSITION_Y}% vertical
+- Tamaño proporcional a la actividad y perspectiva
+- Ángulo enfocado hacia abajo (mirando la actividad)
+
+### Expresión Emocional
+- {EMOTIONAL_TONE}: Concentración evidente
+- Ceño ligeramente fruncido en atención
+- Boca cerrada o ligeramente abierta en enfoque
+- Ojos dirigidos hacia la actividad educativa
+- Expresión de aprendizaje activo
+
+### Iluminación
+- Luz de aula desde arriba y lateral
+- Sombras naturales durante actividad
+- Iluminación consistente con el entorno educativo
+- Reflejo suave de materiales sobre el rostro
+
+## ELEMENTOS A PRESERVAR
+
+### Actividad Educativa
+- Materiales de aprendizaje: libros, cuadernos, proyectos
+- Mesa o pupitre con todos los elementos
+- Herramientas educativas (lápices, colores, etc.)
+- Posible presencia de compañeros o maestro
+
+### Vestimenta y Postura
+- Misma ropa del primer día
+- Postura inclinada sobre la actividad
+- Manos interactuando con materiales
+- Posición natural de aprendizaje
+
+### Composición
+- Estilo {ILLUSTRATION_STYLE} cálido
+- Colores educativos pero armoniosos
+- Ambiente de concentración productiva
+- Atmósfera de descubrimiento académico
+
+## CALIDAD TÉCNICA
+- Detalles faciales nítidos durante concentración
+- Integración natural con postura de estudio
+- Coherencia de iluminación de aula
+- Sin artefactos en la transición cara-cuerpo
+
+---
+
+## RESULTADO ESPERADO
+El niño/a del usuario participando activamente en clase, mostrando concentración genuina y entusiasmo por aprender.
+
+## VERIFICACIÓN
+☑ Características faciales del usuario perfectamente capturadas
+☑ Expresión {EMOTIONAL_TONE} de concentración auténtica
+☑ Perspectiva y ángulo hacia la actividad correctos
+☑ Iluminación de aula coherente
+☑ Materiales educativos preservados
+☑ Calidad profesional de ilustración

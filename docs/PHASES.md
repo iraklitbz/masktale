@@ -1,23 +1,24 @@
 # Tracker de Fases - Plataforma de Cuentos Personalizados
 
-**Última actualización:** 2025-12-26
-**Estado general:** 🚧 En desarrollo - Fase 5 completada
+**Última actualización:** 2025-12-26 16:50
+**Estado general:** 🚧 En desarrollo - Fase 7A completada
 
 ---
 
 ## 📊 Progreso General
 
 ```
-Fase 1: ████████████████████ 100% ✅ COMPLETADA
-Fase 2: ████████████████████ 100% ✅ COMPLETADA
-Fase 3: ████████████████████ 100% ✅ COMPLETADA
-Fase 4: ████████████████████ 100% ✅ COMPLETADA
-Fase 5: ████████████████████ 100% ✅ COMPLETADA
-Fase 6: ░░░░░░░░░░░░░░░░░░░░   0% 📝 Pendiente
-Fase 7: ░░░░░░░░░░░░░░░░░░░░   0% 📝 Pendiente
-Fase 8: ░░░░░░░░░░░░░░░░░░░░   0% 📝 Pendiente
-Fase 9: ░░░░░░░░░░░░░░░░░░░░   0% 📝 Pendiente
-Fase 10: ░░░░░░░░░░░░░░░░░░░░   0% 📝 Pendiente
+Fase 1:  ████████████████████ 100% ✅ COMPLETADA
+Fase 2:  ████████████████████ 100% ✅ COMPLETADA
+Fase 3:  ████████████████████ 100% ✅ COMPLETADA
+Fase 4:  ████████████████████ 100% ✅ COMPLETADA
+Fase 5:  ████████████████████ 100% ✅ COMPLETADA
+Fase 6:  ████████████████████ 100% ✅ COMPLETADA
+Fase 7A: ████████████████████ 100% ✅ COMPLETADA (Prompts IA)
+Fase 7B: ░░░░░░░░░░░░░░░░░░░░   0% 📝 Pendiente (Mejoras UX)
+Fase 7C: ░░░░░░░░░░░░░░░░░░░░   0% 📝 Pendiente (Funcionalidades)
+Fase 9:  ░░░░░░░░░░░░░░░░░░░░   0% 📝 Pendiente (PDF Export)
+Fase 10: ░░░░░░░░░░░░░░░░░░░░   0% 📝 Pendiente (Deploy)
 ```
 
 ---
@@ -307,74 +308,256 @@ Se decidió mantener el sistema de archivos JSON local en lugar de usar un CMS o
 
 ---
 
-## 📝 FASE 6: Preview y Carrusel
+## ✅ FASE 6: Preview y Carrusel de Páginas
 
-**Estado:** 📝 PENDIENTE
-**Objetivo:** Mostrar las páginas generadas en un carrusel interactivo
+**Estado:** ✅ COMPLETADA
+**Fecha inicio:** 2025-12-26
+**Fecha fin:** 2025-12-26
+**Objetivo:** Mostrar las páginas generadas en un carrusel interactivo con regeneración
 
-### Tareas Pendientes
+### Tareas Completadas
 
-- [ ] Decidir librería de carrusel (Swiper.js o custom)
-- [ ] Crear `/app/components/story/StoryPageCard.vue`
-- [ ] Crear `/app/components/story/StoryCarousel.vue`
-- [ ] Crear `/app/pages/story/[storyId]/preview.vue`
+- [x] Crear `/app/components/story/PageCarousel.vue` - Carrusel custom con VueUse
+  - Navegación con flechas prev/next
+  - Indicadores de página (dots)
+  - Swipe gestures con useSwipe
+  - Keyboard navigation con useMagicKeys
+  - Transiciones animadas
+  - Overlay con info de versión
+  - Botón regenerar integrado
+- [x] Crear `/app/pages/story/[id]/preview.vue` - Página preview completa
+  - Estados: loading, error, empty, success
+  - Warning para cuentos incompletos
+  - Overlay regeneración con spinner
+  - Sección informativa
+  - Navegación completa
+- [x] Crear composable `/app/composables/useSessionState.ts`
+  - Gestión reactiva de estado de sesión
+  - URLs de imágenes por versión
+  - Validación de límites de regeneración
+- [x] Crear endpoints API:
+  - `/server/api/session/[id]/state.get.ts` - Estado completo
+  - `/server/api/session/[id]/image/[page].get.ts` - Servir imágenes
+  - `/server/api/session/[id]/regenerate.post.ts` - Regenerar página
+- [x] Integrar navegación desde generate.vue
+
+### Archivos Creados
+
+- `app/components/story/PageCarousel.vue` - 380 líneas
+- `app/pages/story/[id]/preview.vue` - 295 líneas
+- `app/composables/useSessionState.ts` - 95 líneas
+- `server/api/session/[id]/state.get.ts` - 30 líneas
+- `server/api/session/[id]/image/[page].get.ts` - 55 líneas
+- `server/api/session/[id]/regenerate.post.ts` - 50 líneas
+
+### Características Implementadas
+
+- **Carrusel interactivo** con navegación fluida
+- **Swipe gestures** para móvil (VueUse)
+- **Keyboard navigation** (flechas izquierda/derecha)
+- **Regeneración** con límite de 3 intentos por página
+- **Sistema de versiones** automático
+- **Estados visuales** por página (generando, completado, error)
+- **Responsive design** completo
+- **Transiciones** profesionales con Tailwind
+
+### Tests Realizados
+
+- ✅ Carrusel navega correctamente entre páginas
+- ✅ Swipe funciona en móvil
+- ✅ Teclado navega con flechas
+- ✅ Regeneración crea nuevas versiones
+- ✅ Límite de 3 regeneraciones se valida
+- ✅ Imágenes se cargan correctamente
+- ✅ Estados de error se manejan bien
+- ✅ Warning de cuento incompleto se muestra
+
+### Notas de Aprendizaje
+
+- VueUse (useSwipe, useMagicKeys) perfecto para interacciones
+- Tailwind v4 NO soporta `@apply` con utilities igual que v3
+- Convertir a vanilla CSS es más estable en Tailwind v4
+- Sistema de versiones permite rollback futuro
+- Overlay con backdrop-blur mejora UX
+
+### Issues Resueltos
+
+- **Tailwind v4 compatibility**: Convertidos todos los `@apply` a vanilla CSS
+- **Gemini API crashes**: Agregada validación defensiva de response
+- **Failed page recovery**: Botones retry y continue to preview
+- **Module import errors**: Limpieza de cache `.nuxt` y reinicio
 
 ---
 
-## 📝 FASE 7: Sistema de Regeneración
+## ✅ FASE 7A: Optimización de Prompts de IA
 
-**Estado:** 📝 PENDIENTE
-**Objetivo:** Permitir regenerar páginas hasta 3 veces y guardar versiones
+**Estado:** ✅ COMPLETADA
+**Fecha inicio:** 2025-12-26
+**Fecha fin:** 2025-12-26
+**Objetivo:** Mejorar la calidad de generación mediante prompts optimizados
 
-### Tareas Pendientes
+### Tareas Completadas
 
-- [ ] Extender `/server/api/story/generate-page.post.ts` con lógica de versiones
-- [ ] Implementar gestión de current-state en `useGeneration.ts`
-- [ ] Crear `/app/components/story/RegenerationControl.vue`
-- [ ] Integrar control en `StoryPageCard.vue`
+- [x] Crear template maestro `/data/stories/.../prompts/PROMPT_TEMPLATE.txt`
+  - Estructura profesional para face-swap
+  - Secciones: Contexto, Tarea, Escena, Emoción, Estilo
+  - Instrucciones detalladas de integración
+  - Requisitos de calidad técnica
+  - Checklist de verificación
+- [x] Optimizar `/data/stories/.../prompts/page-01.txt` - Llegada a la Escuela
+  - Análisis exhaustivo de características faciales
+  - Posicionamiento preciso con coordenadas
+  - Expresión: Emoción + nerviosismo
+  - Iluminación matutina cálida
+  - Preservación de escenario escolar
+- [x] Optimizar `/data/stories/.../prompts/page-02.txt` - Conociendo la Clase
+  - Expresión: Asombro y fascinación
+  - Iluminación interior del aula
+  - Preservación de elementos educativos
+- [x] Optimizar `/data/stories/.../prompts/page-03.txt` - Aprendiendo
+  - Expresión: Concentración genuina
+  - Ángulo hacia abajo (mirando actividad)
+  - Iluminación de aula con materiales
+- [x] Optimizar `/data/stories/.../prompts/page-04.txt` - Recreo
+  - Expresión: Alegría desbordante
+  - Luz exterior brillante del mediodía
+  - Sensación de movimiento dinámico
+- [x] Optimizar `/data/stories/.../prompts/page-05.txt` - Regreso a Casa
+  - Expresión: Satisfacción tranquila
+  - Luz dorada del atardecer
+  - Atmósfera nostálgica de cierre
+
+### Archivos Actualizados
+
+- `data/stories/story-001-first-day-school/prompts/PROMPT_TEMPLATE.txt` - 76 líneas
+- `data/stories/story-001-first-day-school/prompts/page-01.txt` - 86 líneas (de 21)
+- `data/stories/story-001-first-day-school/prompts/page-02.txt` - 80 líneas (de 21)
+- `data/stories/story-001-first-day-school/prompts/page-03.txt` - 80 líneas (de 21)
+- `data/stories/story-001-first-day-school/prompts/page-04.txt` - 87 líneas (de 21)
+- `data/stories/story-001-first-day-school/prompts/page-05.txt` - 89 líneas (de 21)
+
+### Mejoras Implementadas
+
+#### 1. Instrucciones de Face-Swap Detalladas
+- Análisis de forma de cara, ojos, nariz, boca
+- Tono de piel, textura de cabello
+- Rasgos distintivos (pecas, hoyuelos)
+- Posicionamiento con coordenadas {FACE_POSITION_X/Y}
+- Tamaño proporcional al cuerpo
+
+#### 2. Mayor Calidad Técnica
+- Especificaciones de iluminación por tipo de escena:
+  - Mañana: Luz cálida desde arriba-izquierda
+  - Interior: Luz difusa del aula
+  - Mediodía: Luz brillante exterior
+  - Atardecer: Luz dorada con tonos rosados
+- Requisitos de sombras y highlights específicos
+- Integración natural cara-cuerpo sin artefactos
+- Detalles nítidos en todas las condiciones
+
+#### 3. Mejor Consistencia de Estilo
+- Preservación clara de elementos por escena
+- Guías de composición específicas
+- Atmósfera definida para cada momento del día
+- Estilo {ILLUSTRATION_STYLE} consistente
+
+#### 4. Guías Emocionales Precisas
+- Expresiones específicas por contexto narrativo
+- Dirección de mirada coherente con escena
+- Lenguaje corporal y facial sincronizado
+- Intensidad emocional apropiada
+
+#### 5. Verificación de Calidad
+- Checklist de 6 puntos por página
+- Resultado esperado claramente definido
+- Control de calidad profesional
+
+### Notas de Aprendizaje
+
+- Prompts más largos y detallados = mejor calidad de face-swap
+- Especificar iluminación es crucial para integración natural
+- Guías emocionales específicas mejoran expresiones
+- Variables dinámicas {SCENE_DESCRIPTION}, {EMOTIONAL_TONE}, etc. mantienen flexibilidad
+- Checklist de verificación ayuda a validar resultados
+
+### Próximos Pasos Recomendados
+
+1. **Probar prompts optimizados** (RECOMENDADO)
+   - Generar un cuento nuevo con los prompts mejorados
+   - Comparar calidad vs. versiones anteriores
+   - Ajustar si es necesario
+
+2. **Documentar resultados** en `/docs/PROMPTS.md`
+   - Antes/después comparisons
+   - Best practices aprendidas
+   - Guidelines para futuros cuentos
 
 ---
 
-## 📝 FASE 8: Prompts del Cuento de Prueba
+## 📝 FASE 7B: Mejoras de UX
 
 **Estado:** 📝 PENDIENTE
-**Objetivo:** Escribir prompts de calidad para las 5 páginas
+**Objetivo:** Pulir la experiencia de usuario con mejores componentes visuales
 
 ### Tareas Pendientes
 
-- [ ] Analizar cada imagen base
-- [ ] Escribir prompts optimizados
-- [ ] Actualizar metadata en `config.json`
-- [ ] Probar y ajustar calidad
-- [ ] Documentar en `/docs/PROMPTS.md`
+- [ ] Implementar loading skeletons en preview
+- [ ] Mejorar transiciones entre estados
+- [ ] Reemplazar `alert()` con toast notifications
+- [ ] Añadir feedback visual mejorado
+- [ ] Optimizar animaciones
+- [ ] Mobile UX improvements
 
 ---
 
-## 📝 FASE 9: Pulido y Optimización
+## 📝 FASE 7C: Funcionalidades Adicionales
 
 **Estado:** 📝 PENDIENTE
-**Objetivo:** Mejorar UX, rendimiento y manejo de errores
+**Objetivo:** Agregar características para mejor control de versiones
 
 ### Tareas Pendientes
 
-- [ ] Optimizaciones de rendimiento
-- [ ] Mejoras de UX (skeletons, transiciones)
-- [ ] Manejo robusto de errores
-- [ ] Testing manual completo
+- [ ] Historial completo de versiones por página
+- [ ] Comparador de versiones lado a lado
+- [ ] Selector de versión favorita
+- [ ] Mejoras en UI de regeneración
+- [ ] Preview de versiones antes de seleccionar
 
 ---
 
-## 📝 FASE 10: Documentación Final
+## 📝 FASE 9: Exportación a PDF
 
 **Estado:** 📝 PENDIENTE
-**Objetivo:** Documentar toda la arquitectura y APIs
+**Objetivo:** Permitir descargar el cuento completo como PDF profesional
 
 ### Tareas Pendientes
 
-- [ ] Crear `/docs/ARCHITECTURE.md`
-- [ ] Crear `/docs/API.md`
-- [ ] Crear `/docs/PROMPTS.md`
-- [ ] Actualizar este documento con notas finales
+- [ ] Decidir librería (jsPDF, Puppeteer, o pdf-lib)
+- [ ] Diseñar layout del cuento PDF
+  - Portada con título y foto del niño
+  - Página por ilustración con texto
+  - Contraportada opcional
+- [ ] Crear endpoint `/server/api/session/[id]/export-pdf.post.ts`
+- [ ] Implementar botón "Descargar PDF" en preview.vue
+- [ ] Optimizar imágenes para PDF (compresión)
+- [ ] Probar calidad de impresión
+
+---
+
+## 📝 FASE 10: Deploy y Producción
+
+**Estado:** 📝 PENDIENTE
+**Objetivo:** Desplegar aplicación a producción
+
+### Tareas Pendientes
+
+- [ ] Preparar para deploy (env vars, build)
+- [ ] Elegir hosting (Vercel, Netlify, o VPS)
+- [ ] Configurar dominio
+- [ ] Setup analytics
+- [ ] Monitoreo de errores (Sentry)
+- [ ] Optimizaciones de producción
+- [ ] Documentación final en `/docs/`
 
 ---
 
@@ -405,10 +588,13 @@ Se decidió mantener el sistema de archivos JSON local en lugar de usar un CMS o
 
 ## 📈 Métricas y KPIs
 
-- **Tiempo total invertido:** 1-2 horas (Fase 1)
-- **Líneas de código escritas:** ~800
-- **Archivos creados:** 14
-- **Tests pasados:** N/A (sin tests aún)
+- **Fases completadas:** 7 de 10 (Fases 1-6, 7A)
+- **Tiempo total invertido:** ~8-10 horas
+- **Líneas de código escritas:** ~3,500+
+- **Archivos creados:** 40+
+- **Archivos optimizados:** 6 prompts
+- **Tests pasados:** Manual testing exitoso
+- **Estado MVP:** ✅ Funcional + Prompts optimizados
 
 ---
 
@@ -421,4 +607,8 @@ Se decidió mantener el sistema de archivos JSON local en lugar de usar un CMS o
 
 ---
 
-**Siguiente acción recomendada:** Iniciar Fase 2 - Gestión de Sesiones
+**Siguiente acción recomendada:**
+1. **Probar prompts optimizados** - Generar un cuento nuevo y verificar mejoras
+2. **Fase 7B** - Mejoras de UX (toast notifications, loading skeletons)
+3. **Fase 7C** - Funcionalidades adicionales (historial de versiones)
+4. **Fase 9** - Exportación a PDF

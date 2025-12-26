@@ -1,20 +1,86 @@
-ESCENA: {SCENE_DESCRIPTION}
-TONO EMOCIONAL: {EMOTIONAL_TONE}
-ESTILO DE ILUSTRACIÓN: {ILLUSTRATION_STYLE}
+# GENERACIÓN DE ILUSTRACIÓN - PÁGINA 4: Jugando en el Recreo
 
-Usando la primera imagen como base, EDÍTALA reemplazando SOLAMENTE el área de la cara/cabeza del personaje con la cara del niño de la segunda imagen.
+## TAREA
+Usando la PRIMERA imagen como base, edítala reemplazando ÚNICAMENTE la cara/cabeza del personaje con la cara del niño/a de la SEGUNDA imagen.
 
-REQUISITOS DE LA CARA:
-- Coincidir con las características faciales exactas del niño de la segunda imagen
-- Darle al niño una expresión {EMOTIONAL_TONE}, llena de energía y diversión
-- Cara posicionada aproximadamente al {FACE_POSITION_X}% desde la izquierda, {FACE_POSITION_Y}% desde arriba
-- Expresión de alegría y dinamismo
+---
 
-PRESERVAR DE LA IMAGEN BASE:
-- Área de recreo: juegos, patio, equipamiento
-- Otros niños jugando (si los hay)
-- Ropa y accesorios del personaje
-- Ambiente de juego y diversión
-- Estilo de ilustración en acuarela
+## ESCENA
+{SCENE_DESCRIPTION}
 
-IMPORTANTE: Solo la cara cambia. Todo lo demás debe permanecer exactamente igual a la imagen original.
+## EMOCIÓN OBJETIVO
+{EMOTIONAL_TONE} - El niño/a debe mostrar alegría desbordante y energía mientras juega activamente
+
+## ESTILO
+{ILLUSTRATION_STYLE} con colores vibrantes y dinámicos
+
+---
+
+## ANÁLISIS DE CARA (Segunda Imagen)
+Identifica y replica EXACTAMENTE todas las características faciales del niño/a en plena alegría.
+
+## INTEGRACIÓN DE FACE-SWAP
+
+### Posicionamiento
+- Ubicación: {FACE_POSITION_X}% horizontal, {FACE_POSITION_Y}% vertical
+- Tamaño proporcional a la actividad dinámica
+- Ángulo que capture el movimiento del juego
+- Posible inclinación por la actividad física
+
+### Expresión Emocional
+- {EMOTIONAL_TONE}: Alegría pura y desbordante
+- Sonrisa amplia y genuina
+- Ojos brillantes llenos de diversión
+- Boca abierta en risa o grito de alegría
+- Cejas elevadas mostrando emoción
+- Expresión de máxima felicidad y energía
+
+### Iluminación
+- Luz exterior brillante del mediodía
+- Sombras dinámicas por el movimiento
+- Highlights en mejillas y frente por actividad
+- Iluminación natural del patio escolar
+- Posible sudor o brillo en la piel por el ejercicio
+
+## ELEMENTOS A PRESERVAR
+
+### Área de Recreo
+- Equipamiento de juego: columpios, toboganes, estructuras
+- Patio escolar con superficies de juego
+- Otros niños jugando en el fondo
+- Elementos deportivos (pelotas, aros, etc.)
+- Árboles y vegetación del área
+
+### Vestimenta y Postura
+- Misma ropa del primer día (posible desorden)
+- Postura dinámica en movimiento
+- Manos en acción (lanzando, agarrando, corriendo)
+- Cabello potencialmente movido por la actividad
+- Expresión corporal de energía
+
+### Composición
+- Estilo {ILLUSTRATION_STYLE} vibrante
+- Colores brillantes y alegres
+- Sensación de movimiento y dinamismo
+- Atmósfera de diversión pura
+- Composición que capture la acción
+
+## CALIDAD TÉCNICA
+- Detalles faciales nítidos a pesar del movimiento
+- Integración natural con postura activa
+- Coherencia de iluminación exterior intensa
+- Sin artefactos en la transición cara-cuerpo
+- Captura del momento de alegría máxima
+
+---
+
+## RESULTADO ESPERADO
+El niño/a del usuario disfrutando plenamente del recreo, con expresión de alegría desbordante y energía contagiosa.
+
+## VERIFICACIÓN
+☑ Características faciales del usuario perfectamente capturadas
+☑ Expresión {EMOTIONAL_TONE} de alegría pura
+☑ Perspectiva y ángulo dinámicos correctos
+☑ Iluminación exterior coherente
+☑ Área de recreo y juegos preservados
+☑ Sensación de movimiento y diversión capturada
