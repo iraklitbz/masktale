@@ -1,0 +1,55 @@
+{
+  "id": "f361febe-ff87-487e-8234-924f471a4ac6",
+  "storyId": "story-001-first-day-school",
+  "createdAt": "2025-12-26T14:24:18.457Z",
+  "expiresAt": "2025-12-27T14:24:18.457Z",
+  "status": "completed",
+  "progress": {
+    "totalPages": 5,
+    "pagesGenerated": 5,
+    "errors": [
+      {
+        "pageNumber": 4,
+        "attempt": 1,
+        "error": "Failed to generate image after 3 attempts: Cannot read properties of undefined (reading 'parts')",
+        "timestamp": "2025-12-26T14:25:41.654Z"
+      },
+      {
+        "pageNumber": 4,
+        "attempt": 1,
+        "error": "Failed to generate image after 3 attempts: Candidate has no content",
+        "timestamp": "2025-12-26T14:29:59.447Z"
+      },
+      {
+        "pageNumber": 4,
+        "attempt": 1,
+        "error": "Failed to generate image after 3 attempts: Candidate has no content",
+        "timestamp": "2025-12-26T14:29:59.905Z"
+      },
+      {
+        "pageNumber": 4,
+        "attempt": 1,
+        "error": "Failed to generate image after 3 attempts: Candidate has no content",
+        "timestamp": "2025-12-26T14:30:30.905Z"
+      },
+      {
+        "pageNumber": 4,
+        "attempt": 1,
+        "error": "Failed to generate image after 3 attempts: Candidate has no content",
+        "timestamp": "2025-12-26T14:32:19.380Z"
+      }
+    ],
+    "currentPage": 4,
+    "completedAt": "2025-12-26T14:46:11.707Z"
+  },
+  "userPhoto": {
+    "originalPath": "data/sessions/f361febe-ff87-487e-8234-924f471a4ac6/user-photos/photo-1.jpeg",
+    "uploadedAt": "2025-12-26T14:34:31.904Z",
+    "metadata": {
+      "width": 0,
+      "height": 0,
+      "format": "jpeg",
+      "size": 4849103
+    }
+  }
+}

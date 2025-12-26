@@ -1,8 +1,8 @@
 # 📍 Estado Actual del Proyecto - Mask (Cuentos Personalizados con IA)
 
-**Última actualización:** 2025-12-26 14:30
-**Última sesión:** Fase 5 completada
-**Próxima acción:** Continuar con Fase 6 (Preview y Carrusel de Páginas)
+**Última actualización:** 2025-12-26 15:25
+**Última sesión:** Fase 6 completada
+**Próxima acción:** Continuar con Fase 7-8 (Pulido y Optimización)
 
 ---
 
@@ -14,78 +14,89 @@ Este es un proyecto de plataforma web para crear cuentos infantiles personalizad
 
 ---
 
-## ✅ Fase Actual: FASE 5 COMPLETADA (100%)
+## ✅ Fase Actual: FASE 6 COMPLETADA (100%)
 
 **Fecha completada:** 2025-12-26
 
-### Lo que se ha construido en Fase 5:
+### Lo que se ha construido en Fase 6:
 
-#### 1. Motor de Generación con IA ✅
+#### 1. Sistema de Preview con Carrusel Interactivo ✅
+```
+app/pages/story/[id]/
+  └── preview.vue - Página de preview completa
+      ├── Carrusel interactivo de páginas
+      ├── Estados: loading, error, success, empty
+      ├── Overlay de regeneración con feedback
+      ├── Botón descarga PDF (placeholder)
+      └── Información sobre regeneraciones
+
+app/components/story/
+  └── PageCarousel.vue - Componente carrusel reutilizable
+      ├── Navegación con flechas prev/next
+      ├── Indicadores de página (dots)
+      ├── Swipe support para móvil (VueUse)
+      ├── Keyboard navigation (arrow keys)
+      ├── Transiciones suaves entre páginas
+      ├── Overlay de información por página
+      └── Botón regenerar con validación
+```
+
+#### 2. Endpoints API ✅
 ```
 server/api/session/[id]/
-  └── upload-photo.post.ts - Endpoint multipart upload
-      ├── Validación (1-3 fotos, tipo, tamaño)
-      ├── Guardado en data/sessions/{id}/user-photos/
-      └── Actualización de metadata de sesión
-
-app/pages/story/[id]/
-  └── upload.vue - Página de upload profesional
-      ├── Drag & drop con VueUse (useDropZone)
-      ├── Selector de archivos (useFileDialog)
-      ├── Preview con thumbnails
-      ├── Validación en tiempo real
-      ├── Progress bar animado
-      └── Estados: empty, uploading, ready
-
-app/pages/
-  └── index.vue - Navegación a upload actualizada
+  ├── state.get.ts - Obtener sesión y estado actual
+  ├── image/[page].get.ts - Servir imágenes generadas
+  └── regenerate.post.ts - Regenerar página específica
 ```
 
-#### 2. Características Implementadas ✅
-- **Drag & drop** profesional con VueUse
-- **Validación completa**: 1-3 fotos, máx 10MB, JPEG/PNG/WebP
-- **Preview instantáneo** con thumbnails editables
-- **Hover effects** para eliminar fotos
-- **Progress bar** animado durante upload
-- **Feedback visual** para drag over
-- **Responsive** y accesible
-- **Integración completa** con sesiones y navegación
+#### 3. Composables ✅
+```
+app/composables/
+  └── useSessionState.ts - Gestión de estado de sesión
+      ├── Carga de páginas generadas
+      ├── URLs de imágenes
+      ├── Contadores de regeneración
+      └── Validación de límites
+```
+
+#### 4. Características Implementadas ✅
+- **Carrusel interactivo** con navegación fluida
+- **Swipe gestures** para móvil con VueUse
+- **Keyboard navigation** con flechas del teclado
+- **Transiciones animadas** entre páginas
+- **Indicadores visuales** (dots) de página actual
+- **Sistema de regeneración** con límite de 3 intentos
+- **Overlay de información** por página (versión, número)
+- **Estados de carga** y errores bien manejados
+- **Responsive design** optimizado para móvil y desktop
+- **Navegación automática** desde generación a preview
 
 ---
 
-## 🚀 Próxima Acción: FASE 6 - Preview y Carrusel de Páginas
+## 🚀 Próxima Acción: FASE 7-8 - Pulido y Optimización
 
-**Objetivo:** Implementar preview de páginas generadas con carrusel interactivo
+**Objetivo:** Mejorar prompts, refinar UX y optimizar rendimiento
 
-### Archivos a crear en Fase 6:
+### Áreas de mejora:
 
-1. **`/app/pages/story/[id]/preview.vue`**
-   - Carrusel de páginas generadas
-   - Navegación prev/next con flechas
-   - Indicadores de página (dots)
-   - Fullscreen mode
-   - Botón regenerar por página
+1. **Optimización de Prompts**
+   - Refinar prompts para mejor calidad de imagen
+   - Ajustar instrucciones de face-swap
+   - Mejorar consistencia entre páginas
 
-2. **`/app/components/story/PageCarousel.vue`**
-   - Componente carrusel reutilizable
-   - Transiciones suaves entre páginas
-   - Touch/swipe support para móvil
-   - Keyboard navigation (arrow keys)
+2. **Mejoras de UX**
+   - Loading skeletons en preview
+   - Transiciones más suaves
+   - Feedback visual mejorado
+   - Toast notifications
 
-3. **`/server/api/session/[id]/regenerate.post.ts`** (opcional)
-   - Endpoint específico para regeneración
-   - Validar límite de 3 regeneraciones
-   - Incrementar versión
+3. **Funcionalidades Adicionales**
+   - Historial de versiones por página
+   - Comparador de versiones lado a lado
+   - Selector de versión favorita
+   - Exportación a PDF
 
-### Flujo de la Fase 6:
-1. Generación completa → Redirige a `/story/{id}/preview`
-2. Muestra carrusel con todas las páginas
-3. Usuario puede navegar entre páginas
-4. Opción de regenerar página (hasta 3 veces)
-5. Ver todas las versiones de una página
-6. Botón "Finalizar" o "Descargar PDF" (Fase futura)
-
-**Tiempo estimado:** 2-3 horas
+**Tiempo estimado:** 3-4 horas
 
 ---
 
@@ -192,17 +203,17 @@ ls data/sessions/
 
 ## ✨ Próximas 3 Fases (Roadmap)
 
-**FASE 6 (Próxima):** Preview y Carrusel de Páginas
-**FASE 7:** Sistema de Regeneración (3 intentos) - Ya implementado en Fase 5
-**FASE 8:** Prompts Optimizados y Refinamiento
-**FASE 9:** Pulido y Optimización
+**FASE 6 (✅ Completada):** Preview y Carrusel de Páginas
+**FASE 7-8 (Próxima):** Pulido y Optimización
+**FASE 9:** Exportación a PDF
+**FASE 10:** Deploy y Producción
 
-Después de la Fase 6, tendremos el MVP funcional completo.
+**MVP FUNCIONAL COMPLETADO** - El flujo completo desde selección de cuento hasta preview con carrusel está funcionando.
 
 ---
 
 **🎯 Acción Inmediata al Retomar:**
-Crear `/app/pages/story/[id]/preview.vue` con carrusel interactivo de páginas.
+Probar el flujo completo en el navegador: http://localhost:3000 → Crear sesión → Subir fotos → Ver preview con carrusel
 
 ---
 

@@ -12,7 +12,8 @@
       "Bash(node list-models.js:*)",
       "Bash(curl:*)",
       "Bash(python3:*)",
-      "Bash(cat:*)"
+      "Bash(cat:*)",
+      "Bash(grep:*)"
     ]
   }
 }

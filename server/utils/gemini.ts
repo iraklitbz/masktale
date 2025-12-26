@@ -80,8 +80,30 @@ export async function generateImageWithGemini(params: {
       },
     })
 
+    // Validate response structure
+    if (!response) {
+      throw new Error('Empty response from Gemini API')
+    }
+
+    if (!response.candidates || response.candidates.length === 0) {
+      throw new Error('No candidates in Gemini response')
+    }
+
+    const candidate = response.candidates[0]
+    if (!candidate) {
+      throw new Error('First candidate is undefined')
+    }
+
+    if (!candidate.content) {
+      throw new Error('Candidate has no content')
+    }
+
+    if (!candidate.content.parts || candidate.content.parts.length === 0) {
+      throw new Error('Candidate content has no parts')
+    }
+
     // Extract generated image from response
-    for (const part of response.candidates[0].content.parts) {
+    for (const part of candidate.content.parts) {
       if (part.inlineData) {
         const imageData = part.inlineData.data
         console.log('[Gemini] Image generated successfully')

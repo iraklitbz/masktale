@@ -35,6 +35,35 @@ onMounted(async () => {
   }
 })
 
+async function generatePage(pageNum: number, isRetry = false) {
+  if (!session.value) return
+
+  pageStatus.value[pageNum] = 'generating'
+  currentPage.value = pageNum
+
+  try {
+    const response = await $fetch(
+      `/api/session/${session.value.id}/generate`,
+      {
+        method: 'POST',
+        body: {
+          pageNumber: pageNum,
+          regenerate: isRetry,
+        },
+      }
+    )
+
+    // Store generated image
+    generatedImages.value[pageNum] = response.imageData
+    pageStatus.value[pageNum] = 'completed'
+
+    console.log(`Page ${pageNum} generated successfully`)
+  } catch (e: any) {
+    console.error(`Error generating page ${pageNum}:`, e)
+    pageStatus.value[pageNum] = 'error'
+  }
+}
+
 async function startGeneration() {
   if (!session.value || !story.value) return
 
@@ -44,50 +73,62 @@ async function startGeneration() {
   try {
     // Generate each page sequentially
     for (let pageNum = 1; pageNum <= totalPages.value; pageNum++) {
-      currentPage.value = pageNum
-      pageStatus.value[pageNum] = 'generating'
+      // Skip already completed pages
+      if (pageStatus.value[pageNum] === 'completed') continue
 
-      try {
-        const response = await $fetch(
-          `/api/session/${session.value.id}/generate`,
-          {
-            method: 'POST',
-            body: {
-              pageNumber: pageNum,
-              regenerate: false,
-            },
-          }
-        )
-
-        // Store generated image
-        generatedImages.value[pageNum] = response.imageData
-        pageStatus.value[pageNum] = 'completed'
-
-        console.log(`Page ${pageNum} generated successfully`)
-      } catch (e: any) {
-        console.error(`Error generating page ${pageNum}:`, e)
-        pageStatus.value[pageNum] = 'error'
-        error.value = `Error en página ${pageNum}: ${e.data?.statusMessage || e.message}`
-        // Continue with next page instead of stopping
-      }
+      await generatePage(pageNum)
 
       // Small delay between pages
       await new Promise(resolve => setTimeout(resolve, 1000))
     }
 
-    // All done
-    if (!error.value) {
+    // Check if all completed
+    if (allCompleted.value) {
       console.log('All pages generated successfully!')
       // Wait a bit before redirecting
       await new Promise(resolve => setTimeout(resolve, 2000))
-      // TODO: Redirect to preview page (Phase 6)
-      alert('¡Todas las páginas generadas!\n\nEn la Fase 6 verás el preview con carrusel.')
+      // Redirect to preview page
+      router.push(`/story/${session.value.id}/preview`)
     }
   } catch (e: any) {
     error.value = e.data?.statusMessage || e.message || 'Error durante la generación'
   } finally {
     generating.value = false
   }
+}
+
+async function retryFailedPages() {
+  if (!session.value) return
+
+  generating.value = true
+  error.value = null
+
+  try {
+    const failedPages = Object.entries(pageStatus.value)
+      .filter(([_, status]) => status === 'error')
+      .map(([page, _]) => parseInt(page))
+
+    for (const pageNum of failedPages) {
+      await generatePage(pageNum, true)
+      await new Promise(resolve => setTimeout(resolve, 1000))
+    }
+
+    // Check if all completed now
+    if (allCompleted.value) {
+      console.log('All pages generated successfully!')
+      await new Promise(resolve => setTimeout(resolve, 2000))
+      router.push(`/story/${session.value.id}/preview`)
+    }
+  } catch (e: any) {
+    error.value = e.data?.statusMessage || e.message || 'Error durante la generación'
+  } finally {
+    generating.value = false
+  }
+}
+
+function goToPreview() {
+  if (!session.value) return
+  router.push(`/story/${session.value.id}/preview`)
 }
 
 // Computed
@@ -103,6 +144,24 @@ const currentPageData = computed(() => {
 
 const allCompleted = computed(() => {
   return Object.values(pageStatus.value).every(s => s === 'completed')
+})
+
+const hasErrors = computed(() => {
+  return Object.values(pageStatus.value).some(s => s === 'error')
+})
+
+const completedCount = computed(() => {
+  return Object.values(pageStatus.value).filter(s => s === 'completed').length
+})
+
+const errorCount = computed(() => {
+  return Object.values(pageStatus.value).filter(s => s === 'error').length
+})
+
+const generationFinished = computed(() => {
+  return !generating.value && Object.values(pageStatus.value).every(
+    s => s === 'completed' || s === 'error'
+  )
 })
 </script>
 
@@ -213,8 +272,8 @@ const allCompleted = computed(() => {
 
       <!-- Success Message -->
       <div
-        v-if="allCompleted"
-        class="animate-bounce rounded-2xl bg-gradient-to-r from-green-400 to-emerald-500 p-8 text-center text-white shadow-2xl"
+        v-if="allCompleted && generationFinished"
+        class="mb-8 rounded-2xl bg-gradient-to-r from-green-400 to-emerald-500 p-8 text-center text-white shadow-2xl"
       >
         <div class="mb-4 text-6xl">🎉</div>
         <h3 class="mb-2 text-2xl font-bold">
@@ -225,18 +284,82 @@ const allCompleted = computed(() => {
         </p>
       </div>
 
-      <!-- Error Message -->
+      <!-- Partial Success with Errors -->
       <div
-        v-if="error"
-        class="rounded-2xl bg-red-50 p-6 text-red-700 shadow-lg"
+        v-if="hasErrors && generationFinished"
+        class="mb-8 rounded-2xl bg-gradient-to-r from-orange-400 to-red-400 p-8 text-center text-white shadow-2xl"
       >
-        <div class="flex items-center gap-3">
-          <span class="text-3xl">⚠️</span>
-          <div>
-            <h3 class="font-bold">Error durante la generación</h3>
-            <p class="text-sm">{{ error }}</p>
-          </div>
-        </div>
+        <div class="mb-4 text-6xl">⚠️</div>
+        <h3 class="mb-2 text-2xl font-bold">
+          Generación Incompleta
+        </h3>
+        <p class="text-orange-50 mb-4">
+          {{ completedCount }} de {{ totalPages }} páginas generadas correctamente
+        </p>
+        <p class="text-sm text-orange-100">
+          {{ errorCount }} {{ errorCount === 1 ? 'página falló' : 'páginas fallaron' }} durante la generación
+        </p>
+      </div>
+
+      <!-- Action Buttons -->
+      <div
+        v-if="generationFinished"
+        class="flex flex-col gap-3 sm:flex-row"
+      >
+        <!-- Retry Failed Pages Button -->
+        <button
+          v-if="hasErrors"
+          class="flex-1 rounded-lg bg-gradient-to-r from-orange-500 to-red-600 px-6 py-4 font-semibold text-white shadow-lg transition-all hover:shadow-xl hover:scale-105 disabled:cursor-not-allowed disabled:opacity-50"
+          :disabled="generating"
+          @click="retryFailedPages"
+        >
+          <span class="flex items-center justify-center gap-2">
+            <svg
+              class="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+              />
+            </svg>
+            Reintentar páginas fallidas ({{ errorCount }})
+          </span>
+        </button>
+
+        <!-- Go to Preview Button -->
+        <button
+          v-if="completedCount > 0"
+          class="flex-1 rounded-lg bg-gradient-to-r from-blue-500 to-purple-600 px-6 py-4 font-semibold text-white shadow-lg transition-all hover:shadow-xl hover:scale-105"
+          @click="goToPreview"
+        >
+          <span class="flex items-center justify-center gap-2">
+            <svg
+              class="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+              />
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+              />
+            </svg>
+            Ver Preview {{ hasErrors ? `(${completedCount} páginas)` : '' }}
+          </span>
+        </button>
       </div>
 
       <!-- Preview Grid (show generated images) -->
