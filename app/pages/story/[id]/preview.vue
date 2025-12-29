@@ -1,9 +1,15 @@
 <script setup lang="ts">
 import PageCarousel from '~/components/story/PageCarousel.vue'
+import CarouselSkeleton from '~/components/story/CarouselSkeleton.vue'
+import ConfirmDialog from '~/components/ConfirmDialog.vue'
 
 // Get session ID from route
 const route = useRoute()
+const router = useRouter()
 const sessionId = computed(() => route.params.id as string)
+
+// Toast notifications
+const toast = useToast()
 
 // Load session state
 const {
@@ -20,18 +26,29 @@ const {
 const isRegenerating = ref(false)
 const regeneratingPage = ref<number | null>(null)
 
+// Confirmation dialog state
+const showConfirmDialog = ref(false)
+const confirmDialogData = ref({
+  pageNumber: 0,
+})
+
 // Handle page regeneration
 const handleRegenerate = async (pageNumber: number) => {
   if (!canRegenerate(pageNumber)) {
-    alert('Esta página ya ha alcanzado el límite máximo de 3 regeneraciones.')
+    toast.warning(
+      'Límite alcanzado',
+      'Esta página ya ha alcanzado el límite máximo de 3 regeneraciones.'
+    )
     return
   }
 
-  const confirmed = confirm(
-    `¿Regenerar la página ${pageNumber}? Esto creará una nueva versión de la ilustración.`
-  )
+  // Show confirmation dialog
+  confirmDialogData.value.pageNumber = pageNumber
+  showConfirmDialog.value = true
+}
 
-  if (!confirmed) return
+const confirmRegenerate = async () => {
+  const pageNumber = confirmDialogData.value.pageNumber
 
   try {
     isRegenerating.value = true
@@ -56,10 +73,16 @@ const handleRegenerate = async (pageNumber: number) => {
     await refresh()
 
     // Success notification
-    alert(`¡Página ${pageNumber} regenerada exitosamente!`)
+    toast.success(
+      '¡Regeneración exitosa!',
+      `La página ${pageNumber} ha sido regenerada con una nueva versión.`
+    )
   } catch (err: any) {
     console.error('[Preview] Regeneration error:', err)
-    alert(`Error: ${err.message || 'No se pudo regenerar la página'}`)
+    toast.error(
+      'Error al regenerar',
+      err.message || 'No se pudo regenerar la página. Intenta nuevamente.'
+    )
   } finally {
     isRegenerating.value = false
     regeneratingPage.value = null
@@ -68,7 +91,10 @@ const handleRegenerate = async (pageNumber: number) => {
 
 // Handle finish/download (placeholder for future phase)
 const handleFinish = () => {
-  alert('Función de descarga/finalización próximamente en Fase 7-8')
+  toast.info(
+    'Próximamente',
+    'La función de descarga PDF estará disponible en la próxima fase.'
+  )
 }
 
 // Check if story is incomplete
@@ -145,19 +171,25 @@ const goBackToGenerate = () => {
     <main class="preview-main">
       <div class="container">
         <!-- Loading state -->
-        <div
-          v-if="isLoading"
-          class="loading-state"
+        <Transition
+          name="fade"
+          mode="out-in"
         >
-          <div class="spinner" />
-          <p class="loading-text">Cargando tu cuento...</p>
-        </div>
+          <div
+            v-if="isLoading"
+            key="loading"
+            class="loading-state"
+          >
+            <CarouselSkeleton />
+            <p class="loading-text">Cargando tu cuento...</p>
+          </div>
 
-        <!-- Error state -->
-        <div
-          v-else-if="error"
-          class="error-state"
-        >
+          <!-- Error state -->
+          <div
+            v-else-if="error"
+            key="error"
+            class="error-state"
+          >
           <svg
             class="error-icon"
             fill="none"
@@ -181,11 +213,12 @@ const goBackToGenerate = () => {
           </NuxtLink>
         </div>
 
-        <!-- Carousel with pages -->
-        <div
-          v-else-if="pages && pages.length > 0"
-          class="carousel-section"
-        >
+          <!-- Carousel with pages -->
+          <div
+            v-else-if="pages && pages.length > 0"
+            key="carousel"
+            class="carousel-section"
+          >
           <!-- Regenerating overlay -->
           <div
             v-if="isRegenerating"
@@ -260,41 +293,58 @@ const goBackToGenerate = () => {
           </div>
         </div>
 
-        <!-- Empty state -->
-        <div
-          v-else
-          class="empty-state"
-        >
-          <svg
-            class="empty-icon"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
+          <!-- Empty state -->
+          <div
+            v-else
+            key="empty"
+            class="empty-state"
           >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"
-            />
-          </svg>
-          <h2 class="empty-title">No hay páginas generadas</h2>
-          <p class="empty-message">
-            Este cuento aún no tiene páginas generadas.
-          </p>
-          <NuxtLink
-            :to="`/story/${sessionId}/upload`"
-            class="btn-primary mt-4"
-          >
-            Subir foto y generar
-          </NuxtLink>
-        </div>
+            <svg
+              class="empty-icon"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 2 00-2 2v14a2 2 0 002 2z"
+              />
+            </svg>
+            <h2 class="empty-title">No hay páginas generadas</h2>
+            <p class="empty-message">
+              Este cuento aún no tiene páginas generadas.
+            </p>
+            <NuxtLink
+              :to="`/story/${sessionId}/upload`"
+              class="btn-primary mt-4"
+            >
+              Subir foto y generar
+            </NuxtLink>
+          </div>
+        </Transition>
       </div>
     </main>
+
+    <!-- Confirmation Dialog -->
+    <ConfirmDialog
+      v-model="showConfirmDialog"
+      title="¿Regenerar página?"
+      :message="`¿Estás seguro de que deseas regenerar la página ${confirmDialogData.pageNumber}? Esto creará una nueva versión de la ilustración.`"
+      confirm-text="Regenerar"
+      cancel-text="Cancelar"
+      type="warning"
+      @confirm="confirmRegenerate"
+    />
   </div>
 </template>
 
 <style scoped>
+* {
+  scroll-behavior: smooth;
+}
+
 .preview-page {
   min-height: 100vh;
   background: linear-gradient(to bottom right, #faf5ff, #fce7f3, #eff6ff);
@@ -324,12 +374,21 @@ const goBackToGenerate = () => {
   align-items: center;
   color: #4b5563;
   font-weight: 500;
-  transition: color 0.2s;
+  transition: all 0.2s ease;
   text-decoration: none;
+  padding: 0.5rem;
+  margin: -0.5rem;
+  border-radius: 0.5rem;
 }
 
 .back-button:hover {
   color: #9333ea;
+  background-color: #f3e8ff;
+  transform: translateX(-4px);
+}
+
+.back-button:active {
+  transform: translateX(-2px);
 }
 
 .preview-title {
@@ -402,8 +461,8 @@ const goBackToGenerate = () => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  min-height: 400px;
+  gap: 2rem;
+  padding: 2rem 0;
 }
 
 .spinner {
@@ -441,6 +500,19 @@ const goBackToGenerate = () => {
   width: 4rem;
   height: 4rem;
   color: #ef4444;
+  animation: shake 0.5s ease;
+}
+
+@keyframes shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  10%, 30%, 50%, 70%, 90% {
+    transform: translateX(-4px);
+  }
+  20%, 40%, 60%, 80% {
+    transform: translateX(4px);
+  }
 }
 
 .error-title {
@@ -469,6 +541,16 @@ const goBackToGenerate = () => {
   width: 4rem;
   height: 4rem;
   color: #9ca3af;
+  animation: bounce 1s ease infinite;
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
 }
 
 .empty-title {
@@ -528,6 +610,14 @@ const goBackToGenerate = () => {
   max-width: 42rem;
   margin-left: auto;
   margin-right: auto;
+  transition: all 0.3s ease;
+  border: 1px solid transparent;
+}
+
+.info-card:hover {
+  box-shadow: 0 4px 12px 0 rgba(147, 51, 234, 0.15);
+  border-color: #e9d5ff;
+  transform: translateY(-2px);
 }
 
 .info-title {
@@ -564,6 +654,70 @@ const goBackToGenerate = () => {
 .btn-primary:focus {
   outline: none;
   box-shadow: 0 0 0 2px #a855f7, 0 0 0 4px white;
+}
+
+/* Transitions */
+.fade-enter-active,
+.fade-leave-active {
+  transition: all 0.3s ease;
+}
+
+.fade-enter-from {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.fade-leave-to {
+  opacity: 0;
+  transform: translateY(-20px);
+}
+
+/* Enhanced button transitions */
+.btn-primary,
+.btn-finish {
+  transition: all 0.2s ease;
+}
+
+.btn-primary:hover,
+.btn-finish:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(147, 51, 234, 0.3);
+}
+
+.btn-primary:active,
+.btn-finish:active {
+  transform: translateY(0);
+}
+
+/* Regenerating overlay enhanced transition */
+.regenerating-overlay {
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    backdrop-filter: blur(0px);
+  }
+  to {
+    opacity: 1;
+    backdrop-filter: blur(4px);
+  }
+}
+
+.regenerating-content {
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 /* Mobile optimizations */
