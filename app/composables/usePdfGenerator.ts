@@ -3,6 +3,7 @@
  */
 import { jsPDF } from 'jspdf'
 import type { Session, CurrentState } from '~/types/session'
+import type { StoryConfig } from '~/types/story'
 
 export interface PdfGeneratorOptions {
   sessionId: string
@@ -17,7 +18,7 @@ export function usePdfGenerator() {
   /**
    * Load image as base64 for embedding in PDF
    */
-  const loadImageAsBase64 = async (imageUrl: string): Promise<string> => {
+  const loadImageAsBase64 = async (imageUrl: string): Promise<{ base64: string; width: number; height: number }> => {
     return new Promise((resolve, reject) => {
       const img = new Image()
       img.crossOrigin = 'anonymous'
@@ -35,7 +36,11 @@ export function usePdfGenerator() {
 
         ctx.drawImage(img, 0, 0)
         const base64 = canvas.toDataURL('image/jpeg', 0.9)
-        resolve(base64)
+        resolve({
+          base64,
+          width: img.width,
+          height: img.height,
+        })
       }
 
       img.onerror = () => {
@@ -53,6 +58,15 @@ export function usePdfGenerator() {
     const { sessionId, session, currentState, useFavorites = true } = options
 
     try {
+      // Fetch story configuration to get page texts
+      const { data: storyConfig, error: storyError } = await useFetch<StoryConfig>(
+        `/api/story/${session.storyId}`
+      )
+
+      if (storyError.value || !storyConfig.value) {
+        throw new Error('No se pudo cargar la configuración del cuento')
+      }
+
       // Create PDF (A4 size)
       const pdf = new jsPDF({
         orientation: 'portrait',
@@ -65,7 +79,7 @@ export function usePdfGenerator() {
       const margin = 15
 
       // COVER PAGE
-      await generateCoverPage(pdf, session, pageWidth, pageHeight, margin)
+      await generateCoverPage(pdf, session, storyConfig.value, pageWidth, pageHeight, margin)
 
       // STORY PAGES
       const selectedVersions = currentState.selectedVersions
@@ -78,7 +92,7 @@ export function usePdfGenerator() {
 
       for (let i = 0; i < pageNumbers.length; i++) {
         const pageNumber = pageNumbers[i]
-        const pageData = session.pages.find(p => p.pageNumber === pageNumber)
+        const pageData = storyConfig.value.pages.find(p => p.pageNumber === pageNumber)
 
         if (!pageData) continue
 
@@ -98,26 +112,41 @@ export function usePdfGenerator() {
 
         // Load and add image
         try {
-          const imageBase64 = await loadImageAsBase64(imageUrl)
+          const imageData = await loadImageAsBase64(imageUrl)
 
-          // Image dimensions (leave space for text below)
-          const imageHeight = pageHeight * 0.6
-          const imageWidth = pageWidth - (margin * 2)
+          // Calculate dimensions maintaining aspect ratio
+          const maxWidth = pageWidth - (margin * 2)
+          const maxHeight = pageHeight * 0.6
+
+          // Calculate aspect ratio
+          const imgAspectRatio = imageData.width / imageData.height
+
+          let finalWidth = maxWidth
+          let finalHeight = maxWidth / imgAspectRatio
+
+          // If height exceeds max, scale by height instead
+          if (finalHeight > maxHeight) {
+            finalHeight = maxHeight
+            finalWidth = maxHeight * imgAspectRatio
+          }
+
+          // Center image horizontally
+          const imageX = (pageWidth - finalWidth) / 2
           const imageY = margin
 
           pdf.addImage(
-            imageBase64,
+            imageData.base64,
             'JPEG',
-            margin,
+            imageX,
             imageY,
-            imageWidth,
-            imageHeight,
+            finalWidth,
+            finalHeight,
             undefined,
             'FAST'
           )
 
           // Add page text below image
-          const textY = imageY + imageHeight + 10
+          const textY = imageY + finalHeight + 10
           const textMaxWidth = pageWidth - (margin * 2)
 
           pdf.setFontSize(12)
@@ -129,12 +158,9 @@ export function usePdfGenerator() {
           // Page number at bottom
           pdf.setFontSize(10)
           pdf.setFont('helvetica', 'italic')
-          pdf.text(
-            `${i + 1}`,
-            pageWidth / 2,
-            pageHeight - 10,
-            { align: 'center' }
-          )
+          const pageNumText = `${i + 1}`
+          const pageNumWidth = pdf.getTextWidth(pageNumText)
+          pdf.text(pageNumText, (pageWidth - pageNumWidth) / 2, pageHeight - 10)
 
         } catch (err) {
           console.error(`Error loading image for page ${pageNumber}:`, err)
@@ -143,10 +169,12 @@ export function usePdfGenerator() {
       }
 
       // BACK COVER (optional)
-      await generateBackCover(pdf, session, pageWidth, pageHeight, margin)
+      await generateBackCover(pdf, session, storyConfig.value, pageWidth, pageHeight, margin)
 
       // Download PDF
-      const fileName = `${session.childName.replace(/\s+/g, '_')}_${session.storyTitle.replace(/\s+/g, '_')}.pdf`
+      const childName = String(storyConfig.value.childName || 'Cuento')
+      const storyTitle = String(storyConfig.value.title || 'Personalizado')
+      const fileName = `${childName.replace(/\s+/g, '_')}_${storyTitle.replace(/\s+/g, '_')}.pdf`
       pdf.save(fileName)
 
       toast.success('PDF generado', 'Tu cuento se ha descargado correctamente')
@@ -165,6 +193,7 @@ export function usePdfGenerator() {
   const generateCoverPage = async (
     pdf: jsPDF,
     session: Session,
+    storyConfig: StoryConfig,
     pageWidth: number,
     pageHeight: number,
     margin: number
@@ -178,11 +207,13 @@ export function usePdfGenerator() {
     pdf.setFontSize(28)
     pdf.setFont('helvetica', 'bold')
 
-    const titleLines = pdf.splitTextToSize(session.storyTitle, pageWidth - (margin * 2))
+    const titleLines = pdf.splitTextToSize(storyConfig.title || 'Cuento Personalizado', pageWidth - (margin * 2))
     let currentY = pageHeight / 6
 
     titleLines.forEach((line: string) => {
-      pdf.text(line, pageWidth / 2, currentY, { align: 'center' })
+      const textWidth = pdf.getTextWidth(line)
+      const x = (pageWidth - textWidth) / 2
+      pdf.text(line, x, currentY)
       currentY += 12
     })
 
@@ -190,32 +221,23 @@ export function usePdfGenerator() {
     pdf.setTextColor(0, 0, 0)
     pdf.setFontSize(18)
     pdf.setFont('helvetica', 'normal')
-    pdf.text(
-      `Para ${session.childName}`,
-      pageWidth / 2,
-      pageHeight / 2,
-      { align: 'center' }
-    )
+    const childText = `Para ${storyConfig.childName || 'ti'}`
+    const childTextWidth = pdf.getTextWidth(childText)
+    pdf.text(childText, (pageWidth - childTextWidth) / 2, pageHeight / 2)
 
     // Story type/theme
     pdf.setFontSize(14)
     pdf.setFont('helvetica', 'italic')
-    pdf.text(
-      session.storyType,
-      pageWidth / 2,
-      pageHeight / 2 + 15,
-      { align: 'center' }
-    )
+    const typeText = storyConfig.theme || 'Aventura'
+    const typeTextWidth = pdf.getTextWidth(typeText)
+    pdf.text(typeText, (pageWidth - typeTextWidth) / 2, pageHeight / 2 + 15)
 
     // Generation date
     pdf.setFontSize(10)
     pdf.setTextColor(100, 100, 100)
-    pdf.text(
-      `Creado el ${new Date(session.createdAt).toLocaleDateString('es-ES')}`,
-      pageWidth / 2,
-      pageHeight - margin,
-      { align: 'center' }
-    )
+    const dateText = `Creado el ${new Date(session.createdAt).toLocaleDateString('es-ES')}`
+    const dateTextWidth = pdf.getTextWidth(dateText)
+    pdf.text(dateText, (pageWidth - dateTextWidth) / 2, pageHeight - margin)
   }
 
   /**
@@ -224,6 +246,7 @@ export function usePdfGenerator() {
   const generateBackCover = async (
     pdf: jsPDF,
     session: Session,
+    storyConfig: StoryConfig,
     pageWidth: number,
     pageHeight: number,
     margin: number
@@ -241,25 +264,24 @@ export function usePdfGenerator() {
 
     const message = [
       'Este cuento fue creado especialmente',
-      `para ${session.childName}`,
+      `para ${storyConfig.childName || 'ti'}`,
       '',
       'con amor y magia digital.',
     ]
 
     let y = pageHeight / 2 - 20
     message.forEach(line => {
-      pdf.text(line, pageWidth / 2, y, { align: 'center' })
+      const lineWidth = pdf.getTextWidth(line)
+      const x = (pageWidth - lineWidth) / 2
+      pdf.text(line, x, y)
       y += 8
     })
 
     // Decorative footer
     pdf.setFontSize(10)
-    pdf.text(
-      '✨ Fin ✨',
-      pageWidth / 2,
-      pageHeight - margin,
-      { align: 'center' }
-    )
+    const footerText = '✨ Fin ✨'
+    const footerWidth = pdf.getTextWidth(footerText)
+    pdf.text(footerText, (pageWidth - footerWidth) / 2, pageHeight - margin)
   }
 
   return {
