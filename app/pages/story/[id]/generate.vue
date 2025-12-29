@@ -3,6 +3,9 @@ const route = useRoute()
 const router = useRouter()
 const storyId = route.params.id as string
 
+// Toast notifications
+const toast = useToast()
+
 // State
 const { session, loadSession } = useSession()
 const generating = ref(false)
@@ -18,6 +21,7 @@ const { data: story } = await useFetch(`/api/story/${storyId}`)
 onMounted(async () => {
   const sessionId = localStorage.getItem('mask-session-id')
   if (!sessionId) {
+    toast.error('No hay sesión', 'Por favor crea una nueva sesión')
     router.push('/')
     return
   }
@@ -30,8 +34,11 @@ onMounted(async () => {
     for (let i = 1; i <= totalPages.value; i++) {
       pageStatus.value[i] = 'pending'
     }
+    toast.info('Iniciando generación', `Se generarán ${totalPages.value} páginas personalizadas`)
     // Start generation automatically
     await startGeneration()
+  } else {
+    toast.error('Error', 'No se pudo cargar el cuento')
   }
 })
 
@@ -61,6 +68,7 @@ async function generatePage(pageNum: number, isRetry = false) {
   } catch (e: any) {
     console.error(`Error generating page ${pageNum}:`, e)
     pageStatus.value[pageNum] = 'error'
+    toast.error(`Página ${pageNum} falló`, e.message || 'Error al generar la página')
   }
 }
 
@@ -85,13 +93,17 @@ async function startGeneration() {
     // Check if all completed
     if (allCompleted.value) {
       console.log('All pages generated successfully!')
+      toast.success('¡Cuento completado!', 'Todas las páginas fueron generadas exitosamente')
       // Wait a bit before redirecting
       await new Promise(resolve => setTimeout(resolve, 2000))
       // Redirect to preview page
       router.push(`/story/${session.value.id}/preview`)
+    } else if (hasErrors.value) {
+      toast.warning('Generación parcial', `${completedCount.value} de ${totalPages.value} páginas completadas`)
     }
   } catch (e: any) {
     error.value = e.data?.statusMessage || e.message || 'Error durante la generación'
+    toast.error('Error en la generación', error.value)
   } finally {
     generating.value = false
   }
@@ -116,11 +128,15 @@ async function retryFailedPages() {
     // Check if all completed now
     if (allCompleted.value) {
       console.log('All pages generated successfully!')
+      toast.success('¡Todas las páginas completadas!', 'Las páginas fallidas fueron regeneradas exitosamente')
       await new Promise(resolve => setTimeout(resolve, 2000))
       router.push(`/story/${session.value.id}/preview`)
+    } else {
+      toast.warning('Aún hay errores', `${errorCount.value} ${errorCount.value === 1 ? 'página' : 'páginas'} no ${errorCount.value === 1 ? 'pudo' : 'pudieron'} ser generada`)
     }
   } catch (e: any) {
     error.value = e.data?.statusMessage || e.message || 'Error durante la generación'
+    toast.error('Error al reintentar', error.value)
   } finally {
     generating.value = false
   }
@@ -240,7 +256,8 @@ const generationFinished = computed(() => {
       </div>
 
       <!-- Current Page Info -->
-      <div v-if="generating && currentPageData" class="mb-8 rounded-2xl bg-white p-8 shadow-lg">
+      <Transition name="fade" mode="out-in">
+        <div v-if="generating && currentPageData" key="generating" class="mb-8 rounded-2xl bg-white p-8 shadow-lg">
         <div class="mb-4 flex items-center gap-3">
           <div class="flex h-12 w-12 items-center justify-center rounded-full bg-purple-100">
             <span class="text-2xl">🎨</span>
@@ -268,10 +285,12 @@ const generationFinished = computed(() => {
         <p class="text-center text-sm text-gray-500">
           La IA está creando una ilustración única con la cara de tu hijo/a...
         </p>
-      </div>
+        </div>
+      </Transition>
 
       <!-- Success Message -->
-      <div
+      <Transition name="fade" mode="out-in">
+        <div
         v-if="allCompleted && generationFinished"
         class="mb-8 rounded-2xl bg-gradient-to-r from-green-400 to-emerald-500 p-8 text-center text-white shadow-2xl"
       >
@@ -282,10 +301,12 @@ const generationFinished = computed(() => {
         <p class="text-green-50">
           Todas las páginas han sido generadas exitosamente
         </p>
-      </div>
+        </div>
+      </Transition>
 
       <!-- Partial Success with Errors -->
-      <div
+      <Transition name="fade" mode="out-in">
+        <div
         v-if="hasErrors && generationFinished"
         class="mb-8 rounded-2xl bg-gradient-to-r from-orange-400 to-red-400 p-8 text-center text-white shadow-2xl"
       >
@@ -299,10 +320,12 @@ const generationFinished = computed(() => {
         <p class="text-sm text-orange-100">
           {{ errorCount }} {{ errorCount === 1 ? 'página falló' : 'páginas fallaron' }} durante la generación
         </p>
-      </div>
+        </div>
+      </Transition>
 
       <!-- Action Buttons -->
-      <div
+      <Transition name="fade" mode="out-in">
+        <div
         v-if="generationFinished"
         class="flex flex-col gap-3 sm:flex-row"
       >
@@ -360,7 +383,8 @@ const generationFinished = computed(() => {
             Ver Preview {{ hasErrors ? `(${completedCount} páginas)` : '' }}
           </span>
         </button>
-      </div>
+        </div>
+      </Transition>
 
       <!-- Preview Grid (show generated images) -->
       <div v-if="Object.keys(generatedImages).length > 0" class="mt-8">
@@ -389,3 +413,38 @@ const generationFinished = computed(() => {
     </main>
   </div>
 </template>
+
+<style scoped>
+* {
+  scroll-behavior: smooth;
+}
+
+/* Fade transitions */
+.fade-enter-active,
+.fade-leave-active {
+  transition: all 0.3s ease;
+}
+
+.fade-enter-from {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.fade-leave-to {
+  opacity: 0;
+  transform: translateY(-20px);
+}
+
+/* Enhanced button transitions */
+button {
+  transition: all 0.2s ease;
+}
+
+button:hover:not(:disabled) {
+  transform: translateY(-2px);
+}
+
+button:active:not(:disabled) {
+  transform: translateY(0);
+}
+</style>

@@ -22,21 +22,16 @@ async function handleStorySelect(storyId: string) {
 </script>
 
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
-    <!-- Header -->
-    <header class="border-b border-white/50 bg-white/70 backdrop-blur-sm">
-      <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-        <h1 class="text-center text-4xl font-bold text-gray-900">
-          🎨 Mask Stories
-        </h1>
-        <p class="mt-2 text-center text-gray-600">
-          Crea cuentos personalizados con la cara de tu hijo/a
-        </p>
-      </div>
-    </header>
+  <div>
+    <!-- Hero section -->
+    <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 text-center">
+      <p class="text-lg text-gray-600">
+        Crea cuentos personalizados con la cara de tu hijo/a
+      </p>
+    </div>
 
     <!-- Main content -->
-    <main class="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+    <main class="mx-auto max-w-7xl px-4 pb-12 sm:px-6 lg:px-8">
       <!-- Loading state -->
       <div v-if="pending" class="flex items-center justify-center py-20">
         <div class="text-center">
@@ -105,12 +100,5 @@ async function handleStorySelect(storyId: string) {
         </p>
       </div>
     </main>
-
-    <!-- Footer -->
-    <footer class="mt-20 border-t border-gray-200 bg-white/50 py-6 backdrop-blur-sm">
-      <div class="mx-auto max-w-7xl px-4 text-center text-sm text-gray-600 sm:px-6 lg:px-8">
-        <p>Mask Stories © 2025 - Cuentos personalizados con IA</p>
-      </div>
-    </footer>
   </div>
 </template>

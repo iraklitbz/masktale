@@ -5,6 +5,9 @@ const route = useRoute()
 const router = useRouter()
 const storyId = route.params.id as string
 
+// Toast notifications
+const toast = useToast()
+
 // Session management
 const { session, loadSession } = useSession()
 
@@ -62,6 +65,7 @@ function handleFiles(files: File[]) {
   const totalFiles = uploadedFiles.value.length + files.length
   if (totalFiles > MAX_FILES) {
     error.value = `Máximo ${MAX_FILES} fotos permitidas`
+    toast.warning('Límite alcanzado', `Solo puedes subir hasta ${MAX_FILES} fotos`)
     return
   }
 
@@ -70,18 +74,21 @@ function handleFiles(files: File[]) {
     // Check type
     if (!ALLOWED_TYPES.includes(file.type)) {
       error.value = `Formato no válido: ${file.name}. Solo JPEG, PNG, WebP`
+      toast.error('Formato inválido', `${file.name} no es un formato soportado`)
       return
     }
 
     // Check size
     if (file.size > MAX_SIZE) {
       error.value = `Archivo muy grande: ${file.name}. Máximo 10MB`
+      toast.error('Archivo muy grande', `${file.name} excede el tamaño máximo de 10MB`)
       return
     }
   }
 
   // Add files
   uploadedFiles.value.push(...files)
+  toast.success('Foto agregada', `${files.length} ${files.length === 1 ? 'foto agregada' : 'fotos agregadas'} correctamente`)
 
   // Generate previews
   files.forEach((file) => {
@@ -96,19 +103,23 @@ function handleFiles(files: File[]) {
 }
 
 function removeFile(index: number) {
+  const fileName = uploadedFiles.value[index]?.name
   uploadedFiles.value.splice(index, 1)
   previews.value.splice(index, 1)
   error.value = null
+  toast.info('Foto eliminada', fileName || 'Foto removida de la lista')
 }
 
 async function uploadPhotos() {
   if (uploadedFiles.value.length === 0) {
     error.value = 'Por favor sube al menos 1 foto'
+    toast.warning('Faltan fotos', 'Debes subir al menos 1 foto para continuar')
     return
   }
 
   if (!session.value) {
     error.value = 'No hay sesión activa'
+    toast.error('Error de sesión', 'No hay una sesión activa. Por favor reinicia el proceso')
     return
   }
 
@@ -139,6 +150,8 @@ async function uploadPhotos() {
     clearInterval(progressInterval)
     uploadProgress.value = 100
 
+    toast.success('¡Fotos subidas!', `${uploadedFiles.value.length} ${uploadedFiles.value.length === 1 ? 'foto subida' : 'fotos subidas'} exitosamente`)
+
     // Wait a bit to show 100%
     await new Promise(resolve => setTimeout(resolve, 500))
 
@@ -146,6 +159,7 @@ async function uploadPhotos() {
     await navigateTo(`/story/${storyId}/generate`)
   } catch (e: any) {
     error.value = e.data?.statusMessage || e.message || 'Error al subir fotos'
+    toast.error('Error al subir', error.value)
     console.error('Upload error:', e)
     uploadProgress.value = 0
   } finally {
@@ -292,16 +306,20 @@ const canContinue = computed(() => uploadedFiles.value.length > 0 && !uploading.
       </div>
 
       <!-- Error -->
-      <div
-        v-if="error"
-        class="mb-8 flex items-center gap-3 rounded-lg bg-red-50 p-4 text-red-700"
-      >
-        <span class="text-2xl">⚠️</span>
-        <span class="text-sm">{{ error }}</span>
-      </div>
+      <Transition name="fade" mode="out-in">
+        <div
+          v-if="error"
+          key="error"
+          class="mb-8 flex items-center gap-3 rounded-lg bg-red-50 p-4 text-red-700"
+        >
+          <span class="text-2xl">⚠️</span>
+          <span class="text-sm">{{ error }}</span>
+        </div>
+      </Transition>
 
       <!-- Upload Progress -->
-      <div v-if="uploading" class="mb-8 rounded-2xl bg-white p-6 shadow-sm">
+      <Transition name="fade" mode="out-in">
+        <div v-if="uploading" key="uploading" class="mb-8 rounded-2xl bg-white p-6 shadow-sm">
         <div class="mb-2 flex items-center justify-between text-sm">
           <span class="font-semibold text-gray-900">Subiendo fotos...</span>
           <span class="text-gray-600">{{ uploadProgress }}%</span>
@@ -312,7 +330,8 @@ const canContinue = computed(() => uploadedFiles.value.length > 0 && !uploading.
             :style="{ width: `${uploadProgress}%` }"
           />
         </div>
-      </div>
+        </div>
+      </Transition>
 
       <!-- Actions -->
       <div class="flex flex-col gap-3 sm:flex-row">
@@ -336,3 +355,44 @@ const canContinue = computed(() => uploadedFiles.value.length > 0 && !uploading.
     </main>
   </div>
 </template>
+
+<style scoped>
+* {
+  scroll-behavior: smooth;
+}
+
+/* Fade transitions */
+.fade-enter-active,
+.fade-leave-active {
+  transition: all 0.3s ease;
+}
+
+.fade-enter-from {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.fade-leave-to {
+  opacity: 0;
+  transform: translateY(-20px);
+}
+
+/* Enhanced button transitions */
+button {
+  transition: all 0.2s ease;
+}
+
+button:hover:not(:disabled) {
+  transform: translateY(-2px);
+}
+
+button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+/* Image preview hover effect */
+.group:hover img {
+  transform: scale(1.05);
+  transition: transform 0.3s ease;
+}
+</style>
