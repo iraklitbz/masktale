@@ -2,6 +2,8 @@
 import PageCarousel from '~/components/story/PageCarousel.vue'
 import CarouselSkeleton from '~/components/story/CarouselSkeleton.vue'
 import ConfirmDialog from '~/components/ConfirmDialog.vue'
+import VersionHistory from '~/components/story/VersionHistory.vue'
+import VersionComparator from '~/components/story/VersionComparator.vue'
 
 // Get session ID from route
 const route = useRoute()
@@ -10,6 +12,9 @@ const sessionId = computed(() => route.params.id as string)
 
 // Toast notifications
 const toast = useToast()
+
+// PDF generator
+const { generatePdf } = usePdfGenerator()
 
 // Load session state
 const {
@@ -20,17 +25,35 @@ const {
   error,
   canRegenerate,
   refresh,
+  getVersionHistory,
+  getFavoriteVersion,
+  getCurrentVersion,
+  hasMultipleVersions,
+  selectVersion,
+  setFavoriteVersion,
 } = useSessionState(sessionId.value)
 
 // Regeneration state
 const isRegenerating = ref(false)
 const regeneratingPage = ref<number | null>(null)
 
+// PDF generation state
+const isGeneratingPdf = ref(false)
+
 // Confirmation dialog state
 const showConfirmDialog = ref(false)
 const confirmDialogData = ref({
   pageNumber: 0,
 })
+
+// Version history state
+const showVersionHistory = ref(false)
+const versionHistoryPage = ref<number | null>(null)
+
+// Version comparator state
+const showComparator = ref(false)
+const comparingVersions = ref<number[]>([])
+const comparatorPage = ref<number | null>(null)
 
 // Handle page regeneration
 const handleRegenerate = async (pageNumber: number) => {
@@ -89,12 +112,33 @@ const confirmRegenerate = async () => {
   }
 }
 
-// Handle finish/download (placeholder for future phase)
-const handleFinish = () => {
-  toast.info(
-    'Próximamente',
-    'La función de descarga PDF estará disponible en la próxima fase.'
-  )
+// Handle finish/download PDF
+const handleFinish = async () => {
+  if (!session.value || !currentState.value) {
+    toast.error('Error', 'No se pudo cargar la información del cuento')
+    return
+  }
+
+  try {
+    isGeneratingPdf.value = true
+
+    const result = await generatePdf({
+      sessionId: sessionId.value,
+      session: session.value,
+      currentState: currentState.value,
+      useFavorites: true,
+    })
+
+    if (!result.success) {
+      toast.error('Error al generar PDF', result.error || 'No se pudo generar el PDF')
+    }
+    // Success toast is shown by the composable
+  } catch (error: any) {
+    console.error('[Preview] PDF generation error:', error)
+    toast.error('Error', error.message || 'No se pudo generar el PDF')
+  } finally {
+    isGeneratingPdf.value = false
+  }
 }
 
 // Check if story is incomplete
@@ -110,6 +154,53 @@ const missingPagesCount = computed(() => {
 
 const goBackToGenerate = () => {
   router.push(`/story/${sessionId.value}/generate`)
+}
+
+// Version history handlers
+const handleShowHistory = (pageNumber: number) => {
+  versionHistoryPage.value = pageNumber
+  showVersionHistory.value = true
+}
+
+const handleCloseHistory = () => {
+  showVersionHistory.value = false
+  versionHistoryPage.value = null
+}
+
+const handleSelectVersion = async (pageNumber: number, version: number) => {
+  const result = await selectVersion(pageNumber, version)
+  if (result.success) {
+    toast.success('Versión seleccionada', `Ahora se muestra la versión ${version}`)
+    handleCloseHistory()
+  } else {
+    toast.error('Error', result.error || 'No se pudo seleccionar la versión')
+  }
+}
+
+const handleSetFavorite = async (pageNumber: number, version: number | null) => {
+  const result = await setFavoriteVersion(pageNumber, version)
+  if (result.success) {
+    if (version) {
+      toast.success('Favorito guardado', `Versión ${version} marcada como favorita`)
+    } else {
+      toast.info('Favorito eliminado', 'Se eliminó el favorito de esta página')
+    }
+  } else {
+    toast.error('Error', result.error || 'No se pudo marcar como favorito')
+  }
+}
+
+const handleCompare = (pageNumber: number, versions: number[]) => {
+  comparatorPage.value = pageNumber
+  comparingVersions.value = versions
+  showComparator.value = true
+  handleCloseHistory()
+}
+
+const handleCloseComparator = () => {
+  showComparator.value = false
+  comparatorPage.value = null
+  comparingVersions.value = []
 }
 </script>
 
@@ -146,9 +237,15 @@ const goBackToGenerate = () => {
           <button
             v-if="session?.status === 'completed'"
             class="btn-finish"
+            :disabled="isGeneratingPdf"
             @click="handleFinish"
           >
+            <div
+              v-if="isGeneratingPdf"
+              class="spinner-small"
+            />
             <svg
+              v-else
               class="w-5 h-5"
               fill="none"
               stroke="currentColor"
@@ -161,7 +258,7 @@ const goBackToGenerate = () => {
                 d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
               />
             </svg>
-            <span class="ml-2">Descargar PDF</span>
+            <span class="ml-2">{{ isGeneratingPdf ? 'Generando PDF...' : 'Descargar PDF' }}</span>
           </button>
         </div>
       </div>
@@ -280,6 +377,35 @@ const goBackToGenerate = () => {
             @regenerate="handleRegenerate"
           />
 
+          <!-- Version History Button (shown when page has multiple versions) -->
+          <div
+            v-if="pages.length > 0"
+            class="version-controls"
+          >
+            <button
+              v-for="page in pages"
+              :key="page.pageNumber"
+              v-show="hasMultipleVersions(page.pageNumber)"
+              class="btn-history"
+              @click="handleShowHistory(page.pageNumber)"
+            >
+              <svg
+                class="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+              <span>Ver historial página {{ page.pageNumber }}</span>
+            </button>
+          </div>
+
           <!-- Info section -->
           <div class="info-section">
             <div class="info-card">
@@ -336,6 +462,62 @@ const goBackToGenerate = () => {
       cancel-text="Cancelar"
       type="warning"
       @confirm="confirmRegenerate"
+    />
+
+    <!-- Version History Modal -->
+    <Teleport to="body">
+      <Transition name="modal">
+        <div
+          v-if="showVersionHistory && versionHistoryPage"
+          class="modal-overlay"
+          @click.self="handleCloseHistory"
+        >
+          <div class="modal-container">
+            <button
+              class="modal-close"
+              @click="handleCloseHistory"
+            >
+              <svg
+                class="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+            <VersionHistory
+              :session-id="sessionId"
+              :page-number="versionHistoryPage"
+              :versions="getVersionHistory(versionHistoryPage)"
+              :current-version="getCurrentVersion(versionHistoryPage) || 1"
+              :favorite-version="getFavoriteVersion(versionHistoryPage)"
+              @select-version="(v) => handleSelectVersion(versionHistoryPage!, v)"
+              @set-favorite="(v) => handleSetFavorite(versionHistoryPage!, v)"
+              @compare="(v) => handleCompare(versionHistoryPage!, v)"
+            />
+          </div>
+        </div>
+      </Transition>
+    </Teleport>
+
+    <!-- Version Comparator Modal -->
+    <VersionComparator
+      v-if="showComparator && comparatorPage"
+      :session-id="sessionId"
+      :page-number="comparatorPage"
+      :versions="getVersionHistory(comparatorPage)"
+      :comparing-versions="comparingVersions"
+      :current-version="getCurrentVersion(comparatorPage) || 1"
+      :favorite-version="getFavoriteVersion(comparatorPage)"
+      @close="handleCloseComparator"
+      @select-version="(v) => handleSelectVersion(comparatorPage!, v)"
+      @set-favorite="(v) => handleSetFavorite(comparatorPage!, v)"
     />
   </div>
 </template>
@@ -433,6 +615,26 @@ const goBackToGenerate = () => {
 .btn-finish:focus {
   outline: none;
   box-shadow: 0 0 0 2px #a855f7, 0 0 0 4px white;
+}
+
+.btn-finish:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.btn-finish:disabled:hover {
+  background-color: #9333ea;
+  transform: none;
+  box-shadow: none;
+}
+
+.spinner-small {
+  width: 1.25rem;
+  height: 1.25rem;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 9999px;
+  animation: spin 0.8s linear infinite;
 }
 
 /* Main content */
@@ -720,6 +922,101 @@ const goBackToGenerate = () => {
   }
 }
 
+/* Version controls */
+.version-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 2rem;
+  align-items: center;
+}
+
+.btn-history {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: linear-gradient(to right, #7c3aed, #a855f7);
+  color: white;
+  border: none;
+  border-radius: 0.75rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px -1px rgba(124, 58, 237, 0.3);
+}
+
+.btn-history:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 12px -2px rgba(124, 58, 237, 0.4);
+}
+
+.btn-history:active {
+  transform: translateY(0);
+}
+
+/* Modal styles */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  z-index: 9998;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  overflow-y: auto;
+}
+
+.modal-container {
+  position: relative;
+  max-width: 90rem;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  border-radius: 1.5rem;
+}
+
+.modal-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  z-index: 10;
+  padding: 0.5rem;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(4px);
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  color: #6b7280;
+  transition: all 0.2s;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.modal-close:hover {
+  background: white;
+  color: #111827;
+  transform: scale(1.1);
+}
+
+/* Modal transitions */
+.modal-enter-active,
+.modal-leave-active {
+  transition: all 0.3s ease;
+}
+
+.modal-enter-from,
+.modal-leave-to {
+  opacity: 0;
+}
+
+.modal-enter-from .modal-container,
+.modal-leave-to .modal-container {
+  transform: scale(0.95) translateY(20px);
+}
+
 /* Mobile optimizations */
 @media (max-width: 768px) {
   .preview-title {
@@ -732,6 +1029,14 @@ const goBackToGenerate = () => {
 
   .info-section {
     margin-top: 2rem;
+  }
+
+  .modal-container {
+    max-height: 95vh;
+  }
+
+  .btn-history span {
+    display: none;
   }
 }
 </style>

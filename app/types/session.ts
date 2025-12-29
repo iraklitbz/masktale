@@ -57,6 +57,18 @@ export interface PageVersion {
   version: number // 1, 2, or 3
   generatedAt: string
   imagePath: string // Relative path from session dir
+  isFavorite?: boolean // NUEVA: Marca si es la versión favorita del usuario
+}
+
+/**
+ * Complete version history for a page
+ * Used for version comparison and selection
+ */
+export interface PageVersionHistory {
+  pageNumber: number
+  versions: PageVersion[]
+  currentVersion: number // Which version is currently selected
+  favoriteVersion?: number // Which version user marked as favorite
 }
 
 /**
@@ -71,6 +83,14 @@ export interface CurrentState {
   }
   regenerationCount: {
     [pageNumber: string]: number
+  }
+  // NUEVO: Historial completo de todas las versiones
+  versionHistory?: {
+    [pageNumber: string]: PageVersion[]
+  }
+  // NUEVO: Versiones marcadas como favoritas
+  favoriteVersions?: {
+    [pageNumber: string]: number // version number
   }
   lastUpdated: string
 }

@@ -160,14 +160,31 @@ export default defineEventHandler(async (event) => {
 
     console.log(`[Generate] Saved to ${outputPath}`)
 
-    // Update current state
-    currentState.selectedVersions[pageNumber] = {
+    // Create version entry
+    const newVersion = {
       version: versionNumber,
       generatedAt: new Date().toISOString(),
       imagePath: path.relative(process.cwd(), outputPath),
     }
 
+    // Update current state
+    currentState.selectedVersions[pageNumber] = newVersion
     currentState.regenerationCount[pageNumber] = versionNumber
+
+    // NUEVO: Agregar al historial completo de versiones
+    if (!currentState.versionHistory) {
+      currentState.versionHistory = {}
+    }
+    if (!currentState.versionHistory[pageNumber]) {
+      currentState.versionHistory[pageNumber] = []
+    }
+    currentState.versionHistory[pageNumber].push(newVersion)
+
+    // NUEVO: Inicializar favoriteVersions si no existe
+    if (!currentState.favoriteVersions) {
+      currentState.favoriteVersions = {}
+    }
+
     await saveCurrentState(sessionId, currentState)
 
     // Update session progress

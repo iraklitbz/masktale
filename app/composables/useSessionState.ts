@@ -56,6 +56,85 @@ export function useSessionState(sessionId: string) {
     return getRegenerationCount(pageNumber) < 3
   }
 
+  /**
+   * Get version history for a specific page
+   */
+  const getVersionHistory = (pageNumber: number) => {
+    return data.value?.currentState?.versionHistory?.[pageNumber] || []
+  }
+
+  /**
+   * Get favorite version for a specific page
+   */
+  const getFavoriteVersion = (pageNumber: number) => {
+    return data.value?.currentState?.favoriteVersions?.[pageNumber]
+  }
+
+  /**
+   * Get current selected version number for a page
+   */
+  const getCurrentVersion = (pageNumber: number) => {
+    return data.value?.currentState?.selectedVersions?.[pageNumber]?.version
+  }
+
+  /**
+   * Check if a page has multiple versions
+   */
+  const hasMultipleVersions = (pageNumber: number) => {
+    const history = getVersionHistory(pageNumber)
+    return history.length > 1
+  }
+
+  /**
+   * Select a specific version of a page
+   */
+  const selectVersion = async (pageNumber: number, version: number) => {
+    try {
+      const { error: apiError } = await useFetch(
+        `/api/session/${sessionId}/select-version`,
+        {
+          method: 'POST',
+          body: { pageNumber, version },
+        }
+      )
+
+      if (apiError.value) {
+        throw new Error(apiError.value.message || 'Error al seleccionar versión')
+      }
+
+      await refresh()
+      return { success: true }
+    } catch (err: any) {
+      console.error('[useSessionState] selectVersion error:', err)
+      return { success: false, error: err.message }
+    }
+  }
+
+  /**
+   * Set or unset favorite version for a page
+   */
+  const setFavoriteVersion = async (pageNumber: number, version: number | null) => {
+    try {
+      const { error: apiError } = await useFetch(
+        `/api/session/${sessionId}/favorite`,
+        {
+          method: 'POST',
+          body: { pageNumber, version },
+        }
+      )
+
+      if (apiError.value) {
+        throw new Error(apiError.value.message || 'Error al marcar favorito')
+      }
+
+      await refresh()
+      return { success: true }
+    } catch (err: any) {
+      console.error('[useSessionState] setFavoriteVersion error:', err)
+      return { success: false, error: err.message }
+    }
+  }
+
   return {
     // Raw data
     data,
@@ -73,5 +152,13 @@ export function useSessionState(sessionId: string) {
     getPageImageUrl,
     getRegenerationCount,
     canRegenerate,
+
+    // NUEVO: Version history methods
+    getVersionHistory,
+    getFavoriteVersion,
+    getCurrentVersion,
+    hasMultipleVersions,
+    selectVersion,
+    setFavoriteVersion,
   }
 }

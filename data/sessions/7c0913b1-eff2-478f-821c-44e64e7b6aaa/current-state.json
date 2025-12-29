@@ -1,0 +1,82 @@
+{
+  "storyId": "story-001-first-day-school",
+  "sessionId": "7c0913b1-eff2-478f-821c-44e64e7b6aaa",
+  "selectedVersions": {
+    "1": {
+      "version": 1,
+      "generatedAt": "2025-12-29T09:52:12.944Z",
+      "imagePath": "data/sessions/7c0913b1-eff2-478f-821c-44e64e7b6aaa/generated/page-01-v1.png"
+    },
+    "2": {
+      "version": 1,
+      "generatedAt": "2025-12-29T09:52:29.429Z",
+      "imagePath": "data/sessions/7c0913b1-eff2-478f-821c-44e64e7b6aaa/generated/page-02-v1.png"
+    },
+    "3": {
+      "version": 1,
+      "generatedAt": "2025-12-29T09:52:43.988Z",
+      "imagePath": "data/sessions/7c0913b1-eff2-478f-821c-44e64e7b6aaa/generated/page-03-v1.png"
+    },
+    "4": {
+      "version": 1,
+      "generatedAt": "2025-12-29T09:52:56.026Z",
+      "imagePath": "data/sessions/7c0913b1-eff2-478f-821c-44e64e7b6aaa/generated/page-04-v1.png"
+    },
+    "5": {
+      "version": 2,
+      "generatedAt": "2025-12-29T09:53:35.477Z",
+      "imagePath": "data/sessions/7c0913b1-eff2-478f-821c-44e64e7b6aaa/generated/page-05-v2.png"
+    }
+  },
+  "regenerationCount": {
+    "1": 1,
+    "2": 1,
+    "3": 1,
+    "4": 1,
+    "5": 2
+  },
+  "lastUpdated": "2025-12-29T09:53:35.477Z",
+  "versionHistory": {
+    "1": [
+      {
+        "version": 1,
+        "generatedAt": "2025-12-29T09:52:12.944Z",
+        "imagePath": "data/sessions/7c0913b1-eff2-478f-821c-44e64e7b6aaa/generated/page-01-v1.png"
+      }
+    ],
+    "2": [
+      {
+        "version": 1,
+        "generatedAt": "2025-12-29T09:52:29.429Z",
+        "imagePath": "data/sessions/7c0913b1-eff2-478f-821c-44e64e7b6aaa/generated/page-02-v1.png"
+      }
+    ],
+    "3": [
+      {
+        "version": 1,
+        "generatedAt": "2025-12-29T09:52:43.988Z",
+        "imagePath": "data/sessions/7c0913b1-eff2-478f-821c-44e64e7b6aaa/generated/page-03-v1.png"
+      }
+    ],
+    "4": [
+      {
+        "version": 1,
+        "generatedAt": "2025-12-29T09:52:56.026Z",
+        "imagePath": "data/sessions/7c0913b1-eff2-478f-821c-44e64e7b6aaa/generated/page-04-v1.png"
+      }
+    ],
+    "5": [
+      {
+        "version": 1,
+        "generatedAt": "2025-12-29T09:53:08.780Z",
+        "imagePath": "data/sessions/7c0913b1-eff2-478f-821c-44e64e7b6aaa/generated/page-05-v1.png"
+      },
+      {
+        "version": 2,
+        "generatedAt": "2025-12-29T09:53:35.477Z",
+        "imagePath": "data/sessions/7c0913b1-eff2-478f-821c-44e64e7b6aaa/generated/page-05-v2.png"
+      }
+    ]
+  },
+  "favoriteVersions": {}
+}
