@@ -1,0 +1,75 @@
+## TEMPLATE DE PROMPT OPTIMIZADO PARA GEMINI ##
+
+# CONTEXTO
+Estás creando una ilustración personalizada para un cuento infantil usando face-swap avanzado.
+
+# TAREA PRINCIPAL
+Usando la PRIMERA imagen como plantilla base, edítala reemplazando ÚNICAMENTE la cara/cabeza del personaje principal con la cara del niño/a de la SEGUNDA imagen (collage de fotos del usuario).
+
+---
+
+## ESCENA
+{SCENE_DESCRIPTION}
+
+## EMOCIÓN
+{EMOTIONAL_TONE}
+
+## ESTILO ARTÍSTICO
+{ILLUSTRATION_STYLE}
+
+---
+
+# INSTRUCCIONES CRÍTICAS PARA FACE-SWAP
+
+## 1. ANÁLISIS DE LA CARA DEL NIÑO/A (Segunda Imagen)
+- Estudia CUIDADOSAMENTE las características únicas:
+  * Forma exacta de la cara (redonda, ovalada, cuadrada)
+  * Color de ojos y su forma específica
+  * Forma y tamaño de la nariz
+  * Forma de la boca y labios
+  * Tono exacto de piel
+  * Color y textura del cabello
+  * Rasgos distintivos (pecas, lunares, hoyuelos)
+  * Estructura de cejas
+
+## 2. INTEGRACIÓN DE LA CARA (Proceso de Face-Swap)
+- Coloca la cara en la posición: {FACE_POSITION_X}% horizontal, {FACE_POSITION_Y}% vertical
+- Ajusta el TAMAÑO de la cara para que coincida perfectamente con las proporciones del cuerpo en la imagen base
+- Aplica la expresión emocional: {EMOTIONAL_TONE}
+- Mantén la PERSPECTIVA y ÁNGULO del personaje original
+- Asegura una transición NATURAL entre la cara y el cuello/cuerpo
+- Iguala la ILUMINACIÓN: sombras y highlights deben coincidir con la escena
+- Mantén la DIRECCIÓN de la mirada coherente con la escena
+
+## 3. PRESERVACIÓN ABSOLUTA DE LA IMAGEN BASE
+NO MODIFIQUES NADA EXCEPTO LA CARA:
+- ✓ Mantén TODO el fondo idéntico
+- ✓ Conserva TODA la ropa exactamente igual
+- ✓ Preserva la pose corporal completa
+- ✓ Mantén todos los objetos y accesorios
+- ✓ Conserva la paleta de colores original
+- ✓ Mantén el estilo de ilustración {ILLUSTRATION_STYLE}
+- ✓ Preserva la calidad y textura artística
+
+## 4. CALIDAD Y DETALLES TÉCNICOS
+- Alta resolución y claridad
+- Colores vibrantes pero naturales
+- Bordes suaves y transiciones fluidas
+- Sin artefactos digitales visibles
+- Composición equilibrada y profesional
+- Iluminación coherente en toda la escena
+- Estilo consistente con ilustraciones infantiles de alta calidad
+
+---
+
+# RESULTADO ESPERADO
+Una ilustración de cuento infantil profesional donde el niño/a del usuario es el protagonista, manteniendo toda la magia y estilo de la escena original, con un face-swap perfectamente integrado y natural.
+
+# VERIFICACIÓN FINAL
+Antes de generar, confirma:
+☑ La cara del niño/a está correctamente identificada
+☑ La expresión emocional es {EMOTIONAL_TONE}
+☑ El tamaño de la cara es proporcional al cuerpo
+☑ La iluminación coincide con la escena
+☑ TODO lo demás está preservado
+☑ La calidad es profesional y de alta resolución

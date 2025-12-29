@@ -9,7 +9,11 @@
       "Bash(pnpm lint:*)",
       "Bash(pnpm lint:fix:*)",
       "WebFetch(domain:ai.google.dev)",
-      "Bash(node list-models.js:*)"
+      "Bash(node list-models.js:*)",
+      "Bash(curl:*)",
+      "Bash(python3:*)",
+      "Bash(cat:*)",
+      "Bash(grep:*)"
     ]
   }
 }

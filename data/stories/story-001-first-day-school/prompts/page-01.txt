@@ -1,0 +1,85 @@
+# GENERACIÓN DE ILUSTRACIÓN - PÁGINA 1: Llegada a la Escuela
+
+## TAREA
+Usando la PRIMERA imagen como base, edítala reemplazando ÚNICAMENTE la cara/cabeza del personaje con la cara del niño/a de la SEGUNDA imagen.
+
+---
+
+## ESCENA
+{SCENE_DESCRIPTION}
+
+## EMOCIÓN OBJETIVO
+{EMOTIONAL_TONE} - El niño/a debe mostrar una mezcla de emoción y ligero nerviosismo, típico del primer día de escuela
+
+## ESTILO
+{ILLUSTRATION_STYLE} con tonos cálidos y acogedores
+
+---
+
+## ANÁLISIS DE CARA (Segunda Imagen - Foto del Usuario)
+Estudia DETALLADAMENTE las características faciales del niño/a:
+- Forma precisa de la cara
+- Color y forma de los ojos
+- Características de nariz, boca, orejas
+- Tono exacto de piel
+- Textura y color del cabello
+- Rasgos únicos (pecas, hoyuelos, etc.)
+
+## INTEGRACIÓN DE FACE-SWAP
+
+### Posicionamiento
+- Ubicación: {FACE_POSITION_X}% desde izquierda, {FACE_POSITION_Y}% desde arriba
+- Tamaño proporcional al cuerpo del personaje original
+- Ángulo y perspectiva coherente con la pose
+
+### Expresión Emocional
+- {EMOTIONAL_TONE}: Ojos brillantes y expresivos
+- Sonrisa ligera pero genuina
+- Cejas ligeramente elevadas mostrando anticipación
+- Expresión natural de un niño/a emocionado pero nervioso
+
+### Iluminación y Sombras
+- Luz matutina cálida desde arriba-izquierda
+- Sombras suaves bajo la nariz y barbilla
+- Highlights naturales en mejillas y frente
+- Coherencia con la iluminación de la escena
+
+## ELEMENTOS A PRESERVAR (NO MODIFICAR)
+
+### Escenario
+- Fachada de la escuela: puertas grandes, ventanas, arquitectura
+- Patio escolar con camino
+- Árboles y vegetación del entorno
+- Cielo azul con nubes suaves
+
+### Vestimenta y Accesorios
+- Mochila escolar colorida (exacta)
+- Ropa: uniforme o outfit del primer día (sin cambios)
+- Zapatos y calcetines
+- Cualquier accesorio (lunchera, libros, etc.)
+
+### Composición y Estilo
+- Pose: Niño/a de pie, postura erguida pero natural
+- Paleta de colores: Tonos cálidos de mañana
+- Estilo {ILLUSTRATION_STYLE}: bordes suaves, textura acuarela
+- Atmósfera acogedora y optimista
+
+## CALIDAD TÉCNICA
+- Alta resolución con detalles nítidos
+- Transición perfecta entre cara y cuerpo (sin líneas visibles)
+- Colores vibrantes pero naturales
+- Sin artefactos digitales
+- Composición profesional de ilustración infantil
+
+---
+
+## RESULTADO ESPERADO
+Ilustración donde el niño/a del usuario es el protagonista llegando emocionado a su primer día de escuela, con face-swap perfecto que preserve toda la magia de la escena original.
+
+## VERIFICACIÓN
+☑ Cara del niño/a correctamente identificada y trasladada
+☑ Expresión {EMOTIONAL_TONE} natural y apropiada
+☑ Tamaño y perspectiva correctos
+☑ Iluminación coherente
+☑ TODO lo demás preservado
+☑ Calidad profesional

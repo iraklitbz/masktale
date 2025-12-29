@@ -1,0 +1,12 @@
+{
+  "id": "bedcccda-7595-4905-a419-cdf3eccc3593",
+  "storyId": "story-001-first-day-school",
+  "createdAt": "2025-12-26T10:36:58.610Z",
+  "expiresAt": "2025-12-27T10:36:58.610Z",
+  "status": "created",
+  "progress": {
+    "totalPages": 0,
+    "pagesGenerated": 0,
+    "errors": []
+  }
+}

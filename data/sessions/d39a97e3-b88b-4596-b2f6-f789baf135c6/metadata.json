@@ -1,0 +1,24 @@
+{
+  "id": "d39a97e3-b88b-4596-b2f6-f789baf135c6",
+  "storyId": "story-001-first-day-school",
+  "createdAt": "2025-12-26T10:39:45.634Z",
+  "expiresAt": "2025-12-27T10:39:45.634Z",
+  "status": "completed",
+  "progress": {
+    "totalPages": 5,
+    "pagesGenerated": 5,
+    "errors": [],
+    "currentPage": 5,
+    "completedAt": "2025-12-26T10:41:18.278Z"
+  },
+  "userPhoto": {
+    "originalPath": "data/sessions/d39a97e3-b88b-4596-b2f6-f789baf135c6/user-photos/photo-1.jpeg",
+    "uploadedAt": "2025-12-26T10:40:19.393Z",
+    "metadata": {
+      "width": 0,
+      "height": 0,
+      "format": "jpeg",
+      "size": 4908271
+    }
+  }
+}
