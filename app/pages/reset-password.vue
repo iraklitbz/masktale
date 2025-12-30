@@ -2,6 +2,7 @@
 definePageMeta({
   layout: false,
   middleware: 'guest',
+  ssr: false,
 })
 
 const router = useRouter()

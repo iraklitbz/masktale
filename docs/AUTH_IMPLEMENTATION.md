@@ -212,9 +212,74 @@ docs/
 - **Estilos:** Tailwind CSS con tema purple/pink gradient
 - **Cookies:** 14 días de expiración, secure en producción
 
+## ✅ Confirmación de Email Implementada
+
+**Fecha completada:** 2025-12-29
+
+### Configuración
+- **Proveedor de email:** Resend configurado en Strapi
+- **Email confirmation:** Activado en Strapi (Settings → Users & Permissions → Advanced Settings)
+- **Redirect URL:** `http://localhost:3000/email-confirmed?confirmed=true`
+
+### Flujo Completo
+1. Usuario se registra → Cuenta creada con `confirmed: false`
+2. Strapi envía email automáticamente con link de confirmación (usando template de Resend)
+3. Usuario hace clic en el link → Strapi verifica y actualiza `confirmed: true`
+4. Strapi redirige a `/email-confirmed?confirmed=true`
+5. Usuario ve mensaje de éxito con auto-redirect al login (5 segundos)
+6. Usuario puede ahora hacer login
+
+### Características Implementadas
+- ✅ **Mensaje post-registro** - Página de registro muestra "Revisa tu email" después de crear cuenta
+- ✅ **Página de confirmación** - `/email-confirmed` con estados de éxito y error
+- ✅ **Auto-redirect** - Redirige automáticamente al login después de 5 segundos
+- ✅ **Manejo de errores** - Si usuario intenta login sin confirmar, muestra toast específico
+- ✅ **Toast personalizado** - "Email no confirmado - Por favor, revisa tu bandeja de entrada..."
+- ✅ **Transiciones suaves** - Animaciones entre formulario y mensaje de confirmación
+
+### Archivos Creados/Modificados
+- ✅ `app/pages/email-confirmed.vue` (nueva - página de confirmación)
+- ✅ `app/pages/register.vue` (modificada - mensaje post-registro)
+- ✅ `app/composables/useAuth.ts` (modificado - manejo de error de confirmación)
+
+## ✅ Página de Perfil y Gestión de Cuenta
+
+**Fecha completada:** 2025-12-30
+
+### Características Implementadas
+- ✅ **Página de perfil** - `/profile` con información del usuario
+- ✅ **Avatar con inicial** - Avatar circular con primera letra del username
+- ✅ **Información de usuario** - Username, email, estado de verificación, fecha de creación
+- ✅ **Badge de verificación** - Muestra si el email está verificado
+- ✅ **Menú de usuario mejorado** - Dropdown en header con links a Perfil y Logout
+- ✅ **Eliminar cuenta** - Funcionalidad para borrar cuenta con confirmación
+- ✅ **Modal de confirmación** - Modal seguro que requiere escribir username para confirmar
+- ✅ **Zona de peligro** - Sección visual separada para acciones destructivas
+- ✅ **Middleware auth** - Página protegida solo para usuarios autenticados
+
+### Archivos Creados/Modificados
+- ✅ `app/pages/profile.vue` (nueva - página de perfil completa)
+- ✅ `app/layouts/default.vue` (modificado - link a perfil en dropdown)
+
+### Flujo de Eliminación de Cuenta
+1. Usuario va a `/profile`
+2. Click en "Eliminar cuenta" en zona de peligro
+3. Modal de confirmación aparece
+4. Usuario debe escribir su username exacto para confirmar
+5. Se elimina la cuenta en Strapi
+6. Logout automático y redirect a home
+
+### Próximas Mejoras Opcionales
+1. **Reenviar email de confirmación** - Botón para reenviar si no llegó
+2. **Editar perfil** - Permitir cambiar username y email
+3. **Cambiar contraseña** - Desde el perfil (sin olvidar contraseña)
+4. **OAuth Google** - Autenticación con Google
+5. **Sesiones Anónimas → Autenticadas** - Migrar sesiones existentes al registrarse
+6. **Avatar personalizado** - Subir foto de perfil
+
 ## Servidor de Desarrollo
 
-El servidor está corriendo en: **http://localhost:3002**
+El servidor está corriendo en: **http://localhost:3000**
 
 Para iniciar el servidor:
 ```bash
