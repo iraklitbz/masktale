@@ -2,6 +2,7 @@
 definePageMeta({
   layout: false,
   middleware: 'guest',
+  ssr: false,
 })
 
 const router = useRouter()
@@ -15,6 +16,7 @@ const confirmPassword = ref('')
 const loading = ref(false)
 const showPassword = ref(false)
 const showConfirmPassword = ref(false)
+const registered = ref(false)
 
 // Validation errors
 const errors = ref({
@@ -123,8 +125,8 @@ const handleSubmit = async () => {
     })
 
     if (result.success) {
-      // Redirect to home
-      router.push('/')
+      // Show success message instead of redirecting
+      registered.value = true
     }
   } finally {
     loading.value = false
@@ -147,11 +149,57 @@ const handleSubmit = async () => {
 
       <!-- Register Card -->
       <div class="bg-white rounded-2xl shadow-xl p-8">
-        <h2 class="text-2xl font-bold text-gray-900 mb-6">
-          Crear Cuenta
-        </h2>
+        <Transition name="fade" mode="out-in">
+          <!-- Success State - Email Confirmation -->
+          <div v-if="registered" key="success" class="text-center">
+            <div class="mb-6">
+              <div class="w-16 h-16 mx-auto bg-green-100 rounded-full flex items-center justify-center">
+                <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 19v-8.93a2 2 0 01.89-1.664l7-4.666a2 2 0 012.22 0l7 4.666A2 2 0 0121 10.07V19M3 19a2 2 0 002 2h14a2 2 0 002-2M3 19l6.75-4.5M21 19l-6.75-4.5M3 10l6.75 4.5M21 10l-6.75 4.5m0 0l-1.14.76a2 2 0 01-2.22 0l-1.14-.76" />
+                </svg>
+              </div>
+            </div>
 
-        <form @submit.prevent="handleSubmit">
+            <h2 class="text-2xl font-bold text-gray-900 mb-3">
+              ¡Cuenta Creada!
+            </h2>
+
+            <p class="text-gray-600 mb-4">
+              Hemos enviado un email de confirmación a:
+            </p>
+
+            <p class="text-lg font-semibold text-purple-600 mb-6">
+              {{ email }}
+            </p>
+
+            <div class="bg-blue-50 rounded-lg p-4 mb-6 text-left">
+              <p class="text-sm text-blue-900 font-semibold mb-2">
+                📧 Siguiente paso:
+              </p>
+              <p class="text-sm text-blue-800">
+                Revisa tu bandeja de entrada y haz clic en el enlace de confirmación para activar tu cuenta.
+              </p>
+            </div>
+
+            <p class="text-xs text-gray-500 mb-6">
+              Si no recibes el email en los próximos minutos, revisa tu carpeta de spam o correo no deseado.
+            </p>
+
+            <NuxtLink
+              to="/login"
+              class="inline-block w-full py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all hover:scale-[1.02]"
+            >
+              Ir al Login
+            </NuxtLink>
+          </div>
+
+          <!-- Form State -->
+          <div v-else key="form">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6">
+              Crear Cuenta
+            </h2>
+
+            <form @submit.prevent="handleSubmit">
           <!-- Username Field -->
           <div class="mb-4">
             <label
@@ -215,6 +263,7 @@ const handleSubmit = async () => {
                 id="password"
                 v-model="password"
                 :type="showPassword ? 'text' : 'password'"
+                autocomplete="new-password"
                 class="w-full px-4 py-3 rounded-lg border-2 border-gray-200 focus:border-purple-500 focus:outline-none transition-colors pr-12"
                 :class="{ 'border-red-500': errors.password }"
                 placeholder="••••••••"
@@ -270,6 +319,7 @@ const handleSubmit = async () => {
                 id="confirmPassword"
                 v-model="confirmPassword"
                 :type="showConfirmPassword ? 'text' : 'password'"
+                autocomplete="new-password"
                 class="w-full px-4 py-3 rounded-lg border-2 border-gray-200 focus:border-purple-500 focus:outline-none transition-colors pr-12"
                 :class="{ 'border-red-500': errors.confirmPassword }"
                 placeholder="••••••••"
@@ -328,6 +378,8 @@ const handleSubmit = async () => {
             Inicia sesión aquí
           </NuxtLink>
         </p>
+          </div>
+        </Transition>
       </div>
 
       <!-- Back to Home -->

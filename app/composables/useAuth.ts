@@ -7,41 +7,35 @@ import type { User, LoginCredentials, RegisterData, ForgotPasswordData, ResetPas
 export const useAuth = () => {
   const router = useRouter()
   const toast = useToast()
+  const client = useStrapiClient()
+  const token = useStrapiToken()
 
-  // Get Strapi auth composable
-  let strapiLogin: any
-  let strapiLogout: any
-  let user: any
-  let fetchUser: any
-  let setUser: any
-  let setToken: any
+  // Use useState for global state that persists across components
+  const user = useState<User | null>('auth-user', () => null)
 
-  try {
-    const strapiAuth = useStrapiAuth()
-    strapiLogin = strapiAuth?.login
-    strapiLogout = strapiAuth?.logout
-    user = strapiAuth?.user || ref(null)
-    fetchUser = strapiAuth?.fetchUser
-    setUser = strapiAuth?.setUser
-    setToken = strapiAuth?.setToken
-  } catch (error) {
-    console.error('[useAuth] Error initializing Strapi auth:', error)
-    // Fallback to default values
-    user = ref(null)
-  }
+  /**
+   * Computed: Check if user is authenticated
+   */
+  const isAuthenticated = computed(() => {
+    return !!user.value && !!token.value
+  })
 
   /**
    * Login with email and password
    */
   const login = async (credentials: LoginCredentials) => {
     try {
-      if (!strapiLogin) {
-        throw new Error('Strapi auth not initialized')
-      }
+      const response = await client<AuthResponse>('/auth/local', {
+        method: 'POST',
+        body: credentials,
+      })
 
-      const response = await strapiLogin(credentials)
+      if (response.jwt && response.user) {
+        // Save token
+        token.value = response.jwt
+        // Save user
+        user.value = response.user
 
-      if (response) {
         toast.success('¡Bienvenido!', `Has iniciado sesión como ${response.user.username}`)
         return { success: true, user: response.user }
       }
@@ -49,7 +43,16 @@ export const useAuth = () => {
       throw new Error('No se recibió respuesta del servidor')
     } catch (error: any) {
       console.error('[useAuth] Login error:', error)
+
+      // Handle specific error cases
       const errorMessage = error?.error?.message || error?.message || 'Error al iniciar sesión'
+
+      // Check if email is not confirmed
+      if (errorMessage.toLowerCase().includes('confirm') || errorMessage.toLowerCase().includes('not confirmed')) {
+        toast.error('Email no confirmado', 'Por favor, revisa tu bandeja de entrada y confirma tu email antes de iniciar sesión.')
+        return { success: false, error: 'Email no confirmado' }
+      }
+
       toast.error('Error de autenticación', errorMessage)
       return { success: false, error: errorMessage }
     }
@@ -60,23 +63,26 @@ export const useAuth = () => {
    */
   const register = async (data: RegisterData) => {
     try {
-      if (!setToken || !setUser) {
-        throw new Error('Strapi auth not initialized')
-      }
-
-      const client = useStrapiClient()
-
       const response = await client<AuthResponse>('/auth/local/register', {
         method: 'POST',
         body: data,
       })
 
-      if (response.jwt && response.user) {
-        // Set token and user
-        setToken(response.jwt)
-        setUser(response.user)
+      // When email confirmation is enabled, Strapi doesn't return JWT
+      // The user needs to confirm their email before logging in
+      if (response.user) {
+        // Check if JWT is present (email confirmation disabled)
+        if (response.jwt) {
+          // Auto-login: Set token and user
+          token.value = response.jwt
+          user.value = response.user
+          toast.success('¡Cuenta creada!', `Bienvenido ${response.user.username}`)
+        } else {
+          // Email confirmation enabled: just return success
+          // The UI will show the "check your email" message
+          console.log('[useAuth] User created, email confirmation required')
+        }
 
-        toast.success('¡Cuenta creada!', `Bienvenido ${response.user.username}`)
         return { success: true, user: response.user }
       }
 
@@ -94,11 +100,10 @@ export const useAuth = () => {
    */
   const logout = async () => {
     try {
-      if (!strapiLogout) {
-        throw new Error('Strapi auth not initialized')
-      }
+      // Clear token and user
+      token.value = null
+      user.value = null
 
-      await strapiLogout()
       toast.info('Sesión cerrada', 'Has cerrado sesión correctamente')
       router.push('/')
       return { success: true }
@@ -114,8 +119,6 @@ export const useAuth = () => {
    */
   const forgotPassword = async (data: ForgotPasswordData) => {
     try {
-      const client = useStrapiClient()
-
       await client('/auth/forgot-password', {
         method: 'POST',
         body: data,
@@ -136,12 +139,6 @@ export const useAuth = () => {
    */
   const resetPassword = async (data: ResetPasswordData) => {
     try {
-      if (!setToken || !setUser) {
-        throw new Error('Strapi auth not initialized')
-      }
-
-      const client = useStrapiClient()
-
       const response = await client<AuthResponse>('/auth/reset-password', {
         method: 'POST',
         body: data,
@@ -149,8 +146,8 @@ export const useAuth = () => {
 
       if (response.jwt && response.user) {
         // Auto-login after password reset
-        setToken(response.jwt)
-        setUser(response.user)
+        token.value = response.jwt
+        user.value = response.user
 
         toast.success('Contraseña cambiada', 'Tu contraseña ha sido actualizada correctamente')
         return { success: true, user: response.user }
@@ -166,23 +163,27 @@ export const useAuth = () => {
   }
 
   /**
-   * Check if user is authenticated
-   */
-  const isAuthenticated = computed(() => {
-    return !!(user && user.value)
-  })
-
-  /**
    * Get current user info
    */
   const getCurrentUser = async () => {
     try {
-      if (fetchUser) {
-        await fetchUser()
+      if (!token.value) {
+        return { success: false, error: 'No token available' }
       }
-      return { success: true, user: user?.value || null }
+
+      const response = await client<User>('/users/me')
+
+      if (response) {
+        user.value = response
+        return { success: true, user: response }
+      }
+
+      return { success: false, error: 'No user data' }
     } catch (error: any) {
       console.error('[useAuth] Get user error:', error)
+      // Clear invalid token
+      token.value = null
+      user.value = null
       return { success: false, error: error.message }
     }
   }

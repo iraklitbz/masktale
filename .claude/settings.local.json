@@ -13,7 +13,10 @@
       "Bash(curl:*)",
       "Bash(python3:*)",
       "Bash(cat:*)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(pnpm list:*)",
+      "Bash(lsof:*)",
+      "Bash(xargs kill -9)"
     ]
   }
 }
