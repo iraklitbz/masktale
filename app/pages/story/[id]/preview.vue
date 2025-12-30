@@ -16,6 +16,10 @@ const toast = useToast()
 // PDF generator
 const { generatePdf } = usePdfGenerator()
 
+// Cart
+const { addItem, hasItem } = useCart()
+const isInCart = computed(() => hasItem(sessionId.value))
+
 // Load session state
 const {
   pages,
@@ -112,8 +116,42 @@ const confirmRegenerate = async () => {
   }
 }
 
-// Handle finish/download PDF
-const handleFinish = async () => {
+// Handle add to cart
+const handleAddToCart = async () => {
+  if (!session.value || !currentState.value) {
+    toast.error('Error', 'No se pudo cargar la información del cuento')
+    return
+  }
+
+  try {
+    // Get story config to get the title
+    const { data: storyConfig } = await useFetch(`/api/story/${session.value.storyId}`)
+
+    if (!storyConfig.value) {
+      toast.error('Error', 'No se pudo cargar la información del cuento')
+      return
+    }
+
+    // Add to cart
+    addItem({
+      storyId: session.value.storyId,
+      sessionId: sessionId.value,
+      bookTitle: storyConfig.value.title.es || 'Libro Personalizado',
+      childName: session.value.userPhoto?.childName || 'Tu Hijo/a',
+      // TODO: Generate cover image URL
+      coverImageUrl: undefined,
+    })
+
+    // Navigate to cart
+    await router.push('/cart')
+  } catch (error: any) {
+    console.error('[Preview] Add to cart error:', error)
+    toast.error('Error', error.message || 'No se pudo añadir al carrito')
+  }
+}
+
+// Handle direct download PDF
+const handleDownloadPdf = async () => {
   if (!session.value || !currentState.value) {
     toast.error('Error', 'No se pudo cargar la información del cuento')
     return
@@ -234,32 +272,65 @@ const handleCloseComparator = () => {
         </h1>
 
         <div class="header-actions">
-          <button
-            v-if="session?.status === 'completed'"
-            class="btn-finish"
-            :disabled="isGeneratingPdf"
-            @click="handleFinish"
-          >
-            <div
-              v-if="isGeneratingPdf"
-              class="spinner-small"
-            />
-            <svg
-              v-else
-              class="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
+          <template v-if="session?.status === 'completed'">
+            <!-- Botón principal: Añadir al carrito -->
+            <button
+              class="btn-cart"
+              :disabled="isInCart"
+              @click="handleAddToCart"
             >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+              <svg
+                class="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  v-if="isInCart"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M5 13l4 4L19 7"
+                />
+                <path
+                  v-else
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
+                />
+              </svg>
+              <span class="ml-2">{{ isInCart ? 'En el carrito' : 'Añadir al carrito' }}</span>
+            </button>
+
+            <!-- Botón secundario: Descargar directo -->
+            <button
+              class="btn-download"
+              :disabled="isGeneratingPdf"
+              @click="handleDownloadPdf"
+              title="Descargar PDF directamente"
+            >
+              <div
+                v-if="isGeneratingPdf"
+                class="spinner-small"
               />
-            </svg>
-            <span class="ml-2">{{ isGeneratingPdf ? 'Generando PDF...' : 'Descargar PDF' }}</span>
-          </button>
+              <svg
+                v-else
+                class="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                />
+              </svg>
+              <span class="ml-2 hidden md:inline">{{ isGeneratingPdf ? 'Generando...' : 'Descargar' }}</span>
+            </button>
+          </template>
         </div>
       </div>
     </header>
@@ -594,7 +665,7 @@ const handleCloseComparator = () => {
   gap: 0.75rem;
 }
 
-.btn-finish {
+.btn-cart {
   display: flex;
   align-items: center;
   padding: 0.5rem 1rem;
@@ -602,28 +673,66 @@ const handleCloseComparator = () => {
   color: white;
   border-radius: 0.5rem;
   font-weight: 500;
-  transition: background-color 0.2s;
+  transition: all 0.2s;
   border: none;
   cursor: pointer;
   text-decoration: none;
 }
 
-.btn-finish:hover {
+.btn-cart:hover {
   background-color: #7e22ce;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(147, 51, 234, 0.3);
 }
 
-.btn-finish:focus {
+.btn-cart:focus {
   outline: none;
   box-shadow: 0 0 0 2px #a855f7, 0 0 0 4px white;
 }
 
-.btn-finish:disabled {
+.btn-cart:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background-color: #10b981;
+}
+
+.btn-cart:disabled:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+.btn-download {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  background-color: white;
+  color: #9333ea;
+  border: 2px solid #9333ea;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  transition: all 0.2s;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.btn-download:hover {
+  background-color: #faf5ff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(147, 51, 234, 0.2);
+}
+
+.btn-download:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px #a855f7, 0 0 0 4px white;
+}
+
+.btn-download:disabled {
   opacity: 0.7;
   cursor: not-allowed;
 }
 
-.btn-finish:disabled:hover {
-  background-color: #9333ea;
+.btn-download:disabled:hover {
+  background-color: white;
   transform: none;
   box-shadow: none;
 }

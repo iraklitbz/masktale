@@ -35,5 +35,14 @@ export default defineNuxtConfig({
   },
   runtimeConfig: {
     geminiApiKey: '',
+    // Stripe (server-side only)
+    stripeSecretKey: '',
+    stripeWebhookSecret: '',
+    // Strapi API Token (server-side only)
+    strapiApiToken: '',
+    public: {
+      // Stripe Public Key (client-side)
+      stripePublicKey: '',
+    }
   },
 })

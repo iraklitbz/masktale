@@ -14,6 +14,9 @@ dependencies:
   '@nuxtjs/strapi':
     specifier: 2.1.1
     version: 2.1.1
+  '@stripe/stripe-js':
+    specifier: ^8.6.0
+    version: 8.6.0
   '@tailwindcss/vite':
     specifier: 4.1.18
     version: 4.1.18(vite@7.3.0)
@@ -29,6 +32,9 @@ dependencies:
   sharp:
     specifier: 0.34.5
     version: 0.34.5
+  stripe:
+    specifier: ^20.1.0
+    version: 20.1.0(@types/node@25.0.3)
   tailwindcss:
     specifier: 4.1.18
     version: 4.1.18
@@ -38,6 +44,9 @@ dependencies:
   vue-router:
     specifier: 4.6.4
     version: 4.6.4(vue@3.5.25)
+  zod:
+    specifier: ^4.2.1
+    version: 4.2.1
 
 devDependencies:
   '@antfu/eslint-config':
@@ -2629,6 +2638,11 @@ packages:
 
   /@standard-schema/spec@1.1.0:
     resolution: {integrity: sha512-l2aFy5jALhniG5HgqrD6jXLi/rUWrKvqN/qJx6yoJsgKhblVd+iqqU4RCXavm/jPityDo5TCvKMnpjKnOriy0w==}
+    dev: false
+
+  /@stripe/stripe-js@8.6.0:
+    resolution: {integrity: sha512-EB0/GGgs4hfezzkiMkinlRgWtjz8fSdwVQhwYS7Sg/RQrSvuNOz+ssPjD+lAzqaYTCB0zlbrt0fcqVziLJrufQ==}
+    engines: {node: '>=12.16'}
     dev: false
 
   /@stylistic/eslint-plugin@5.6.1(eslint@9.39.2):
@@ -7760,6 +7774,19 @@ packages:
     resolution: {integrity: sha512-8r3mkIM/2+PpjHoOtiAW8Rg3jJLHaV7xPwG+YRGrv6FP0wwk/toTpATxWYOW0BKdWwl82VT2tFYi5DlROa0Mxg==}
     dependencies:
       js-tokens: 9.0.1
+
+  /stripe@20.1.0(@types/node@25.0.3):
+    resolution: {integrity: sha512-o1VNRuMkY76ZCq92U3EH3/XHm/WHp7AerpzDs4Zyo8uE5mFL4QUcv/2SudWsSnhBSp4moO2+ZoGCZ7mT8crPmQ==}
+    engines: {node: '>=16'}
+    peerDependencies:
+      '@types/node': '>=16'
+    peerDependenciesMeta:
+      '@types/node':
+        optional: true
+    dependencies:
+      '@types/node': 25.0.3
+      qs: 6.14.0
+    dev: false
 
   /structured-clone-es@1.0.0:
     resolution: {integrity: sha512-FL8EeKFFyNQv5cMnXI31CIMCsFarSVI2bF0U0ImeNE3g/F1IvJQyqzOXxPBRXiwQfyBTlbNe88jh1jFW0O/jiQ==}
