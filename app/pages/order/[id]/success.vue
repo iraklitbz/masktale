@@ -1,13 +1,15 @@
 <script setup lang="ts">
 import { formatPrice } from '~/config/products'
+import type { Order } from '~/types/checkout'
 
 const route = useRoute()
 const router = useRouter()
-const { clearCart, cart } = useCart()
+const { clearCart } = useCart()
 const { user, isAuthenticated } = useAuth()
+const toast = useToast()
 
-// Get Payment Intent ID from route
-const paymentIntentId = computed(() => route.params.id as string)
+// Get Order ID from route
+const orderId = computed(() => route.params.id as string)
 
 // Meta tags
 useHead({
@@ -18,8 +20,9 @@ useHead({
 })
 
 // State
-const isLoadingOrder = ref(false)
-const orderData = ref<any>(null)
+const isLoadingOrder = ref(true)
+const orderData = ref<Order | null>(null)
+const loadError = ref<string | null>(null)
 
 // Animation state
 const showSuccess = ref(false)
@@ -30,18 +33,30 @@ onMounted(async () => {
     showSuccess.value = true
   }, 100)
 
-  // TODO FASE 5: Fetch order details from Strapi
-  // For now, we'll use cart data if available
-  if (cart.value.items.length > 0) {
-    orderData.value = {
-      total: cart.value.total,
-      items: [...cart.value.items],
+  // Fetch order details from API
+  try {
+    isLoadingOrder.value = true
+
+    const result = await $fetch(`/api/orders/${orderId.value}`)
+
+    if (!result.success || !result.order) {
+      throw new Error('No se pudo obtener la orden')
     }
 
-    // Clear cart after successful order
+    orderData.value = result.order
+    console.log('[Success] Orden cargada:', orderData.value)
+
+    // Clear cart after successfully loading the order
     setTimeout(() => {
       clearCart()
     }, 1000)
+
+  } catch (error: any) {
+    console.error('[Success] Error al cargar orden:', error)
+    loadError.value = error.message || 'No se pudo cargar la orden'
+    toast.error('Error', 'No se pudo cargar los detalles de la orden')
+  } finally {
+    isLoadingOrder.value = false
   }
 })
 
@@ -53,9 +68,19 @@ const goToOrders = () => {
   }
 }
 
-const downloadPDF = (sessionId: string) => {
-  // TODO FASE 5: Implement PDF download from Strapi
-  console.log('Download PDF for session:', sessionId)
+const downloadPDF = (sessionId: string, childName: string, bookTitle: string) => {
+  // Generate PDF URL
+  const pdfUrl = `/api/session/${sessionId}/download-pdf`
+
+  // Create temporary link and trigger download
+  const link = document.createElement('a')
+  link.href = pdfUrl
+  link.download = `${childName}_${bookTitle}.pdf`
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
+
+  toast.success('Descargando PDF', `Descargando ${bookTitle}`)
 }
 </script>
 
@@ -101,11 +126,23 @@ const downloadPDF = (sessionId: string) => {
           </p>
 
           <!-- Order ID -->
-          <div class="order-id-section">
+          <div
+            v-if="orderData"
+            class="order-id-section"
+          >
             <p class="order-id-label">
-              ID de pago
+              Número de pedido
             </p>
-            <code class="order-id-code">{{ paymentIntentId }}</code>
+            <code class="order-id-code">{{ orderData.orderNumber }}</code>
+          </div>
+
+          <!-- Loading State -->
+          <div
+            v-else-if="isLoadingOrder"
+            class="loading-state"
+          >
+            <div class="spinner" />
+            <p>Cargando detalles de la orden...</p>
           </div>
 
           <!-- Order Summary -->
@@ -589,6 +626,31 @@ const downloadPDF = (sessionId: string) => {
 
 .btn-tertiary:hover {
   background-color: #e5e7eb;
+}
+
+/* Loading State */
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 2rem;
+  color: #6b7280;
+}
+
+.loading-state .spinner {
+  width: 2rem;
+  height: 2rem;
+  border: 3px solid #e5e7eb;
+  border-top-color: #9333ea;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* Support Section */

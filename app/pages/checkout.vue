@@ -149,12 +149,36 @@ const handleProcessPayment = async () => {
       return
     }
 
-    // Pago exitoso! Navegar a página de éxito
-    toast.success('¡Pago exitoso!', 'Tu pedido ha sido procesado')
+    // Pago exitoso! Confirmar orden en Strapi
+    toast.success('¡Pago exitoso!', 'Procesando tu pedido...')
 
-    // TODO FASE 5: Crear orden en Strapi aquí
-    // Por ahora, navegar directamente a success
-    await router.push(`/order/${result.paymentIntentId}/success`)
+    try {
+      // Confirmar orden en Strapi
+      const confirmResult = await $fetch('/api/checkout/confirm', {
+        method: 'POST',
+        body: {
+          paymentIntentId: result.paymentIntentId,
+          formData,
+          cartItems: cart.value.items,
+          total: cart.value.total,
+        },
+      })
+
+      if (!confirmResult.success) {
+        throw new Error('No se pudo confirmar la orden')
+      }
+
+      console.log('[Checkout] Orden confirmada:', confirmResult.order)
+
+      // Navegar a página de éxito con el orderId
+      await router.push(`/order/${confirmResult.order.id}/success`)
+    } catch (confirmErr: any) {
+      console.error('[Checkout] Error al confirmar orden:', confirmErr)
+      toast.error('Error', 'El pago fue exitoso pero no se pudo crear la orden. Contacta soporte.')
+
+      // Aún así navegar a success con el paymentIntentId para que el usuario sepa que pagó
+      await router.push(`/order/${result.paymentIntentId}/success`)
+    }
 
   } catch (err: any) {
     console.error('[Checkout] Error inesperado al procesar pago:', err)

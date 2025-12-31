@@ -1,0 +1,31 @@
+{
+  "id": "0c3d29e7-20ac-48d0-917c-f01da8ec5b6c",
+  "storyId": "story-001-first-day-school",
+  "createdAt": "2025-12-31T10:29:58.913Z",
+  "expiresAt": "2026-01-01T10:29:58.913Z",
+  "status": "completed",
+  "progress": {
+    "totalPages": 5,
+    "pagesGenerated": 5,
+    "errors": [
+      {
+        "pageNumber": 4,
+        "attempt": 1,
+        "error": "Failed to generate image after 3 attempts: Candidate has no content",
+        "timestamp": "2025-12-31T10:33:02.910Z"
+      }
+    ],
+    "currentPage": 5,
+    "completedAt": "2025-12-31T10:33:16.393Z"
+  },
+  "userPhoto": {
+    "originalPath": "data/sessions/0c3d29e7-20ac-48d0-917c-f01da8ec5b6c/user-photos/photo-1.jpeg",
+    "uploadedAt": "2025-12-31T10:30:07.931Z",
+    "metadata": {
+      "width": 0,
+      "height": 0,
+      "format": "jpeg",
+      "size": 4530435
+    }
+  }
+}

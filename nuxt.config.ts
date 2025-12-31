@@ -43,6 +43,8 @@ export default defineNuxtConfig({
     public: {
       // Stripe Public Key (client-side)
       stripePublicKey: '',
+      // Strapi URL (client + server)
+      strapiUrl: '',
     }
   },
 })

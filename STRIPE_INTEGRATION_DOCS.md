@@ -913,6 +913,271 @@ Se actualizó para:
 
 ---
 
+## FASE 5: Procesamiento de Órdenes y Webhooks
+
+### ✅ Archivos Creados
+
+#### 1. `server/utils/order-processor.ts`
+
+Utilidades para gestionar órdenes en Strapi:
+
+**Funciones principales:**
+- `generateOrderNumber()` - Genera números de orden únicos (formato: MASK-YYYYMMDD-XXXXX)
+- `createOrderInStrapi()` - Crea orden y sus items en Strapi
+- `getOrderByPaymentIntentId()` - Obtiene orden por Payment Intent ID
+- `getOrderById()` - Obtiene orden por ID
+- `updateOrderState()` - Actualiza estado de orden con validación de transiciones
+- `updateOrderItemPdfUrl()` - Actualiza URL del PDF de un item
+- `isValidTransition()` - Valida transiciones de estado
+
+**Transiciones de estado permitidas:**
+```
+pending → processing, failed
+processing → completed, failed
+completed → refunded
+failed → processing
+```
+
+#### 2. `server/utils/pdf-uploader.ts`
+
+Utilidades para gestión de PDFs:
+
+**Funciones principales:**
+- `uploadPdfToStrapi()` - Sube buffer de PDF a Strapi Media Library
+- `generateAndUploadPdf()` - Genera PDF desde sesión y retorna URL
+- `processPdfsForOrder()` - Procesa PDFs para todos los items de una orden
+
+**Estrategia actual:**
+- Por ahora, genera URLs de descarga bajo demanda (`/api/session/[id]/download-pdf`)
+- Preparado para implementación futura con PDFKit en backend si es necesario
+- Los PDFs se generan en frontend usando el composable existente
+
+#### 3. `server/api/checkout/confirm.post.ts`
+
+Endpoint para confirmar órdenes después del pago:
+
+**Flujo:**
+1. Valida datos con Zod
+2. Verifica pago en Stripe (status = 'succeeded')
+3. Valida que monto coincida
+4. Verifica que no exista orden duplicada
+5. Crea orden en Strapi
+6. Procesa PDFs en segundo plano (no bloquea respuesta)
+7. Retorna orden creada
+
+**Request body:**
+```typescript
+{
+  paymentIntentId: string
+  formData: CheckoutFormData
+  cartItems: CartItem[]
+  total: number
+}
+```
+
+**Response:**
+```typescript
+{
+  success: true
+  order: {
+    id: number
+    orderNumber: string
+    state: OrderState
+    total: number
+    currency: string
+    customerEmail: string
+    customerName: string
+    items: OrderItem[]
+  }
+  message: string
+}
+```
+
+#### 4. `server/api/webhooks/stripe.post.ts`
+
+Webhook para recibir eventos de Stripe:
+
+**Eventos manejados:**
+- `payment_intent.succeeded` - Actualiza orden a "processing"
+- `payment_intent.payment_failed` - Marca orden como "failed"
+- `payment_intent.processing` - Mantiene en "pending"
+- `payment_intent.canceled` - Marca como "failed"
+
+**Seguridad:**
+- Verifica firma del webhook con `stripe-signature` header
+- Usa `NUXT_STRIPE_WEBHOOK_SECRET` (debe configurarse en .env)
+
+**Configuración en Stripe Dashboard:**
+- URL: `https://tudominio.com/api/webhooks/stripe`
+- Para desarrollo local: `stripe listen --forward-to localhost:3000/api/webhooks/stripe`
+
+#### 5. `server/api/orders/[id].get.ts`
+
+Endpoint para obtener detalles de una orden:
+
+**Request:**
+```
+GET /api/orders/123
+```
+
+**Response:**
+```typescript
+{
+  success: true
+  order: Order // Objeto completo de la orden
+}
+```
+
+**Seguridad:**
+- Por ahora público (necesario para página de success)
+- TODO: Implementar validación de ownership (user.id) o verificación con email+orderNumber
+
+### ✅ Modificaciones
+
+#### `app/pages/checkout.vue`
+
+Cambios en la función `handleProcessPayment()`:
+
+**Antes:**
+```typescript
+// TODO FASE 5: Crear orden en Strapi aquí
+await router.push(`/order/${result.paymentIntentId}/success`)
+```
+
+**Después:**
+```typescript
+// Confirmar orden en Strapi
+const confirmResult = await $fetch('/api/checkout/confirm', {
+  method: 'POST',
+  body: {
+    paymentIntentId: result.paymentIntentId,
+    formData,
+    cartItems: cart.value.items,
+    total: cart.value.total,
+  },
+})
+
+// Navegar a success con orderId
+await router.push(`/order/${confirmResult.order.id}/success`)
+```
+
+#### `app/pages/order/[id]/success.vue`
+
+Cambios principales:
+
+1. **Obtención de orden:**
+   - Cambiado de usar datos del carrito a fetch desde API
+   - Muestra loading state mientras carga
+   - Maneja errores si no se puede cargar
+
+2. **Visualización:**
+   - Cambiado de mostrar `paymentIntentId` a mostrar `orderNumber`
+   - Usa datos reales de la orden (Order type)
+   - Implementada función de descarga de PDFs
+
+3. **Descarga de PDFs:**
+```typescript
+const downloadPDF = (sessionId, childName, bookTitle) => {
+  const pdfUrl = `/api/session/${sessionId}/download-pdf`
+  // Descarga automática
+}
+```
+
+### ✅ Dependencias Instaladas
+
+```bash
+pnpm add form-data
+```
+
+Necesario para subir archivos a Strapi desde Node.js.
+
+### ✅ Configuración Necesaria
+
+#### Variables de Entorno
+
+Agregar a `.env`:
+
+```env
+# Webhook Secret de Stripe
+NUXT_STRIPE_WEBHOOK_SECRET=whsec_xxxxxxxxxxxxx
+```
+
+**Cómo obtener el Webhook Secret:**
+
+1. **Desarrollo local:**
+   ```bash
+   stripe listen --forward-to localhost:3000/api/webhooks/stripe
+   ```
+   El CLI mostrará el secret (empieza con `whsec_`)
+
+2. **Producción:**
+   - Ir a Stripe Dashboard → Developers → Webhooks
+   - Crear nuevo endpoint: `https://tudominio.com/api/webhooks/stripe`
+   - Seleccionar eventos: `payment_intent.*`
+   - Copiar el Signing Secret
+
+#### Modelos de Strapi
+
+**IMPORTANTE:** Antes de probar, debes crear los modelos en Strapi siguiendo las instrucciones en:
+```
+docs/STRAPI_MODELS_SETUP.md
+```
+
+Modelos necesarios:
+- Component: `order.Address`
+- Collection Type: `Order`
+- Collection Type: `OrderItem`
+
+### Características Implementadas
+
+- ✅ **Creación de órdenes** en Strapi después del pago
+- ✅ **Validación de pagos** con Stripe
+- ✅ **Webhooks** para actualizar estados
+- ✅ **Generación de números de orden** únicos
+- ✅ **Transiciones de estado** con validación
+- ✅ **Procesamiento de PDFs** en segundo plano
+- ✅ **API de órdenes** para obtener detalles
+- ✅ **Página de success** con datos reales
+- ✅ **Descarga de PDFs** desde órdenes
+- ✅ **Prevención de duplicados** (verifica paymentIntentId existente)
+- ✅ **Manejo de errores** robusto
+
+### Flujo Completo Implementado
+
+```
+1. Usuario completa checkout
+2. Stripe procesa pago
+3. Si exitoso:
+   a. Frontend llama a /api/checkout/confirm
+   b. Backend verifica pago en Stripe
+   c. Backend crea orden en Strapi (estado: pending)
+   d. Backend procesa PDFs en segundo plano
+   e. Backend actualiza orden a "processing"
+4. Webhook de Stripe llega:
+   a. Verifica firma
+   b. Actualiza estado si es necesario
+5. Usuario ve página de success:
+   a. Carga orden desde API
+   b. Muestra detalles y número de orden
+   c. Permite descargar PDFs
+```
+
+### Próximos Pasos
+
+**FASE 6:** Panel de Usuario y Órdenes
+- Composable `useOrders`
+- Endpoints de listado y filtrado
+- Página `/profile/orders`
+- Componentes de visualización de órdenes
+- Sistema de tracking para invitados
+
+**FASE 7:** Emails y Notificaciones
+- Integración con servicio de emails
+- Templates de confirmación
+- Notificaciones de estado
+
+---
+
 ## Flujos de Trabajo
 
 ### 1. Flujo de Compra Completo
@@ -1240,8 +1505,17 @@ stripe listen --forward-to localhost:3000/api/webhooks/stripe
 - ✅ FASE 4 completada: Integración de Stripe
 - ✅ Documentación completa generada
 
+### 2024-12-31
+- ✅ FASE 5 completada: Procesamiento de Órdenes y Webhooks
+  - Creadas utilidades: order-processor.ts, pdf-uploader.ts
+  - Endpoint de confirmación: /api/checkout/confirm
+  - Webhook de Stripe: /api/webhooks/stripe
+  - Endpoint de órdenes: /api/orders/[id]
+  - Actualizada página de success con datos reales
+  - Actualizada página de checkout para confirmar órdenes
+
 ---
 
-**Próximo paso:** FASE 5 - Procesamiento de Órdenes y Webhooks
+**Próximo paso:** FASE 6 - Panel de Usuario y Órdenes
 
-**Estado del proyecto:** Funcional para testing de pagos con Stripe. Listo para siguiente fase de integración con Strapi.
+**Estado del proyecto:** Sistema completo de e-commerce funcional. Listo para configurar modelos en Strapi y probar flujo completo.
