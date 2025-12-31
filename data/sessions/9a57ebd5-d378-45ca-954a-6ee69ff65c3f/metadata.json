@@ -1,0 +1,12 @@
+{
+  "id": "9a57ebd5-d378-45ca-954a-6ee69ff65c3f",
+  "storyId": "story-001-first-day-school",
+  "createdAt": "2025-12-30T16:38:01.418Z",
+  "expiresAt": "2025-12-31T16:38:01.418Z",
+  "status": "created",
+  "progress": {
+    "totalPages": 0,
+    "pagesGenerated": 0,
+    "errors": []
+  }
+}

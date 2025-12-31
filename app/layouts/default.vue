@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import CartIcon from '~/components/cart/CartIcon.vue'
+
 const {user, isAuthenticated, logout} = useAuth()
 const authInitialized = useState('auth-initialized', () => false)
 
@@ -43,8 +45,11 @@ onMounted(() => {
             </h1>
           </NuxtLink>
 
-          <!-- Auth section -->
+          <!-- Cart & Auth section -->
           <div class="flex items-center gap-4">
+            <!-- Cart Icon -->
+            <CartIcon />
+
             <!-- Loading state while auth initializes -->
             <div v-if="!authInitialized" class="w-8 h-8">
               <div class="w-8 h-8 border-2 border-purple-600 border-t-transparent rounded-full animate-spin" />
