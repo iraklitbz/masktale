@@ -143,9 +143,9 @@ export default defineEventHandler(async (event) => {
 
     console.log(`[confirm] Orden creada en Strapi con ID: ${order.id}`)
 
-    // 5. Procesar PDFs en segundo plano (no bloquea la respuesta)
+    // 5. Procesar PDFs y enviar email en segundo plano (no bloquea la respuesta)
     // Esto se ejecutará de forma asíncrona
-    processPdfsInBackground(order.id, order.items)
+    processPdfsAndSendEmail(order)
 
     // 6. Retornar la orden
     return {
@@ -185,34 +185,39 @@ export default defineEventHandler(async (event) => {
 })
 
 /**
- * Procesa los PDFs en segundo plano
+ * Procesa los PDFs y envía email en segundo plano
  * No bloquea la respuesta al cliente
  */
-async function processPdfsInBackground(
-  orderId: number,
-  items: Array<{ id: number; sessionId: string; childName: string; bookTitle: string }>
-) {
+async function processPdfsAndSendEmail(order: any) {
   try {
-    console.log(`[processPdfsInBackground] Iniciando procesamiento de PDFs para orden ${orderId}`)
+    console.log(`[processPdfsAndSendEmail] Iniciando procesamiento para orden ${order.id}`)
 
     // Procesar PDFs
-    const pdfUrls = await processPdfsForOrder(items)
+    const pdfUrls = await processPdfsForOrder(order.items)
 
-    console.log(`[processPdfsInBackground] ${pdfUrls.size} PDFs procesados`)
+    console.log(`[processPdfsAndSendEmail] ${pdfUrls.size} PDFs procesados`)
 
     // Actualizar estado de la orden a "processing"
-    const updated = await updateOrderState(orderId, 'processing', 'pending')
+    const updated = await updateOrderState(order.id, 'processing', 'pending')
 
     if (updated) {
-      console.log(`[processPdfsInBackground] Orden ${orderId} actualizada a estado "processing"`)
+      console.log(`[processPdfsAndSendEmail] Orden ${order.id} actualizada a estado "processing"`)
     } else {
-      console.error(`[processPdfsInBackground] No se pudo actualizar el estado de la orden ${orderId}`)
+      console.error(`[processPdfsAndSendEmail] No se pudo actualizar el estado de la orden ${order.id}`)
     }
 
-    // TODO: Aquí se podría enviar un email al cliente notificando que su orden está lista
+    // Enviar email de confirmación
+    const { sendOrderConfirmationEmail } = await import('../../utils/email-sender')
+    const emailResult = await sendOrderConfirmationEmail(order)
+
+    if (emailResult.success) {
+      console.log(`[processPdfsAndSendEmail] Email de confirmación enviado. ID: ${emailResult.emailId}`)
+    } else {
+      console.error(`[processPdfsAndSendEmail] Error enviando email:`, emailResult.error)
+    }
   } catch (error: any) {
-    console.error(`[processPdfsInBackground] Error procesando PDFs para orden ${orderId}:`, error)
+    console.error(`[processPdfsAndSendEmail] Error procesando PDFs para orden ${order.id}:`, error)
     // Intentar marcar la orden como fallida
-    await updateOrderState(orderId, 'failed', 'pending')
+    await updateOrderState(order.id, 'failed', 'pending')
   }
 }

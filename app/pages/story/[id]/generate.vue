@@ -30,11 +30,45 @@ onMounted(async () => {
 
   if (story.value) {
     totalPages.value = story.value.pages.length
-    // Initialize page status
+
+    // Initialize page status as pending
     for (let i = 1; i <= totalPages.value; i++) {
       pageStatus.value[i] = 'pending'
     }
-    toast.info('Iniciando generación', `Se generarán ${totalPages.value} páginas personalizadas`)
+
+    // Check which pages are already generated
+    try {
+      const stateResponse = await $fetch(`/api/session/${sessionId}/state`)
+      const currentState = stateResponse.currentState
+
+      if (currentState && currentState.selectedVersions) {
+        // Mark already generated pages as completed
+        Object.keys(currentState.selectedVersions).forEach(pageNum => {
+          const page = parseInt(pageNum)
+          if (page >= 1 && page <= totalPages.value) {
+            pageStatus.value[page] = 'completed'
+            console.log(`Page ${page} already generated, skipping`)
+          }
+        })
+      }
+
+      const pendingPages = Object.values(pageStatus.value).filter(s => s === 'pending').length
+
+      if (pendingPages === 0) {
+        // All pages already generated, go to preview
+        toast.info('Cuento ya generado', 'Todas las páginas ya están listas')
+        await new Promise(resolve => setTimeout(resolve, 1500))
+        router.push(`/story/${sessionId}/preview`)
+        return
+      } else {
+        toast.info('Iniciando generación', `Se generarán ${pendingPages} de ${totalPages.value} páginas`)
+      }
+    } catch (error) {
+      console.warn('[generate] No se pudo verificar el estado previo:', error)
+      // Continue with normal generation
+      toast.info('Iniciando generación', `Se generarán ${totalPages.value} páginas personalizadas`)
+    }
+
     // Start generation automatically
     await startGeneration()
   } else {
