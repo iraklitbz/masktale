@@ -9,7 +9,6 @@
 
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
-import FormData from 'form-data'
 import type { Session, CurrentState } from '~/types/session'
 import type { StoryConfig } from '~/types/story'
 
@@ -33,30 +32,29 @@ export async function uploadPdfToStrapi(
   }
 
   try {
-    // Crear FormData para subir el archivo
-    const formData = new FormData()
-    formData.append('files', pdfBuffer, {
-      filename: fileName,
-      contentType: 'application/pdf',
-    })
+    console.log(`[uploadPdfToStrapi] Subiendo PDF a Strapi: ${fileName} (${pdfBuffer.length} bytes)`)
 
-    // Subir a Strapi
-    const response = await fetch(`${strapiUrl}/api/upload`, {
+    // Crear un Blob/File desde el Buffer
+    // En Node.js 18+, tenemos acceso a File y Blob
+    const blob = new Blob([pdfBuffer], { type: 'application/pdf' })
+    const file = new File([blob], fileName, { type: 'application/pdf' })
+
+    // Crear FormData nativa de Node.js (no form-data package)
+    const formData = new FormData()
+    formData.append('files', file)
+
+    console.log(`[uploadPdfToStrapi] FormData creado con File: ${fileName}`)
+
+    // Usar $fetch en lugar de fetch nativo para mejor compatibilidad
+    const result = await $fetch<any[]>(`${strapiUrl}/api/upload`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${apiToken}`,
-        ...formData.getHeaders(),
       },
       body: formData,
     })
 
-    if (!response.ok) {
-      const errorText = await response.text()
-      console.error('[uploadPdfToStrapi] Error:', errorText)
-      throw new Error(`Error al subir PDF a Strapi: ${response.statusText}`)
-    }
-
-    const result = await response.json()
+    console.log('[uploadPdfToStrapi] Strapi response:', JSON.stringify(result, null, 2))
 
     if (!result || result.length === 0) {
       throw new Error('Strapi no retornó información del archivo subido')
@@ -74,6 +72,7 @@ export async function uploadPdfToStrapi(
     return fullUrl
   } catch (error: any) {
     console.error('[uploadPdfToStrapi] Error al subir PDF:', error)
+    console.error('[uploadPdfToStrapi] Error details:', error.response || error.data || error.message)
     throw error
   }
 }
@@ -81,31 +80,30 @@ export async function uploadPdfToStrapi(
 /**
  * Genera un PDF desde una sesión y lo sube a Strapi
  *
- * NOTA: Por ahora, esta función asume que los PDFs se generan en el frontend.
- * En el futuro, podemos implementar generación de PDFs en el backend usando PDFKit.
- *
- * Estrategia actual:
- * - Almacenamos el sessionId en OrderItem
- * - El PDF se puede generar bajo demanda desde el frontend
- * - Opcionalmente, podemos implementar un endpoint que genere el PDF en backend
- *
  * @param sessionId - ID de la sesión
- * @returns URL del PDF (puede ser una URL de descarga dinámica)
+ * @returns URL del PDF en Strapi
  */
 export async function generateAndUploadPdf(
   sessionId: string
 ): Promise<string> {
   try {
-    // TODO: Implementar generación de PDF en backend con PDFKit
-    // Por ahora, retornamos una URL que permitirá descargar el PDF bajo demanda
+    console.log(`[generateAndUploadPdf] Generando PDF para sesión ${sessionId}`)
 
-    const config = useRuntimeConfig()
-    const baseUrl = config.public.strapiUrl?.replace('/api', '') || 'http://localhost:3000'
+    // 1. Leer sesión y estado
+    const { session, currentState } = await readSession(sessionId)
 
-    // URL que generará el PDF bajo demanda
-    const pdfUrl = `${baseUrl}/api/session/${sessionId}/download-pdf`
+    // 2. Generar el PDF con PDFKit
+    const pdfBuffer = await generatePdfWithPDFKit(sessionId, session, currentState)
 
-    console.log(`[generateAndUploadPdf] PDF URL generada para sesión ${sessionId}: ${pdfUrl}`)
+    // 3. Preparar nombre del archivo
+    const childName = session.characterSettings?.name || 'Cuento'
+    const sanitizedChildName = childName.replace(/[^a-zA-Z0-9]/g, '_')
+    const fileName = `${sanitizedChildName}_${session.storyId}_${Date.now()}.pdf`
+
+    // 4. Subir a Strapi
+    const pdfUrl = await uploadPdfToStrapi(pdfBuffer, fileName)
+
+    console.log(`[generateAndUploadPdf] PDF generado y subido exitosamente: ${pdfUrl}`)
 
     return pdfUrl
   } catch (error: any) {
@@ -173,49 +171,243 @@ async function readSession(sessionId: string): Promise<{ session: Session; curre
 }
 
 /**
- * FUTURO: Genera un PDF usando PDFKit en el backend
- *
- * Esta función se puede implementar más adelante si necesitamos
- * generar PDFs en el servidor en lugar del cliente.
- *
- * Requerirá:
- * 1. Instalar: pnpm add pdfkit @types/pdfkit
- * 2. Implementar lógica similar a usePdfGenerator.ts pero en Node.js
- * 3. Manejar imágenes desde el sistema de archivos
+ * Genera un PDF usando PDFKit en el backend
  */
 export async function generatePdfWithPDFKit(
-  sessionId: string
+  sessionId: string,
+  session: Session,
+  currentState: CurrentState
 ): Promise<Buffer> {
-  // TODO: Implementar con PDFKit
-  throw new Error('Generación de PDF en backend no implementada aún')
+  const PDFDocument = (await import('pdfkit')).default
+  const { loadStoryConfig } = await import('./story-loader')
+  const { getGeneratedImagePath } = await import('./session-manager')
 
-  /*
-  Ejemplo de implementación:
+  try {
+    console.log(`[generatePdfWithPDFKit] Iniciando generación de PDF para sesión ${sessionId}`)
 
-  import PDFDocument from 'pdfkit'
+    // Cargar configuración del cuento
+    const storyConfig = await loadStoryConfig(session.storyId)
 
-  const { session, currentState } = await readSession(sessionId)
-  const storyConfig = await loadStoryConfig(session.storyId)
+    // Crear documento PDF (A4 size)
+    const doc = new PDFDocument({
+      size: 'A4',
+      margins: { top: 50, bottom: 50, left: 50, right: 50 },
+    })
 
-  const doc = new PDFDocument({ size: 'A4' })
-  const chunks: Buffer[] = []
+    // Capturar el PDF en memoria
+    const chunks: Buffer[] = []
+    doc.on('data', (chunk) => chunks.push(chunk))
+    doc.on('error', (error) => {
+      console.error('[generatePdfWithPDFKit] Error en stream:', error)
+    })
 
-  doc.on('data', (chunk) => chunks.push(chunk))
-  doc.on('end', () => {})
+    const pdfPromise = new Promise<Buffer>((resolve, reject) => {
+      doc.on('end', () => {
+        const pdfBuffer = Buffer.concat(chunks)
+        console.log(`[generatePdfWithPDFKit] PDF generado, tamaño: ${pdfBuffer.length} bytes`)
+        resolve(pdfBuffer)
+      })
+      doc.on('error', reject)
+    })
 
-  // Cover page
-  doc.fontSize(24).text(storyConfig.title)
-  // ... más contenido
+    const pageWidth = doc.page.width
+    const pageHeight = doc.page.height
+    const margin = 50
 
-  // Story pages
-  for (const pageNumber of Object.keys(currentState.selectedVersions)) {
-    // Cargar imagen
-    // Agregar al PDF
-    // Agregar texto
+    // === PORTADA ===
+    await generateCoverPagePDFKit(doc, session, storyConfig, pageWidth, pageHeight, margin)
+
+    // === PÁGINAS DEL CUENTO ===
+    const selectedVersions = currentState.selectedVersions
+    const favoriteVersions = currentState.favoriteVersions || {}
+
+    const pageNumbers = Object.keys(selectedVersions)
+      .map(Number)
+      .sort((a, b) => a - b)
+
+    for (let i = 0; i < pageNumbers.length; i++) {
+      const pageNumber = pageNumbers[i]
+      const pageData = storyConfig.pages.find(p => p.pageNumber === pageNumber)
+
+      if (!pageData) {
+        console.warn(`[generatePdfWithPDFKit] Página ${pageNumber} no encontrada en configuración`)
+        continue
+      }
+
+      // Determinar qué versión usar (favorita o seleccionada)
+      let versionToUse = selectedVersions[pageNumber].version
+      if (favoriteVersions[pageNumber]) {
+        versionToUse = favoriteVersions[pageNumber]
+      }
+
+      // Agregar nueva página
+      doc.addPage()
+
+      // Cargar y agregar imagen
+      try {
+        const imagePath = getGeneratedImagePath(sessionId, pageNumber, versionToUse)
+        const imageBuffer = await fs.readFile(imagePath)
+
+        // Calcular dimensiones manteniendo aspect ratio
+        const maxWidth = pageWidth - (margin * 2)
+        const maxHeight = pageHeight * 0.6
+
+        // Agregar imagen centrada
+        const imageX = margin
+        const imageY = margin
+
+        doc.image(imageBuffer, imageX, imageY, {
+          fit: [maxWidth, maxHeight],
+          align: 'center',
+          valign: 'top',
+        })
+
+        // Calcular posición del texto (debajo de la imagen)
+        const textY = imageY + maxHeight + 20
+        const textMaxWidth = pageWidth - (margin * 2)
+
+        // Agregar texto de la página
+        doc
+          .fontSize(12)
+          .font('Helvetica')
+          .text(pageData.text, margin, textY, {
+            width: textMaxWidth,
+            align: 'left',
+          })
+
+        // Número de página al pie
+        doc
+          .fontSize(10)
+          .font('Helvetica-Oblique')
+          .text(`${i + 1}`, margin, pageHeight - margin, {
+            width: pageWidth - (margin * 2),
+            align: 'center',
+          })
+
+      } catch (error: any) {
+        console.error(`[generatePdfWithPDFKit] Error cargando imagen página ${pageNumber}:`, error)
+        // Continuar con las demás páginas
+      }
+    }
+
+    // === CONTRAPORTADA ===
+    await generateBackCoverPDFKit(doc, session, storyConfig, pageWidth, pageHeight, margin)
+
+    // Finalizar el documento
+    doc.end()
+
+    // Esperar a que el PDF se complete
+    return await pdfPromise
+  } catch (error: any) {
+    console.error('[generatePdfWithPDFKit] Error:', error)
+    throw error
   }
+}
 
-  doc.end()
+/**
+ * Genera la portada del PDF
+ */
+async function generateCoverPagePDFKit(
+  doc: any,
+  session: Session,
+  storyConfig: StoryConfig,
+  pageWidth: number,
+  pageHeight: number,
+  margin: number
+) {
+  // Fondo de color (rectángulo superior)
+  doc
+    .rect(0, 0, pageWidth, pageHeight / 3)
+    .fill('#7C3AED') // Purple
 
-  return Buffer.concat(chunks)
-  */
+  // Título del cuento
+  doc
+    .fillColor('#FFFFFF')
+    .fontSize(28)
+    .font('Helvetica-Bold')
+    .text(storyConfig.title || 'Cuento Personalizado', margin, pageHeight / 6, {
+      width: pageWidth - (margin * 2),
+      align: 'center',
+    })
+
+  // Nombre del niño
+  const childName = session.characterSettings?.name || 'ti'
+  doc
+    .fillColor('#000000')
+    .fontSize(18)
+    .font('Helvetica')
+    .text(`Para ${childName}`, margin, pageHeight / 2, {
+      width: pageWidth - (margin * 2),
+      align: 'center',
+    })
+
+  // Tema del cuento
+  doc
+    .fontSize(14)
+    .font('Helvetica-Oblique')
+    .text(storyConfig.theme || 'Aventura', margin, pageHeight / 2 + 30, {
+      width: pageWidth - (margin * 2),
+      align: 'center',
+    })
+
+  // Fecha de creación
+  const createdDate = new Date(session.createdAt).toLocaleDateString('es-ES', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  })
+  doc
+    .fontSize(10)
+    .fillColor('#666666')
+    .text(`Creado el ${createdDate}`, margin, pageHeight - margin, {
+      width: pageWidth - (margin * 2),
+      align: 'center',
+    })
+}
+
+/**
+ * Genera la contraportada del PDF
+ */
+async function generateBackCoverPDFKit(
+  doc: any,
+  session: Session,
+  storyConfig: StoryConfig,
+  pageWidth: number,
+  pageHeight: number,
+  margin: number
+) {
+  doc.addPage()
+
+  // Fondo gris claro
+  doc
+    .rect(0, 0, pageWidth, pageHeight)
+    .fill('#FAFAFA')
+
+  // Mensaje final
+  const childName = session.characterSettings?.name || 'ti'
+  const message = [
+    'Este cuento fue creado especialmente',
+    `para ${childName}`,
+    '',
+    'con amor y magia digital.',
+  ]
+
+  let y = pageHeight / 2 - 40
+  doc.fillColor('#666666').fontSize(12).font('Helvetica-Oblique')
+
+  message.forEach(line => {
+    doc.text(line, margin, y, {
+      width: pageWidth - (margin * 2),
+      align: 'center',
+    })
+    y += 20
+  })
+
+  // Pie decorativo
+  doc
+    .fontSize(10)
+    .text('✨ Fin ✨', margin, pageHeight - margin, {
+      width: pageWidth - (margin * 2),
+      align: 'center',
+    })
 }

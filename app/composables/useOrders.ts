@@ -90,27 +90,11 @@ export const useOrders = () => {
   }
 
   /**
-   * Descargar PDF de un item de orden
+   * NOTA: La descarga de PDFs ha sido deshabilitada.
+   * Los PDFs se generan automáticamente en el backend y se suben a Strapi
+   * para que la imprenta pueda acceder a ellos.
+   * Los usuarios no necesitan descargar los PDFs.
    */
-  const downloadPDF = (sessionId: string, childName: string, bookTitle: string) => {
-    try {
-      // Generate PDF URL
-      const pdfUrl = `/api/session/${sessionId}/download-pdf`
-
-      // Create temporary link and trigger download
-      const link = document.createElement('a')
-      link.href = pdfUrl
-      link.download = `${childName}_${bookTitle}.pdf`
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
-
-      toast.success('Descargando PDF', `Descargando ${bookTitle}`)
-    } catch (error: any) {
-      console.error('[useOrders] Error al descargar PDF:', error)
-      toast.error('Error', 'No se pudo descargar el PDF')
-    }
-  }
 
   /**
    * Filtrar órdenes por estado
@@ -176,7 +160,6 @@ export const useOrders = () => {
     getUserOrders,
     getOrderById,
     getGuestOrder,
-    downloadPDF,
     filterOrdersByState,
     searchOrders,
     getOrderStats,

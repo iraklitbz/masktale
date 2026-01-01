@@ -40,11 +40,15 @@ export default defineNuxtConfig({
     stripeWebhookSecret: '',
     // Strapi API Token (server-side only)
     strapiApiToken: '',
+    // Resend API Key (server-side only)
+    resendApiKey: '',
     public: {
       // Stripe Public Key (client-side)
       stripePublicKey: '',
       // Strapi URL (client + server)
       strapiUrl: '',
+      // Email From (client + server)
+      emailFrom: 'Mask Stories <onboarding@resend.dev>',
     }
   },
 })
