@@ -62,25 +62,10 @@ onMounted(async () => {
 
 const goToOrders = () => {
   if (isAuthenticated.value) {
-    router.push('/profile/orders')
+    router.push('/profile')
   } else {
     router.push('/order/track')
   }
-}
-
-const downloadPDF = (sessionId: string, childName: string, bookTitle: string) => {
-  // Generate PDF URL
-  const pdfUrl = `/api/session/${sessionId}/download-pdf`
-
-  // Create temporary link and trigger download
-  const link = document.createElement('a')
-  link.href = pdfUrl
-  link.download = `${childName}_${bookTitle}.pdf`
-  document.body.appendChild(link)
-  link.click()
-  document.body.removeChild(link)
-
-  toast.success('Descargando PDF', `Descargando ${bookTitle}`)
 }
 </script>
 
@@ -219,7 +204,7 @@ const downloadPDF = (sessionId: string, childName: string, bookTitle: string) =>
                     d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"
                   />
                 </svg>
-                <span>Tus libros personalizados están listos para descargar</span>
+                <span>Tus libros personalizados se están procesando</span>
               </li>
               <li class="step-item">
                 <svg
@@ -243,28 +228,7 @@ const downloadPDF = (sessionId: string, childName: string, bookTitle: string) =>
           <!-- Actions -->
           <div class="action-buttons">
             <button
-              v-if="orderData && orderData.items.length > 0"
               class="btn-primary"
-              @click="downloadPDF(orderData.items[0].sessionId)"
-            >
-              <svg
-                class="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                />
-              </svg>
-              Descargar PDFs
-            </button>
-
-            <button
-              class="btn-secondary"
               @click="goToOrders"
             >
               <svg
@@ -285,7 +249,7 @@ const downloadPDF = (sessionId: string, childName: string, bookTitle: string) =>
 
             <NuxtLink
               to="/"
-              class="btn-tertiary"
+              class="btn-secondary"
             >
               Volver al inicio
             </NuxtLink>
