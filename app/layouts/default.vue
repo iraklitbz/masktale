@@ -50,13 +50,14 @@ onMounted(() => {
             <!-- Cart Icon -->
             <CartIcon />
 
-            <!-- Loading state while auth initializes -->
-            <div v-if="!authInitialized" class="w-8 h-8">
-              <div class="w-8 h-8 border-2 border-purple-600 border-t-transparent rounded-full animate-spin" />
-            </div>
+            <ClientOnly>
+              <!-- Loading state while auth initializes -->
+              <div v-if="!authInitialized" class="w-8 h-8">
+                <div class="w-8 h-8 border-2 border-purple-600 border-t-transparent rounded-full animate-spin" />
+              </div>
 
-            <!-- Authenticated user -->
-            <div v-else-if="isAuthenticated && user" class="relative" ref="userMenuRef">
+              <!-- Authenticated user -->
+              <div v-else-if="isAuthenticated && user" class="relative" ref="userMenuRef">
               <button
                 class="flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium text-gray-700 hover:bg-white/80 transition-colors"
                 @click="showUserMenu = !showUserMenu"
@@ -126,6 +127,7 @@ onMounted(() => {
                 Registrarse
               </NuxtLink>
             </div>
+            </ClientOnly>
           </div>
         </div>
       </div>
