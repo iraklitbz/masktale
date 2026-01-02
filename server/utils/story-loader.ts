@@ -108,6 +108,37 @@ export async function getPageConfig(
 }
 
 /**
+ * Get the NEW generation prompt template (for complete image generation)
+ *
+ * @param storyId - Story ID
+ * @returns Prompt template text
+ */
+export async function getNewPromptTemplate(storyId: string): Promise<string> {
+  try {
+    const templatePath = path.join(STORIES_DIR, storyId, 'prompts', 'PROMPT_TEMPLATE_NEW.txt')
+
+    // Try new template first
+    try {
+      const templateText = await fs.readFile(templatePath, 'utf-8')
+      console.log('[StoryLoader] Using NEW generation template (complete image generation)')
+      return templateText.trim()
+    } catch (error: any) {
+      if (error.code === 'ENOENT') {
+        // Fallback to old template if new one doesn't exist
+        console.warn('[StoryLoader] New template not found, falling back to old template')
+        const oldTemplatePath = path.join(STORIES_DIR, storyId, 'prompts', 'PROMPT_TEMPLATE.txt')
+        const templateText = await fs.readFile(oldTemplatePath, 'utf-8')
+        return templateText.trim()
+      }
+      throw error
+    }
+  } catch (error) {
+    console.error('[StoryLoader] Error reading prompt template:', error)
+    throw error
+  }
+}
+
+/**
  * Get the prompt text for a specific page
  *
  * @param storyId - Story ID

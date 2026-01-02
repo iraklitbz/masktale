@@ -24,6 +24,20 @@ export interface LocalizedText {
   en: string
 }
 
+/**
+ * Detailed style profile for consistent image generation
+ */
+export interface StyleProfile {
+  technique: string // e.g., "digital watercolor with soft brush strokes"
+  colorPalette: string // e.g., "warm pastels - soft pinks, gentle blues, cream backgrounds"
+  lineWork: string // e.g., "minimal black outlines, focus on color blending"
+  texture: string // e.g., "visible watercolor paper texture, wet-on-wet effects"
+  lighting: string // e.g., "soft natural lighting from upper-left, gentle shadows"
+  detailLevel: string // e.g., "simplified backgrounds, detailed expressive faces"
+  atmosphere: string // e.g., "dreamy, cozy, optimistic children's book aesthetic"
+  artisticReferences?: string // Optional: e.g., "similar to Beatrix Potter meets modern digital art"
+}
+
 export interface StoryMetadata {
   author?: string
   illustrationStyle: IllustrationStyle
@@ -31,6 +45,7 @@ export interface StoryMetadata {
   ageRange: AgeRange
   createdAt?: string
   updatedAt?: string
+  styleProfile?: StyleProfile // NEW: Detailed style specifications
 }
 
 export interface PageMetadata {

@@ -18,7 +18,17 @@
       "max": 8
     },
     "createdAt": "2025-12-19",
-    "updatedAt": "2025-12-19"
+    "updatedAt": "2025-12-19",
+    "styleProfile": {
+      "technique": "digital watercolor illustration with soft, flowing brush strokes and gentle color transitions",
+      "colorPalette": "warm and inviting pastel tones - soft blues, gentle pinks, cream yellows, mint greens with warm beige backgrounds",
+      "lineWork": "minimal subtle outlines in soft brown or gray, emphasis on color blocking and blending rather than hard lines",
+      "texture": "visible watercolor paper texture with wet-on-wet bleeding effects, organic paint splatters, and natural color gradients",
+      "lighting": "soft diffused natural lighting from upper-left creating gentle shadows, warm sunlight ambiance with subtle highlights on faces",
+      "detailLevel": "simplified stylized backgrounds with loose gestural elements, highly detailed and expressive character faces with careful attention to eyes and smiles",
+      "atmosphere": "dreamy, warm, optimistic and nurturing - capturing the wonder and excitement of childhood experiences",
+      "artisticReferences": "modern children's book illustration combining traditional watercolor aesthetics with digital precision, similar to contemporary picture book artists"
+    }
   },
   "pages": [
     {

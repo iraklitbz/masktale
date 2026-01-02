@@ -72,6 +72,33 @@ export interface PageVersionHistory {
 }
 
 /**
+ * AI-generated ULTRA-DETAILED description of the child's physical characteristics
+ * Used for consistent character rendering across all pages
+ */
+export interface CharacterDescription {
+  ageRange: string
+  skinTone: string
+  eyeColor: string
+  eyeShape: string
+  hairColor: string
+  hairTexture: string
+  hairStyle: string
+  faceShape: string
+  nose: string
+  lips: string
+  smile: string
+  eyebrows: string
+  ears: string
+  cheeks: string
+  chin: string
+  facialProportions: string
+  distinctiveFeatures: string
+  overallImpression: string
+  fullDescription: string
+  generatedAt: string
+}
+
+/**
  * Current state of the story generation
  * Tracks which version of each page is selected
  */
@@ -92,6 +119,10 @@ export interface CurrentState {
   favoriteVersions?: {
     [pageNumber: string]: number // version number
   }
+  // NEW: AI-generated character description for consistency
+  characterDescription?: CharacterDescription
+  // NEW: Path to style reference image (first successful generation)
+  styleReferenceImage?: string
   lastUpdated: string
 }
 

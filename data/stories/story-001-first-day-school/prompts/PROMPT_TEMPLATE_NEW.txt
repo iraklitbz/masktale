@@ -1,0 +1,150 @@
+## NUEVA PLANTILLA - GENERACIÓN COMPLETA DE ILUSTRACIÓN ##
+
+# CONTEXTO
+Estás creando una ilustración COMPLETAMENTE NUEVA para un cuento infantil personalizado. Debes generar la ilustración desde cero, NO editar ninguna imagen existente.
+
+# TAREA PRINCIPAL
+Crea una ilustración infantil ORIGINAL que muestre al niño/a de las fotos de referencia como protagonista en la escena descrita.
+
+---
+
+# INFORMACIÓN DE LA ESCENA
+
+## DESCRIPCIÓN DE LA ESCENA
+{SCENE_DESCRIPTION}
+
+## TONO EMOCIONAL
+{EMOTIONAL_TONE}
+
+## ESTILO ARTÍSTICO BASE
+{ILLUSTRATION_STYLE}
+
+---
+
+# ⭐⭐⭐ ABSOLUTE STYLE CONSISTENCY - CRITICAL ⭐⭐⭐
+
+{STYLE_PROFILE}
+
+THIS IS PART OF A MULTI-PAGE STORYBOOK. You MUST use EXACTLY the same artistic style, color palette, technique, and visual aesthetic as specified above. ALL pages must look like they belong to the same book, created by the same illustrator.
+
+CONSISTENCY REQUIREMENTS (CRITICAL):
+✓ Use the EXACT SAME brush stroke technique and texture
+✓ Use the EXACT SAME color palette and tones - maintain color harmony
+✓ Maintain the EXACT SAME level of background detail and simplification
+✓ Apply the EXACT SAME lighting approach (direction, softness, intensity)
+✓ Keep the EXACT SAME artistic aesthetic and "hand" of the illustrator
+✓ Use the SAME line weight and outline treatment
+✓ Apply the SAME level of shading and highlight technique
+✓ Maintain the SAME composition style and framing approach
+
+CONSISTENCY ANCHOR POINTS:
+- Think of yourself as the SAME illustrator creating ALL pages
+- Imagine this is a physical book where a parent would instantly notice style inconsistencies
+- The color palette should feel like it comes from the same set of paints
+- The brush technique should feel like the same hand painted all images
+- The overall "feel" must be identical across all pages
+
+If generating multiple pages: Before starting, mentally establish your artistic style based on the profile, then maintain it exactly for every page.
+
+---
+
+# 👤 CHARACTER (THE CHILD) - MAXIMUM ACCURACY REQUIRED 👤
+
+{CHARACTER_DESCRIPTION}
+
+REFERENCE PHOTOS PROVIDED:
+Study the child's reference photo(s) carefully. These show the EXACT child who must appear in your illustration. Your illustrated version must be INSTANTLY recognizable as this same child to their parents.
+
+CRITICAL MATCHING POINTS:
+1. FACE STRUCTURE: Match the exact face shape, proportions, and bone structure
+2. EYES: Get the eye color, shape, size, and expression EXACTLY right
+3. HAIR: Match the exact hair color, texture, length, and style
+4. SKIN TONE: Replicate the precise skin color and undertones
+5. DISTINCTIVE FEATURES: Include ALL moles, freckles, dimples, etc.
+6. EXPRESSION: Give them a natural {EMOTIONAL_TONE} expression that fits their personality
+
+The parents must look at this and say "That's MY child!" - accuracy is paramount.
+
+---
+
+# 🎨 COMPOSITION & SCENE GUIDELINES
+
+## CHARACTER PLACEMENT
+- Position the child at approximately {FACE_POSITION_X}% from left, {FACE_POSITION_Y}% from top
+- The child should be the clear focal point of the illustration
+- Make the child prominent but naturally integrated into the scene
+
+## SCENE ELEMENTS
+Scene: {SCENE_DESCRIPTION}
+
+Create a complete illustration including:
+✓ The child as the main subject (matching description exactly)
+✓ Appropriate background setting for the scene
+✓ Supporting elements that tell the story
+✓ Environmental details that set the mood
+✓ Proper perspective and spatial relationships
+
+## EMOTIONAL ATMOSPHERE
+Emotion: {EMOTIONAL_TONE}
+
+The overall mood should be:
+- Visually communicate the {EMOTIONAL_TONE} emotion
+- Child's expression matches the emotional tone
+- Color choices support the emotional mood
+- Lighting enhances the feeling
+- Composition reinforces the emotion
+
+---
+
+# 🎯 QUALITY STANDARDS
+
+## TECHNICAL EXCELLENCE
+✓ Professional children's book illustration quality
+✓ Clean, polished finish appropriate for publication
+✓ Proper anatomy and proportions for a child of this age
+✓ Natural and believable poses and expressions
+✓ Harmonious color composition
+✓ Clear focal point on the child character
+✓ Age-appropriate content and styling
+
+## CHARACTER ACCURACY
+✓ Child is INSTANTLY recognizable from photos
+✓ All distinctive features are present
+✓ Facial expression is natural and authentic
+✓ Hair, eyes, skin tone are precisely matched
+✓ Overall "look" captures the child's essence
+
+## STYLE CONSISTENCY
+✓ Matches the detailed style profile exactly
+✓ Consistent with other pages in the book
+✓ Professional, cohesive aesthetic throughout
+✓ Same artistic voice and technique
+
+---
+
+# ✨ FINAL CHECKLIST BEFORE GENERATING
+
+Before creating the image, verify:
+
+☑ I have studied the character description in detail
+☑ I have analyzed the reference photo(s) carefully
+☑ I understand the exact scene to illustrate
+☑ I know the precise artistic style to use
+☑ I understand the emotional tone to convey
+☑ I will create a COMPLETELY NEW illustration (not edit an existing one)
+☑ The child will be INSTANTLY recognizable
+☑ The style will match the profile specifications EXACTLY
+☑ The quality will be professional publication-level
+
+---
+
+# 🎨 NOW CREATE THE ILLUSTRATION
+
+Generate a beautiful, professional children's book illustration that:
+1. Features the EXACT child from the reference photos
+2. Shows them in the scene: {SCENE_DESCRIPTION}
+3. Conveys the emotion: {EMOTIONAL_TONE}
+4. Uses the style profile specifications precisely
+5. Is completely original and perfectly consistent with other pages
+
+Make it magical! ✨

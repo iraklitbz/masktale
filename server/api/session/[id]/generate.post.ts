@@ -15,10 +15,11 @@ import {
   getGeneratedImagePath,
   getUserPhotoPath,
 } from '../../../utils/session-manager'
-import { loadStoryConfig, getPagePrompt, getBaseImageBase64 } from '../../../utils/story-loader'
+import { loadStoryConfig, getNewPromptTemplate } from '../../../utils/story-loader'
 import { generateImageWithRetry } from '../../../utils/gemini'
 import { createImageCollage } from '../../../utils/image-processor'
 import { buildPromptForPage, getGenerationSummary } from '../../../utils/prompt-builder'
+import { analyzeCharacterFromPhotos } from '../../../utils/character-analyzer'
 
 interface GeneratePageRequest {
   pageNumber: number
@@ -108,10 +109,7 @@ export default defineEventHandler(async (event) => {
     session.progress.currentPage = pageNumber
     await saveSession(sessionId, session)
 
-    // Load base image
-    const baseImageBase64 = await getBaseImageBase64(session.storyId, pageNumber)
-
-    // Load user photos and create collage
+    // Load user photos (NO base image needed for new generation mode)
     const photosDir = getUserPhotoPath(sessionId)
     const photoFiles = await fs.readdir(photosDir)
     const userPhotosBase64: string[] = []
@@ -122,27 +120,56 @@ export default defineEventHandler(async (event) => {
       userPhotosBase64.push(buffer.toString('base64'))
     }
 
-    // Create collage from user photos
+    // Create collage from user photos for reference
     const userCollageBase64 = await createImageCollage(userPhotosBase64)
 
-    // Load and build prompt
-    const promptTemplate = await getPagePrompt(session.storyId, pageNumber)
+    console.log(`[Generate] NEW MODE: Complete generation (NO base image)`)
+    console.log(`[Generate] Using ${userPhotosBase64.length} user photo(s) as reference`)
+
+    // Generate character description if this is the first generation
+    if (!currentState.characterDescription) {
+      console.log('[Generate] No character description found. Generating from photos...')
+      try {
+        const characterDescription = await analyzeCharacterFromPhotos(userPhotosBase64)
+        currentState.characterDescription = characterDescription
+        await saveCurrentState(sessionId, currentState)
+        console.log('[Generate] Character description generated and saved')
+      } catch (error: any) {
+        console.warn('[Generate] Failed to generate character description:', error.message)
+        console.warn('[Generate] Continuing without character description...')
+      }
+    } else {
+      console.log('[Generate] Using existing character description')
+    }
+
+    // Load and build prompt with NEW template (for complete generation)
+    const promptTemplate = await getNewPromptTemplate(session.storyId)
     const finalPrompt = buildPromptForPage(
       promptTemplate,
       page.metadata,
-      storyConfig.metadata.illustrationStyle
+      storyConfig.metadata.illustrationStyle,
+      storyConfig.metadata.styleProfile,
+      currentState.characterDescription
     )
 
-    console.log(`[Generate] Using ${userPhotosBase64.length} user photo(s) as collage`)
+    if (currentState.characterDescription) {
+      console.log('[Generate] Using character description:', currentState.characterDescription.fullDescription)
+    }
+    if (storyConfig.metadata.styleProfile) {
+      console.log('[Generate] Using detailed style profile for consistency')
+    }
 
-    // Generate with Gemini
-    const generatedImageBase64 = await generateImageWithRetry({
-      prompt: finalPrompt,
-      baseImageBase64,
-      userImagesBase64: userCollageBase64,
-      aspectRatio: page.aspectRatio,
-      model: storyConfig.settings.geminiModel,
-    })
+    // Generate with Gemini - NEW MODE: NO base image, complete generation
+    const generatedImageBase64 = await generateImageWithRetry(
+      {
+        prompt: finalPrompt,
+        userImagesBase64: userCollageBase64,
+        aspectRatio: page.aspectRatio,
+        model: storyConfig.settings.geminiModel,
+      },
+      3, // max retries
+      false // useBaseImage = false (NEW MODE)
+    )
 
     // Save generated image
     const generatedDir = path.join(
@@ -159,6 +186,12 @@ export default defineEventHandler(async (event) => {
     await fs.writeFile(outputPath, imageBuffer)
 
     console.log(`[Generate] Saved to ${outputPath}`)
+
+    // Save as style reference if this is the first successful generation
+    if (!currentState.styleReferenceImage && pageNumber === 1 && versionNumber === 1) {
+      currentState.styleReferenceImage = path.relative(process.cwd(), outputPath)
+      console.log('[Generate] Saved first generation as style reference for consistency')
+    }
 
     // Create version entry
     const newVersion = {

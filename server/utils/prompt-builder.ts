@@ -3,7 +3,9 @@
  * Builds dynamic prompts by replacing template variables
  */
 
-import type { StoryPage, PageMetadata } from '~/app/types/story'
+import type { StoryPage, PageMetadata, StyleProfile } from '~/app/types/story'
+import type { CharacterDescription } from '~/app/types/session'
+import { formatCharacterDescriptionForPrompt } from './character-analyzer'
 
 /**
  * Build a complete prompt for a specific page
@@ -12,6 +14,8 @@ import type { StoryPage, PageMetadata } from '~/app/types/story'
  * @param promptTemplate - The prompt template text with variables
  * @param pageMetadata - Metadata for the specific page
  * @param illustrationStyle - Story illustration style
+ * @param styleProfile - Detailed style profile for consistency (optional)
+ * @param characterDescription - AI-generated character description (optional)
  * @param customInstructions - Optional custom instructions from user
  * @returns Complete prompt ready for Gemini
  */
@@ -19,15 +23,37 @@ export function buildPromptForPage(
   promptTemplate: string,
   pageMetadata: PageMetadata,
   illustrationStyle: string,
+  styleProfile?: StyleProfile,
+  characterDescription?: CharacterDescription,
   customInstructions?: string
 ): string {
   let prompt = promptTemplate
+
+  // Build style profile section
+  const styleProfileText = styleProfile
+    ? `STYLE SPECIFICATIONS (MUST FOLLOW EXACTLY):
+- Technique: ${styleProfile.technique}
+- Color Palette: ${styleProfile.colorPalette}
+- Line Work: ${styleProfile.lineWork}
+- Texture: ${styleProfile.texture}
+- Lighting: ${styleProfile.lighting}
+- Detail Level: ${styleProfile.detailLevel}
+- Atmosphere: ${styleProfile.atmosphere}
+${styleProfile.artisticReferences ? `- Artistic References: ${styleProfile.artisticReferences}` : ''}`
+    : `Style: ${illustrationStyle}`
+
+  // Build character description section
+  const characterDescriptionText = characterDescription
+    ? formatCharacterDescriptionForPrompt(characterDescription)
+    : `Analyze the child's features carefully from the reference photos provided.`
 
   // Replace variables
   const replacements: Record<string, string> = {
     '{SCENE_DESCRIPTION}': pageMetadata.sceneDescription,
     '{EMOTIONAL_TONE}': pageMetadata.emotionalTone,
     '{ILLUSTRATION_STYLE}': illustrationStyle,
+    '{STYLE_PROFILE}': styleProfileText,
+    '{CHARACTER_DESCRIPTION}': characterDescriptionText,
     '{FACE_POSITION_X}': pageMetadata.facePosition.x.toString(),
     '{FACE_POSITION_Y}': pageMetadata.facePosition.y.toString(),
     '{DIFFICULTY}': pageMetadata.difficulty,
