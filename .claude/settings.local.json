@@ -17,7 +17,9 @@
       "Bash(pnpm list:*)",
       "Bash(lsof:*)",
       "Bash(xargs kill -9)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Bash(find:*)",
+      "Bash(xargs ls:*)"
     ]
   }
 }
