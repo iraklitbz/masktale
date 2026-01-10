@@ -1,0 +1,36 @@
+{
+  "id": "e11cfd73-9014-478c-ace5-46b609d5424f",
+  "storyId": "story-002-dragon-adventure",
+  "createdAt": "2026-01-10T10:33:58.223Z",
+  "expiresAt": "2026-01-11T10:33:58.223Z",
+  "status": "generating",
+  "progress": {
+    "totalPages": 3,
+    "pagesGenerated": 1,
+    "errors": [
+      {
+        "pageNumber": 1,
+        "attempt": 1,
+        "error": "Failed to generate image after 3 attempts: Candidate has no content",
+        "timestamp": "2026-01-10T10:34:48.221Z"
+      },
+      {
+        "pageNumber": 2,
+        "attempt": 1,
+        "error": "Failed to generate image after 3 attempts: Candidate has no content",
+        "timestamp": "2026-01-10T10:35:30.889Z"
+      }
+    ],
+    "currentPage": 3
+  },
+  "userPhoto": {
+    "originalPath": "data/sessions/e11cfd73-9014-478c-ace5-46b609d5424f/user-photos/photo-1.jpeg",
+    "uploadedAt": "2026-01-10T10:34:02.949Z",
+    "metadata": {
+      "width": 0,
+      "height": 0,
+      "format": "jpeg",
+      "size": 4849103
+    }
+  }
+}

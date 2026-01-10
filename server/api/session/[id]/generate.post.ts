@@ -120,17 +120,21 @@ export default defineEventHandler(async (event) => {
       userPhotosBase64.push(buffer.toString('base64'))
     }
 
-    // Create collage from user photos for reference
-    const userCollageBase64 = await createImageCollage(userPhotosBase64)
+    // IMPORTANT: Use ONLY the FIRST/BEST photo for maximum likeness
+    // Testing shows 1 excellent photo gives BETTER results than multiple photos
+    // Multiple photos can confuse the AI about which features to prioritize
+    const bestPhoto = userPhotosBase64[0] // Use first uploaded photo as reference
 
     console.log(`[Generate] NEW MODE: Complete generation (NO base image)`)
-    console.log(`[Generate] Using ${userPhotosBase64.length} user photo(s) as reference`)
+    console.log(`[Generate] Using SINGLE best photo (first uploaded) for MAXIMUM facial similarity`)
+    console.log(`[Generate] Note: ${userPhotosBase64.length} photo(s) uploaded, using photo #1 for best results`)
 
     // Generate character description if this is the first generation
+    // Use only the first photo for analysis (best results)
     if (!currentState.characterDescription) {
-      console.log('[Generate] No character description found. Generating from photos...')
+      console.log('[Generate] No character description found. Generating from best photo...')
       try {
-        const characterDescription = await analyzeCharacterFromPhotos(userPhotosBase64)
+        const characterDescription = await analyzeCharacterFromPhotos([bestPhoto])
         currentState.characterDescription = characterDescription
         await saveCurrentState(sessionId, currentState)
         console.log('[Generate] Character description generated and saved')
@@ -160,10 +164,11 @@ export default defineEventHandler(async (event) => {
     }
 
     // Generate with Gemini - NEW MODE: NO base image, complete generation
+    // Use ONLY the best photo (first uploaded) for maximum facial similarity
     const generatedImageBase64 = await generateImageWithRetry(
       {
         prompt: finalPrompt,
-        userImagesBase64: userCollageBase64,
+        userImagesBase64: bestPhoto, // Send ONLY the best photo (single image)
         aspectRatio: page.aspectRatio,
         model: storyConfig.settings.geminiModel,
       },

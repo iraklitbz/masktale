@@ -19,7 +19,8 @@
       "Bash(xargs kill -9)",
       "Bash(ls:*)",
       "Bash(find:*)",
-      "Bash(xargs ls:*)"
+      "Bash(xargs ls:*)",
+      "Bash(convert:*)"
     ]
   }
 }

@@ -140,6 +140,8 @@ Before creating the image, verify:
 
 # 🎨 NOW CREATE THE ILLUSTRATION
 
+**IMPORTANT:** You are being provided with multiple reference photos of the SAME child from different angles. Study ALL photos carefully - they show the same person from various perspectives. Analyze the common facial features across all images to understand the child's true appearance. Use all photos together to achieve maximum facial accuracy and likeness.
+
 Generate a beautiful, professional children's book illustration that:
 1. Features the EXACT child from the reference photos
 2. Shows them in the scene: {SCENE_DESCRIPTION}

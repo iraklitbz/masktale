@@ -1,0 +1,42 @@
+{
+  "id": "a6c44dda-5d84-4172-a950-7e4030e8f6e9",
+  "storyId": "story-002-dragon-adventure",
+  "createdAt": "2026-01-10T10:05:53.455Z",
+  "expiresAt": "2026-01-11T10:05:53.455Z",
+  "status": "generating",
+  "progress": {
+    "totalPages": 0,
+    "pagesGenerated": 0,
+    "errors": [
+      {
+        "pageNumber": 1,
+        "attempt": 1,
+        "error": "ENOENT: no such file or directory, open '/Users/iraklitbz/Desktop/apps/webs/mask/data/stories/story-002-dragon-adventure/prompts/PROMPT_TEMPLATE.txt'",
+        "timestamp": "2026-01-10T10:06:06.608Z"
+      },
+      {
+        "pageNumber": 2,
+        "attempt": 1,
+        "error": "ENOENT: no such file or directory, open '/Users/iraklitbz/Desktop/apps/webs/mask/data/stories/story-002-dragon-adventure/prompts/PROMPT_TEMPLATE.txt'",
+        "timestamp": "2026-01-10T10:06:07.849Z"
+      },
+      {
+        "pageNumber": 3,
+        "attempt": 1,
+        "error": "ENOENT: no such file or directory, open '/Users/iraklitbz/Desktop/apps/webs/mask/data/stories/story-002-dragon-adventure/prompts/PROMPT_TEMPLATE.txt'",
+        "timestamp": "2026-01-10T10:06:09.018Z"
+      }
+    ],
+    "currentPage": 3
+  },
+  "userPhoto": {
+    "originalPath": "data/sessions/a6c44dda-5d84-4172-a950-7e4030e8f6e9/user-photos/photo-1.jpeg",
+    "uploadedAt": "2026-01-10T10:05:59.610Z",
+    "metadata": {
+      "width": 0,
+      "height": 0,
+      "format": "jpeg",
+      "size": 4530435
+    }
+  }
+}

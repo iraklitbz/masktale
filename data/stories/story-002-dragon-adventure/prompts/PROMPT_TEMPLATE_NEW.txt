@@ -1,0 +1,163 @@
+## CHILDREN'S BOOK ILLUSTRATION WITH HIGHLY REALISTIC PORTRAIT ##
+
+Create a beautiful children's book illustration featuring a child portrait with maximum realism and accuracy, set in a magical illustrated storybook world.
+
+---
+
+# 🎨 ARTISTIC STYLE & APPROACH
+
+{STYLE_PROFILE}
+
+**Style:** {ILLUSTRATION_STYLE}
+
+Create an illustration combining:
+- **Highly realistic portrait art** for the child - painted with extreme attention to facial accuracy and natural details
+- **Painterly illustrated backgrounds** - artistic, magical, storybook style
+- **Fantasy elements** (dragon, magic) - clearly illustrated and artistic
+
+**Visual approach:** Professional portrait painting quality for the child, merged with vibrant illustrated storybook environments.
+
+---
+
+# 👤 THE CHILD - MAXIMUM FACIAL ACCURACY REQUIRED
+
+Study the reference photo with extreme care. Your painted portrait must capture this EXACT child with maximum accuracy.
+
+## CRITICAL FACIAL FEATURES TO MATCH EXACTLY:
+
+**EYES (Most Important):**
+- EXACT eye shape and size
+- EXACT eye color - note the precise shade
+- Eyebrow shape, thickness, and color
+- Eye spacing and proportions
+
+**FACE STRUCTURE:**
+- Face shape and proportions
+- Chin and jawline shape
+- Cheek structure
+
+**NOSE & MOUTH:**
+- Nose shape, size, and proportions
+- Lip shape, fullness, and natural color
+- Mouth width
+
+**HAIR:**
+- EXACT hair color (note shade and undertones)
+- Hair texture (straight, wavy, curly)
+- How hair falls naturally
+- Hairline shape
+
+**SKIN:**
+- EXACT skin tone
+- Include ALL freckles, moles, birthmarks in correct locations
+- Natural skin appearance
+
+**DISTINCTIVE FEATURES:**
+- Any dimples, freckles, or unique characteristics
+- Anything that makes this child immediately recognizable
+
+{CHARACTER_DESCRIPTION}
+
+**LIKENESS GOAL:**
+Parents must instantly and confidently recognize their child. The painted portrait should capture their exact appearance - every feature matching the reference photo.
+
+---
+
+# 📐 SCENE & COMPOSITION
+
+**Scene:** {SCENE_DESCRIPTION}
+
+**Emotion:** {EMOTIONAL_TONE}
+
+**Child Position:** Approximately {FACE_POSITION_X}% from left, {FACE_POSITION_Y}% from top
+
+**Create:**
+- Child as main focal point with highly realistic portrait rendering
+- Natural pose appropriate for {EMOTIONAL_TONE}
+- Face clearly visible and well-lit
+- Background: artistic, painterly storybook illustration
+- Fantasy elements clearly illustrated
+
+**Integration:**
+- Child naturally placed within the illustrated scene
+- Lighting coherent across the composition
+- Perfect edge blending
+- Realistic portrait in magical painted world
+
+---
+
+# 💡 RENDERING DETAILS
+
+**For the Child:**
+- Paint with maximum detail and accuracy
+- Natural, realistic facial features
+- Careful attention to eye color, shape, and expression
+- Accurate hair color, texture, and flow
+- Natural skin tones with proper shading
+- Expression matches {EMOTIONAL_TONE} naturally
+- Rendered with portrait painting quality
+
+**For the Background:**
+- Artistic, painterly illustration style
+- Vibrant, magical colors
+- Storybook aesthetic
+- Fantasy elements clearly illustrated
+
+**Lighting:**
+- Natural, directional lighting creating depth
+- Face well-lit showing all features clearly
+- Highlights and shadows that enhance realism
+- Lighting appropriate to scene atmosphere
+
+---
+
+# ✅ QUALITY CHECKLIST
+
+**Facial Accuracy:**
+☑ Eye shape matches reference photo exactly?
+☑ Eye color matches exactly?
+☑ Nose shape matches?
+☑ Lip shape matches?
+☑ Face shape and proportions match?
+☑ Hair color and texture match exactly?
+☑ Skin tone matches?
+☑ All freckles/moles included in correct places?
+☑ Overall likeness is immediately recognizable?
+
+**Artistic Quality:**
+☑ Child rendered with portrait painting quality?
+☑ Background clearly illustrated and artistic?
+☑ Composition balanced and engaging?
+☑ Lighting natural and enhances the scene?
+☑ Expression authentic and age-appropriate?
+
+---
+
+# 🎨 GENERATE THE ILLUSTRATION
+
+Create a professional children's book illustration:
+
+1. **Study the reference photo carefully**
+   - Note every facial detail
+   - Understand exact features to recreate
+
+2. **Paint the child with portrait accuracy**
+   - Features match reference photo exactly
+   - Natural {EMOTIONAL_TONE} expression
+   - High detail on face and features
+
+3. **Create the illustrated world**
+   - Scene: {SCENE_DESCRIPTION}
+   - Artistic, painterly background
+   - Fantasy elements
+
+4. **Integrate seamlessly**
+   - Natural placement in scene
+   - Coherent lighting
+   - Perfect blending
+
+## FACIAL ACCURACY IS THE TOP PRIORITY
+
+The painted portrait must capture the exact child from the reference photo. Every feature - eyes, nose, mouth, hair, skin tone - must match precisely. Parents should instantly recognize their child.
+
+**Create beautiful, accurate magic!** ✨

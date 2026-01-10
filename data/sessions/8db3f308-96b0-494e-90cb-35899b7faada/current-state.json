@@ -1,0 +1,74 @@
+{
+  "storyId": "story-002-dragon-adventure",
+  "sessionId": "8db3f308-96b0-494e-90cb-35899b7faada",
+  "selectedVersions": {
+    "1": {
+      "version": 1,
+      "generatedAt": "2026-01-10T10:38:13.328Z",
+      "imagePath": "data/sessions/8db3f308-96b0-494e-90cb-35899b7faada/generated/page-01-v1.png"
+    },
+    "2": {
+      "version": 1,
+      "generatedAt": "2026-01-10T10:38:24.461Z",
+      "imagePath": "data/sessions/8db3f308-96b0-494e-90cb-35899b7faada/generated/page-02-v1.png"
+    },
+    "3": {
+      "version": 1,
+      "generatedAt": "2026-01-10T10:38:35.509Z",
+      "imagePath": "data/sessions/8db3f308-96b0-494e-90cb-35899b7faada/generated/page-03-v1.png"
+    }
+  },
+  "regenerationCount": {
+    "1": 1,
+    "2": 1,
+    "3": 1
+  },
+  "lastUpdated": "2026-01-10T10:38:35.509Z",
+  "characterDescription": {
+    "ageRange": "5-6 years old",
+    "skinTone": "fair skin with rosy undertones, particularly visible in cheeks and around the nose. Skin appears slightly dry under the eyes.",
+    "eyeColor": "bright sky blue eyes with a subtle darker limbal ring. Slight shadowing under the eyes.",
+    "eyeShape": "almond-shaped eyes, with the outer corners slightly tilted upwards. Moderate eyelid exposure and visible upper eyelids.",
+    "hairColor": "dark warm brown, almost chestnut, with very subtle natural lighter reddish highlights, particularly noticeable in curls. The hair closer to the scalp is a darker shade of brown.",
+    "hairTexture": "fine textured hair, naturally wavy with a tendency to curl, especially towards the ends. Some frizziness visible around the face.",
+    "hairStyle": "Styled in two high pigtail buns, secured with pink barrettes with white pom-poms. Loose strands escaping around the face and neck.",
+    "faceShape": "round face with soft, full cheeks and a gentle, rounded jawline. Forehead appears relatively broad.",
+    "nose": "small, slightly upturned button nose with a gently rounded tip. Bridge of the nose is narrow.",
+    "lips": "medium-sized lips, the upper lip is slightly thinner than the lower lip. The lip color is a natural rosy pink with a subtle sheen.",
+    "smile": "Not smiling in the photo, but lips are relaxed in a neutral expression. No teeth visible.",
+    "eyebrows": "medium-thick eyebrows, slightly arched with a warm dark brown color matching the hair. Well-defined but not overly groomed.",
+    "ears": "medium-sized ears, positioned relatively close to the head. Only the left ear is clearly visible.",
+    "cheeks": "full and round cheeks with a natural rosiness, creating a cherubic appearance.",
+    "chin": "rounded, soft chin that blends smoothly into the jawline.",
+    "facialProportions": "well-balanced facial proportions, with large eyes being the most prominent feature relative to the size of the nose and mouth. The face is slightly wider than it is long.",
+    "distinctiveFeatures": "a barely noticeable, very faint freckle or two scattered across the bridge of the nose. The skin under the eyes is slightly more pale than the rest of her face. Very subtle redness at the inner corner of the right eye.",
+    "overallImpression": "sweet and innocent appearance, with soft baby-faced features and bright, engaging eyes. Appears serious but also gentle.",
+    "fullDescription": "This young girl, estimated to be between 5-6 years old, has a sweet, innocent face with a fair complexion exhibiting rosy undertones, especially visible on her full cheeks. Her bright sky blue, almond-shaped eyes are a focal point, complemented by medium-thick dark warm brown arched eyebrows. Her dark warm brown hair is styled into two high pigtail buns secured with pink pom-pom barrettes, with loose, wavy strands framing her face. A small, slightly upturned button nose sits above her medium-sized naturally rosy pink lips and the overall impression is further softened by her rounded chin and cherubic facial proportions and she has very faint freckles across the bridge of her nose. ",
+    "generatedAt": "2026-01-10T10:38:02.313Z"
+  },
+  "styleReferenceImage": "data/sessions/8db3f308-96b0-494e-90cb-35899b7faada/generated/page-01-v1.png",
+  "versionHistory": {
+    "1": [
+      {
+        "version": 1,
+        "generatedAt": "2026-01-10T10:38:13.328Z",
+        "imagePath": "data/sessions/8db3f308-96b0-494e-90cb-35899b7faada/generated/page-01-v1.png"
+      }
+    ],
+    "2": [
+      {
+        "version": 1,
+        "generatedAt": "2026-01-10T10:38:24.461Z",
+        "imagePath": "data/sessions/8db3f308-96b0-494e-90cb-35899b7faada/generated/page-02-v1.png"
+      }
+    ],
+    "3": [
+      {
+        "version": 1,
+        "generatedAt": "2026-01-10T10:38:35.509Z",
+        "imagePath": "data/sessions/8db3f308-96b0-494e-90cb-35899b7faada/generated/page-03-v1.png"
+      }
+    ]
+  },
+  "favoriteVersions": {}
+}

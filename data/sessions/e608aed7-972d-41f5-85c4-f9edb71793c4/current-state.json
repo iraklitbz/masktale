@@ -1,0 +1,100 @@
+{
+  "storyId": "story-001-first-day-school",
+  "sessionId": "e608aed7-972d-41f5-85c4-f9edb71793c4",
+  "selectedVersions": {
+    "1": {
+      "version": 1,
+      "generatedAt": "2026-01-08T19:19:09.864Z",
+      "imagePath": "data/sessions/e608aed7-972d-41f5-85c4-f9edb71793c4/generated/page-01-v1.png"
+    },
+    "2": {
+      "version": 1,
+      "generatedAt": "2026-01-08T19:19:21.413Z",
+      "imagePath": "data/sessions/e608aed7-972d-41f5-85c4-f9edb71793c4/generated/page-02-v1.png"
+    },
+    "3": {
+      "version": 1,
+      "generatedAt": "2026-01-08T19:19:33.317Z",
+      "imagePath": "data/sessions/e608aed7-972d-41f5-85c4-f9edb71793c4/generated/page-03-v1.png"
+    },
+    "4": {
+      "version": 1,
+      "generatedAt": "2026-01-08T19:19:45.659Z",
+      "imagePath": "data/sessions/e608aed7-972d-41f5-85c4-f9edb71793c4/generated/page-04-v1.png"
+    },
+    "5": {
+      "version": 1,
+      "generatedAt": "2026-01-08T19:19:57.310Z",
+      "imagePath": "data/sessions/e608aed7-972d-41f5-85c4-f9edb71793c4/generated/page-05-v1.png"
+    }
+  },
+  "regenerationCount": {
+    "1": 1,
+    "2": 1,
+    "3": 1,
+    "4": 1,
+    "5": 1
+  },
+  "lastUpdated": "2026-01-08T19:19:57.310Z",
+  "characterDescription": {
+    "ageRange": "5-6 years old",
+    "skinTone": "Fair skin with rosy undertones, slightly pale complexion, very subtle freckles across the upper cheeks and bridge of the nose, particularly visible near the eyes.",
+    "eyeColor": "Bright sky blue eyes with a slightly darker limbal ring. The color is a pure, clear blue without any noticeable green or gray hues.",
+    "eyeShape": "Almond-shaped eyes, slightly downturned at the outer corners. The upper eyelids have a slight crease, and the lower lids are smooth. The eyelashes are medium length and dark brown.",
+    "hairColor": "Medium chestnut brown with natural auburn highlights, particularly visible in the loose strands around the face. The roots appear slightly darker than the ends. The hair reflects light, giving it a glossy appearance.",
+    "hairTexture": "Wavy hair with a mix of loose and tight curls. The hair appears somewhat fine in texture with medium density.",
+    "hairStyle": "Hair is styled in two high pigtail buns on either side of the head, secured with small pink clips with white pom-poms. There are loose, wispy strands framing the face.",
+    "faceShape": "Round face with soft, full cheeks. The jawline is gently rounded, and the forehead is proportionally sized to the rest of the face.",
+    "nose": "Small, slightly upturned nose with a rounded tip. The bridge is narrow and the nostrils are small and delicate.",
+    "lips": "Full, rosy pink lips with a slightly fuller bottom lip. The Cupid's bow is well-defined, and there is a natural smoothness to the lip texture.",
+    "smile": "A slight, subdued smile with the lips gently pressed together. The teeth are not visible in this expression.",
+    "eyebrows": "Medium-thickness eyebrows that are slightly arched. They are a shade darker than the hair color, with individual hairs visible.",
+    "ears": "Medium-sized ears that are slightly visible under the hair. The earlobes appear to be attached.",
+    "cheeks": "Full, round cheeks with a subtle rosiness, especially pronounced when smiling.",
+    "chin": "Rounded, slightly receding chin, blending softly into the jawline.",
+    "facialProportions": "Balanced facial proportions with large, expressive eyes relative to the size of the face. The nose and mouth are proportionally smaller in comparison.",
+    "distinctiveFeatures": "Very faint freckles concentrated mostly on the upper cheekbones and the bridge of the nose, almost invisible. There's a very slight shadowing under the eyes. Skin is very smooth, appearing to be freshly cleaned. No moles or scars are visible.",
+    "overallImpression": "A sweet, innocent and slightly serious expression. She has baby-faced features with bright, captivating eyes and a soft, youthful appearance.",
+    "fullDescription": "This child is a 5-6 year old girl with fair skin, rosy undertones, and nearly imperceptible freckles dusting her upper cheeks. Her eyes are a striking sky blue with dark brown eyelashes, set in an almond shape that slightly downturns. She has medium chestnut brown hair with auburn highlights styled in two high pigtail buns adorned with pink and white pom-pom clips. Her face is round with full cheeks, a small, upturned nose and full, rosy pink lips, creating a sweet and youthful appearance, making her an image of innocent charm.",
+    "generatedAt": "2026-01-08T19:18:57.363Z"
+  },
+  "styleReferenceImage": "data/sessions/e608aed7-972d-41f5-85c4-f9edb71793c4/generated/page-01-v1.png",
+  "versionHistory": {
+    "1": [
+      {
+        "version": 1,
+        "generatedAt": "2026-01-08T19:19:09.864Z",
+        "imagePath": "data/sessions/e608aed7-972d-41f5-85c4-f9edb71793c4/generated/page-01-v1.png"
+      }
+    ],
+    "2": [
+      {
+        "version": 1,
+        "generatedAt": "2026-01-08T19:19:21.413Z",
+        "imagePath": "data/sessions/e608aed7-972d-41f5-85c4-f9edb71793c4/generated/page-02-v1.png"
+      }
+    ],
+    "3": [
+      {
+        "version": 1,
+        "generatedAt": "2026-01-08T19:19:33.317Z",
+        "imagePath": "data/sessions/e608aed7-972d-41f5-85c4-f9edb71793c4/generated/page-03-v1.png"
+      }
+    ],
+    "4": [
+      {
+        "version": 1,
+        "generatedAt": "2026-01-08T19:19:45.659Z",
+        "imagePath": "data/sessions/e608aed7-972d-41f5-85c4-f9edb71793c4/generated/page-04-v1.png"
+      }
+    ],
+    "5": [
+      {
+        "version": 1,
+        "generatedAt": "2026-01-08T19:19:57.310Z",
+        "imagePath": "data/sessions/e608aed7-972d-41f5-85c4-f9edb71793c4/generated/page-05-v1.png"
+      }
+    ]
+  },
+  "favoriteVersions": {}
+}

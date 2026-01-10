@@ -1,0 +1,74 @@
+{
+  "storyId": "story-002-dragon-adventure",
+  "sessionId": "30dde365-ed4f-4ec4-9d22-66f85d21d5e2",
+  "selectedVersions": {
+    "1": {
+      "version": 1,
+      "generatedAt": "2026-01-10T10:12:29.975Z",
+      "imagePath": "data/sessions/30dde365-ed4f-4ec4-9d22-66f85d21d5e2/generated/page-01-v1.png"
+    },
+    "2": {
+      "version": 1,
+      "generatedAt": "2026-01-10T10:12:55.270Z",
+      "imagePath": "data/sessions/30dde365-ed4f-4ec4-9d22-66f85d21d5e2/generated/page-02-v1.png"
+    },
+    "3": {
+      "version": 1,
+      "generatedAt": "2026-01-10T10:13:05.204Z",
+      "imagePath": "data/sessions/30dde365-ed4f-4ec4-9d22-66f85d21d5e2/generated/page-03-v1.png"
+    }
+  },
+  "regenerationCount": {
+    "1": 1,
+    "2": 1,
+    "3": 1
+  },
+  "lastUpdated": "2026-01-10T10:13:05.204Z",
+  "characterDescription": {
+    "ageRange": "8-9 years old",
+    "skinTone": "light to medium tan with neutral undertones, some slight rosiness on cheeks, even complexion overall",
+    "eyeColor": "light blue with a very subtle greyish-green tint, and a slightly darker limbal ring",
+    "eyeShape": "almond-shaped eyes, with slightly downturned outer corners, long but sparse eyelashes, hooded lids",
+    "hairColor": "medium brown, possibly shade 'caramel brown' with subtle natural highlights, more noticeable near the front",
+    "hairTexture": "wavy to slightly curly texture, medium density, hair appears fairly fine",
+    "hairStyle": "in one picture, long and loose, slightly messy, parted to the left. In another picture, pulled up into two messy space buns with pink clips.",
+    "faceShape": "oval face, high cheekbones starting to define more as she matures, slightly narrow face overall",
+    "nose": "small to medium-sized nose, straight bridge, slightly bulbous tip, nostrils not very flared",
+    "lips": "medium-sized lips, natural pink color, slightly fuller bottom lip, well-defined cupid's bow",
+    "smile": "wide smile revealing upper teeth, shows a noticeable gap between front teeth, top teeth slightly protrude outwards",
+    "eyebrows": "medium thickness eyebrows, naturally arched shape, medium brown color matching hair",
+    "ears": "medium-sized ears, set fairly close to the head, lobe connected.",
+    "cheeks": "slightly chubby cheeks, some visible cheekbones, no dimples",
+    "chin": "slightly pointed chin, no cleft",
+    "facialProportions": "eyes are slightly wide-set in relation to facial width, nose is proportionally smaller than other features, elongated face shape",
+    "distinctiveFeatures": "noticeable gap between upper front teeth, slight overbite, slightly hooded eyelids, sparse eyelashes, space bun hairstyle shows multiple smaller curls near the neck.",
+    "overallImpression": "energetic and cheerful appearance, slightly mature features for her age, intelligent and observant look",
+    "fullDescription": "This girl is approximately 8-9 years old with a light to medium tan complexion and neutral undertones. Her most striking feature is her light blue eyes with a greyish-green tint and almond shape, although her eyelashes are sparse. She has medium brown wavy hair, currently worn long and loose, but also sometimes styled in space buns with pink clips. Her face is oval-shaped with high cheekbones and a slightly pointed chin. She has a charming, wide smile that reveals a noticeable gap between her upper front teeth, creating a memorable detail for an AI to capture.",
+    "generatedAt": "2026-01-10T10:12:21.712Z"
+  },
+  "styleReferenceImage": "data/sessions/30dde365-ed4f-4ec4-9d22-66f85d21d5e2/generated/page-01-v1.png",
+  "versionHistory": {
+    "1": [
+      {
+        "version": 1,
+        "generatedAt": "2026-01-10T10:12:29.975Z",
+        "imagePath": "data/sessions/30dde365-ed4f-4ec4-9d22-66f85d21d5e2/generated/page-01-v1.png"
+      }
+    ],
+    "2": [
+      {
+        "version": 1,
+        "generatedAt": "2026-01-10T10:12:55.270Z",
+        "imagePath": "data/sessions/30dde365-ed4f-4ec4-9d22-66f85d21d5e2/generated/page-02-v1.png"
+      }
+    ],
+    "3": [
+      {
+        "version": 1,
+        "generatedAt": "2026-01-10T10:13:05.204Z",
+        "imagePath": "data/sessions/30dde365-ed4f-4ec4-9d22-66f85d21d5e2/generated/page-03-v1.png"
+      }
+    ]
+  },
+  "favoriteVersions": {}
+}

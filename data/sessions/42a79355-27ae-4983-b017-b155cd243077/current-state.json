@@ -1,0 +1,74 @@
+{
+  "storyId": "story-002-dragon-adventure",
+  "sessionId": "42a79355-27ae-4983-b017-b155cd243077",
+  "selectedVersions": {
+    "1": {
+      "version": 1,
+      "generatedAt": "2026-01-10T10:20:54.535Z",
+      "imagePath": "data/sessions/42a79355-27ae-4983-b017-b155cd243077/generated/page-01-v1.png"
+    },
+    "2": {
+      "version": 1,
+      "generatedAt": "2026-01-10T10:21:08.131Z",
+      "imagePath": "data/sessions/42a79355-27ae-4983-b017-b155cd243077/generated/page-02-v1.png"
+    },
+    "3": {
+      "version": 1,
+      "generatedAt": "2026-01-10T10:21:18.239Z",
+      "imagePath": "data/sessions/42a79355-27ae-4983-b017-b155cd243077/generated/page-03-v1.png"
+    }
+  },
+  "regenerationCount": {
+    "1": 1,
+    "2": 1,
+    "3": 1
+  },
+  "lastUpdated": "2026-01-10T10:21:18.240Z",
+  "characterDescription": {
+    "ageRange": "5-6 years old",
+    "skinTone": "fair skin with subtle pink undertones, especially on cheeks and around the nose. Skin appears slightly translucent, revealing faint blue veins under the eyes. Even complexion overall.",
+    "eyeColor": "bright sky blue eyes with slight greyish-blue outer ring and darker limbal ring. No visible flecks or variations in color.",
+    "eyeShape": "large, almond-shaped eyes, slightly downturned at the outer corners, giving a gentle expression. Average-length eyelashes.",
+    "hairColor": "medium chestnut brown hair with subtle natural highlights, particularly around the face. Hair appears slightly lighter at the ends.",
+    "hairTexture": "slightly wavy with loose, fine curls, especially around the face and hairline. Hair has medium thickness and some flyaways.",
+    "hairStyle": "hair styled in two high pigtail buns on either side of the head. Each bun is secured with a pink clip with a white pom-pom. A few loose strands frame the face.",
+    "faceShape": "round face with full, prominent cheeks and a soft, undefined jawline. Forehead is average height.",
+    "nose": "small, slightly upturned nose with a rounded tip. The bridge of the nose is narrow.",
+    "lips": "full, pink lips with a slightly darker pink vermilion border. The upper lip is slightly thinner than the lower lip. The cupid's bow is not well-defined.",
+    "smile": "lips are held in a neutral, non-smiling expression. Teeth are not visible.",
+    "eyebrows": "medium-thick eyebrows, slightly arched shape. They are a shade lighter than the hair color, a light chestnut brown, and well-maintained.",
+    "ears": "medium-sized ears, positioned normally on the head. Earlobes are attached.",
+    "cheeks": "full, round cheeks with a natural rosiness, especially prominent under the eyes. No dimples are visible.",
+    "chin": "rounded, soft chin with a slight double chin visible due to posture.",
+    "facialProportions": "relatively large eyes in proportion to the rest of the face. The nose and mouth are smaller and delicate in comparison.",
+    "distinctiveFeatures": "Slightly prominent blue veins visible under the eyes. Small freckles or moles are not visible. There appears to be a small area of blue ink on the child’s left hand.",
+    "overallImpression": "sweet and innocent appearance with soft, baby-faced features. Her expression is slightly serious and thoughtful.",
+    "fullDescription": "This young girl, estimated to be 5-6 years old, has a round face, full rosy cheeks and fair skin with pink undertones. Her bright sky blue eyes are large and almond-shaped, framing a small, slightly upturned nose. Her medium chestnut brown hair is styled in two high pigtail buns with pink clips adorned with white pom-poms, with loose, fine curls framing her face. She has full pink lips and medium-thick eyebrows. The subtle blue veins under her eyes and slight double chin are noticeable unique features.",
+    "generatedAt": "2026-01-10T10:20:44.878Z"
+  },
+  "styleReferenceImage": "data/sessions/42a79355-27ae-4983-b017-b155cd243077/generated/page-01-v1.png",
+  "versionHistory": {
+    "1": [
+      {
+        "version": 1,
+        "generatedAt": "2026-01-10T10:20:54.535Z",
+        "imagePath": "data/sessions/42a79355-27ae-4983-b017-b155cd243077/generated/page-01-v1.png"
+      }
+    ],
+    "2": [
+      {
+        "version": 1,
+        "generatedAt": "2026-01-10T10:21:08.131Z",
+        "imagePath": "data/sessions/42a79355-27ae-4983-b017-b155cd243077/generated/page-02-v1.png"
+      }
+    ],
+    "3": [
+      {
+        "version": 1,
+        "generatedAt": "2026-01-10T10:21:18.239Z",
+        "imagePath": "data/sessions/42a79355-27ae-4983-b017-b155cd243077/generated/page-03-v1.png"
+      }
+    ]
+  },
+  "favoriteVersions": {}
+}

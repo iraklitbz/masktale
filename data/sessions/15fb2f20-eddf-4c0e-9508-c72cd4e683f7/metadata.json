@@ -1,0 +1,24 @@
+{
+  "id": "15fb2f20-eddf-4c0e-9508-c72cd4e683f7",
+  "storyId": "story-002-dragon-adventure",
+  "createdAt": "2026-01-10T10:38:51.885Z",
+  "expiresAt": "2026-01-11T10:38:51.885Z",
+  "status": "completed",
+  "progress": {
+    "totalPages": 3,
+    "pagesGenerated": 3,
+    "errors": [],
+    "currentPage": 3,
+    "completedAt": "2026-01-10T10:39:40.119Z"
+  },
+  "userPhoto": {
+    "originalPath": "data/sessions/15fb2f20-eddf-4c0e-9508-c72cd4e683f7/user-photos/photo-1.jpeg",
+    "uploadedAt": "2026-01-10T10:38:56.953Z",
+    "metadata": {
+      "width": 0,
+      "height": 0,
+      "format": "jpeg",
+      "size": 4530435
+    }
+  }
+}

@@ -1,0 +1,74 @@
+{
+  "storyId": "story-002-dragon-adventure",
+  "sessionId": "15fb2f20-eddf-4c0e-9508-c72cd4e683f7",
+  "selectedVersions": {
+    "1": {
+      "version": 1,
+      "generatedAt": "2026-01-10T10:39:16.605Z",
+      "imagePath": "data/sessions/15fb2f20-eddf-4c0e-9508-c72cd4e683f7/generated/page-01-v1.png"
+    },
+    "2": {
+      "version": 1,
+      "generatedAt": "2026-01-10T10:39:29.831Z",
+      "imagePath": "data/sessions/15fb2f20-eddf-4c0e-9508-c72cd4e683f7/generated/page-02-v1.png"
+    },
+    "3": {
+      "version": 1,
+      "generatedAt": "2026-01-10T10:39:40.118Z",
+      "imagePath": "data/sessions/15fb2f20-eddf-4c0e-9508-c72cd4e683f7/generated/page-03-v1.png"
+    }
+  },
+  "regenerationCount": {
+    "1": 1,
+    "2": 1,
+    "3": 1
+  },
+  "lastUpdated": "2026-01-10T10:39:40.118Z",
+  "characterDescription": {
+    "ageRange": "7-8 years old",
+    "skinTone": "Light beige skin tone with subtle pink undertones, especially visible on cheeks and nose, even complexion overall",
+    "eyeColor": "Steel blue eyes with slightly darker outer ring and minimal limbal ring visibility",
+    "eyeShape": "Almond-shaped eyes, slightly downturned at the outer corners, with visible upper eyelids and moderate eyelashes",
+    "hairColor": "Dark ash brown hair with natural blonde highlights scattered throughout, more prominent at the crown of the head",
+    "hairTexture": "Fine hair texture, slightly wavy and thin, with a tendency to frizz at the ends, particularly around the face",
+    "hairStyle": "Hair pulled back into a messy bun or ponytail at the top of the head, with loose strands framing the face and neck, shorter hairs near forehead stand straight up",
+    "faceShape": "Oval face with prominent cheekbones, a defined jawline gradually coming to a point at the chin, and a high forehead.",
+    "nose": "Small to medium sized nose with a straight bridge and a rounded tip, nostrils are not flared and seem symmetrical",
+    "lips": "Naturally pink lips, slightly asymmetrical with the upper lip being thinner than the lower lip, mouth is wide",
+    "smile": "Wide, joyful smile revealing both upper and lower teeth, a noticeable gap between the two front upper incisors",
+    "eyebrows": "Medium-thick eyebrows, naturally arched and slightly darker than the hair color, well-defined but not overly groomed",
+    "ears": "Ears are mostly obscured but appear to be medium-sized and close to the head.",
+    "cheeks": "Defined cheekbones and slightly sunken cheeks, especially noticeable when smiling.",
+    "chin": "Slightly pointed chin",
+    "facialProportions": "Balanced facial proportions, with eyes taking up a significant portion of the face and the nose being approximately 1/3 of the face's length.",
+    "distinctiveFeatures": "Gap between the two front upper incisors. Blonde hair highlights scattered throughout. Noticeable pink undertones to the skin, especially on the cheeks. Wearing a silver chain necklace.",
+    "overallImpression": "Energetic and cheerful appearance, with defined facial features and a playful expression.",
+    "fullDescription": "This child is estimated to be between 7-8 years old, with light beige skin that has subtle pink undertones, particularly on her cheeks. Her eyes are a striking steel blue with darker outer rims, and they are almond-shaped, giving her a slightly downturned look. She has dark ash brown hair featuring natural blonde highlights and fine hair texture that is swept back into a messy bun. She has a wide joyful smile showing a distinct gap between her two front upper incisors, oval face shape, medium nose with slight point to chin, and wears a silver chain necklace with her name on it.",
+    "generatedAt": "2026-01-10T10:39:04.041Z"
+  },
+  "styleReferenceImage": "data/sessions/15fb2f20-eddf-4c0e-9508-c72cd4e683f7/generated/page-01-v1.png",
+  "versionHistory": {
+    "1": [
+      {
+        "version": 1,
+        "generatedAt": "2026-01-10T10:39:16.605Z",
+        "imagePath": "data/sessions/15fb2f20-eddf-4c0e-9508-c72cd4e683f7/generated/page-01-v1.png"
+      }
+    ],
+    "2": [
+      {
+        "version": 1,
+        "generatedAt": "2026-01-10T10:39:29.831Z",
+        "imagePath": "data/sessions/15fb2f20-eddf-4c0e-9508-c72cd4e683f7/generated/page-02-v1.png"
+      }
+    ],
+    "3": [
+      {
+        "version": 1,
+        "generatedAt": "2026-01-10T10:39:40.118Z",
+        "imagePath": "data/sessions/15fb2f20-eddf-4c0e-9508-c72cd4e683f7/generated/page-03-v1.png"
+      }
+    ]
+  },
+  "favoriteVersions": {}
+}
