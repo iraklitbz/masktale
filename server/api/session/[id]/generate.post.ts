@@ -120,24 +120,22 @@ export default defineEventHandler(async (event) => {
       userPhotosBase64.push(buffer.toString('base64'))
     }
 
-    // IMPORTANT: Use ONLY the FIRST/BEST photo for maximum likeness
-    // Testing shows 1 excellent photo gives BETTER results than multiple photos
-    // Multiple photos can confuse the AI about which features to prioritize
-    const bestPhoto = userPhotosBase64[0] // Use first uploaded photo as reference
-
+    // IMPORTANT: Gemini 3 Pro Image supports up to 5 human reference images!
+    // Send all uploaded photos for better facial recognition (max 3)
+    // The Pro model can analyze multiple angles for improved likeness
     console.log(`[Generate] NEW MODE: Complete generation (NO base image)`)
-    console.log(`[Generate] Using SINGLE best photo (first uploaded) for MAXIMUM facial similarity`)
-    console.log(`[Generate] Note: ${userPhotosBase64.length} photo(s) uploaded, using photo #1 for best results`)
+    console.log(`[Generate] Using Gemini 3 Pro Image with ${userPhotosBase64.length} reference photo(s)`)
+    console.log(`[Generate] Pro model supports up to 5 human images for improved facial accuracy`)
 
     // Generate character description if this is the first generation
-    // Use only the first photo for analysis (best results)
+    // Use ALL photos for comprehensive analysis with Pro model
     if (!currentState.characterDescription) {
-      console.log('[Generate] No character description found. Generating from best photo...')
+      console.log('[Generate] No character description found. Analyzing ALL reference photos...')
       try {
-        const characterDescription = await analyzeCharacterFromPhotos([bestPhoto])
+        const characterDescription = await analyzeCharacterFromPhotos(userPhotosBase64)
         currentState.characterDescription = characterDescription
         await saveCurrentState(sessionId, currentState)
-        console.log('[Generate] Character description generated and saved')
+        console.log('[Generate] Character description generated from multiple angles')
       } catch (error: any) {
         console.warn('[Generate] Failed to generate character description:', error.message)
         console.warn('[Generate] Continuing without character description...')
@@ -163,12 +161,12 @@ export default defineEventHandler(async (event) => {
       console.log('[Generate] Using detailed style profile for consistency')
     }
 
-    // Generate with Gemini - NEW MODE: NO base image, complete generation
-    // Use ONLY the best photo (first uploaded) for maximum facial similarity
+    // Generate with Gemini 3 Pro Image - NEW MODE: NO base image, complete generation
+    // Send ALL reference photos (Gemini 3 Pro supports up to 5 human images)
     const generatedImageBase64 = await generateImageWithRetry(
       {
         prompt: finalPrompt,
-        userImagesBase64: bestPhoto, // Send ONLY the best photo (single image)
+        userImagesBase64: userPhotosBase64, // Send ALL photos for Pro model analysis
         aspectRatio: page.aspectRatio,
         model: storyConfig.settings.geminiModel,
       },
