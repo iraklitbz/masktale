@@ -1,0 +1,216 @@
+## CONTEXT: PHOTOREALISTIC FACE-SWAP FOR CHILDREN'S STORYBOOK
+
+You are creating a semi-realistic digital painting for a personalized children's book using MAXIMUM FACIAL REALISM. This is NOT a cartoon - the child's face MUST look photographic while the environment can be more illustrated. Think Pixar/Disney's most realistic character rendering.
+
+## CRITICAL: FACIAL REALISM REQUIREMENTS
+
+**PRIORITY #1 - PHOTOREALISTIC FACE INTEGRATION:**
+The child's face from the reference photos MUST be integrated with PHOTOGRAPHIC ACCURACY:
+
+1. **Skin Texture & Details** (CRITICAL):
+   - Preserve ALL natural skin texture from the reference photos
+   - Include subtle skin pores, natural skin variations, and real skin luminosity
+   - NO smoothing, NO cartoon-style simplification
+   - Wind-blown but still showing natural skin texture
+   - Skin should look like a high-quality action portrait photograph
+
+2. **Facial Features Accuracy** (CRITICAL):
+   - Exact eye shape, color, and iris details from photos
+   - Eyes slightly squinted from wind but still showing real eye details
+   - Real eyelashes (may be swept by wind)
+   - Precise eyebrow shape, color, and natural texture
+   - Accurate nose structure with natural highlights
+   - Exact lip shape, color - may be slightly parted in excitement
+   - Match hair texture, color, flowing naturally in wind
+
+3. **Lighting on Face** (CRITICAL):
+   - Dramatic sunset lighting - warm, golden-orange light
+   - Primary light: From left side (sunset position ~30° above horizon)
+   - Light temperature: Very warm (3000K) - golden hour magic
+   - Natural rim lighting on face edges from sunset
+   - Soft fill light from sky (blue-pink ambient light)
+   - Highlights: Golden on cheeks, nose, forehead (sun-kissed)
+   - Shadows: Warm-toned, soft, purple-blue in shadow areas
+   - Catch lights in eyes: Golden sparkle from sunset
+   - Subsurface scattering: Warm glow through ears, nose edges
+
+4. **Expression & Emotion**:
+   - Emotion: Pure joy, excitement, exhilaration, freedom
+   - Eyes: Bright, wide with excitement, looking forward at horizon
+   - Mouth: Joyful smile, possibly open in a excited "Whoo!" expression
+   - Overall: Child experiencing the thrill of flying - genuine happiness
+   - Face windswept but clearly showing emotion
+   - Natural child expression of pure delight
+
+## TASK: SEAMLESS FACE INTEGRATION IN DYNAMIC SCENE
+
+**Source Materials:**
+- Reference photos: {CHARACTER_DESCRIPTION} - Use this as your facial blueprint
+- Base illustration: Flying on dragon through sunset sky
+- Target expression: Joy, excitement, thrill of flying
+
+**Your Task:**
+Replace the child's face in the base illustration with the PHOTOREALISTIC face from the reference photos. The face must look like a high-quality photograph of a child flying (captured in action) while harmonizing with the semi-illustrated fantasy environment.
+
+**Face Position:**
+- Location: Upper-center (x: 0.4, y: 0.35)
+- Pose: Sitting on dragon's back, body leaning slightly forward
+- Head angle: Looking forward at horizon, chin slightly up, natural dynamic pose
+- Face size: Clearly visible, prominent in composition
+- Hair: Flowing backward from wind, showing movement
+
+## SCENE DETAILS
+
+**Setting: Sunset Flight Above Clouds**
+- Time: Late afternoon/sunset (~7 PM, golden hour)
+- Weather: Perfect, clear, warm sunset light
+- Location: High above cloud layer, dragon flying through open sky
+- Altitude feeling: Exhilarating but not scary
+
+**Environment Elements:**
+- Foreground: Dragon's back and wings, child sitting securely
+- Mid-ground: Fluffy white and cream-colored clouds below
+- Background: Spectacular sunset sky with gradient colors
+- Far background: Hints of landscape far below (tiny, out of focus)
+
+**Sky Color Gradient:**
+- Horizon level: Deep orange and red
+- Mid-sky: Pink, magenta, warm purple
+- Upper sky: Transitioning to deeper blue-purple
+- Clouds: White with golden-pink highlights from sunset
+- Overall: Dramatic but beautiful, not harsh
+
+**Dragon Description:**
+- Size: Now much larger - majestic and powerful
+- Appearance: Still friendly but impressive
+- Scales: Iridescent blue-purple with sunset light reflecting gold/pink
+- Wings: Large, spread wide, powerful, membrane translucent with light
+- Posture: Flying steadily forward, wings in mid-beat
+- Neck: Extended forward, showing noble profile
+- Visibility: Partial view - focus is on child, dragon is the vehicle
+
+**Child Position & Clothing:**
+- Sitting: Securely on dragon's back between shoulder blades
+- Hands: Gently holding onto small spines or scales, relaxed grip
+- Posture: Leaning slightly forward into wind, confident and excited
+- Clothing: Same casual clothes from page 1, now windswept
+- Hair: Flowing backward dramatically, showing wind and movement
+- Body language: Completely trusting the dragon, no fear, pure joy
+
+## STYLE REQUIREMENTS - SEMI-REALISTIC HYBRID
+
+**CRITICAL STYLE BALANCE:**
+- Child's FACE: 95% photorealistic (as real as an action portrait)
+- Child's BODY: 80% realistic with slight stylization
+- Dragon: 70% realistic fantasy creature with illustrated textures
+- Clouds & Sky: 60% painterly but realistic light behavior
+- Overall: Epic, cinematic, like a movie still
+
+**Visual Reference Style:**
+- "How to Train Your Dragon" (DreamWorks) - flying scene realism
+- Pixar's "Coco" - facial realism in dramatic lighting
+- Disney's "Raya and the Last Dragon" - creature/human interaction
+- Studio Ghibli's "Spirited Away" - sky and cloud rendering
+
+**Technique Specifications:**
+- Rendering: Semi-realistic digital painting with cinematic quality
+- Brush style: Photographic detail on face, dynamic painterly on environment
+- Texture: Maximum detail on face, good detail on body, flowing on clouds
+- Movement: Capture sense of flight and wind without motion blur
+- Edge quality: Soft, natural, with wind-affected areas showing movement
+
+**Color Palette:**
+- Overall tone: Warm, golden, magical, uplifting
+- Dominant colors: Oranges, pinks, purples (sunset spectrum)
+- Dragon: Blue-purple with golden reflections from sunset
+- Skin tones: Warm, golden-lit (match {CHARACTER_DESCRIPTION} base with sunset overlay)
+- Clouds: White with golden and pink highlights
+- Light quality: Dramatic golden hour, spectacular but natural
+
+**Lighting Details:**
+- Primary light: Sunset from left-front, 30° above horizon
+- Light quality: Warm, golden, directional but diffused by atmosphere
+- Fill light: Sky ambient (cool blue-pink from opposite side)
+- Rim lighting: Golden outline on face, hair, body edges
+- Dragon lighting: Scales catching light, creating shimmer
+- Cloud lighting: Golden tops, purple-pink undersides
+- Atmosphere: Warm, hazy air quality at altitude
+- Shadows: Warm purple-blue, soft, romantic
+- Overall: Cinematic, epic, beautiful
+
+**Atmosphere & Mood:**
+- Feeling: Exhilarating, free, magical, adventurous, joyful
+- Air quality: Clear at altitude with slight atmospheric haze
+- Wind effect: Visible in hair and clothes, dynamic but controlled
+- Depth: Vast, expansive, showing scale of flight
+- Magic elements: Subtle sparkles in air, light particles, ethereal quality
+- Emotional impact: "This is the best moment of my life" feeling
+
+## TECHNICAL SPECIFICATIONS
+
+**Image Quality:**
+- Resolution: High definition, cinematic quality
+- Face detail: Maximum detail despite dynamic scene
+- Action capture: Frozen moment that shows movement
+- Integration quality: Perfect blending, no seams, even in challenging pose
+- Dynamic range: Handle bright sunset and darker areas well
+
+**Integration Requirements:**
+1. Match dramatic sunset lighting on face perfectly
+2. Show wind effect on hair realistically (flowing, not stiff)
+3. Facial expression must show genuine excitement and joy
+4. Face angle (looking forward) must feel natural for riding pose
+5. Skin tone adjusted for warm sunset light overlay
+6. Rim lighting on face edges from sunset (natural and subtle)
+7. Hair strands caught in wind should look real, not painted
+8. Face scale appropriate for distance/perspective on dragon
+
+**Challenging Aspects to Handle:**
+- Dynamic pose: Face must still look natural despite action
+- Wind effect: Hair should flow realistically, not artificially
+- Unusual lighting: Sunset colors must enhance, not distort face
+- Perspective: Slight foreshortening if child leans forward
+- Multiple light sources: Balance sunset and sky fill light
+- Movement feeling: Static image must convey motion
+
+**Avoid These Common Errors:**
+- ❌ Cartoon-smooth skin (keep natural texture!)
+- ❌ Stiff, artificial hair (make it flow naturally!)
+- ❌ Oversaturated orange skin from sunset (balance warmth)
+- ❌ Lost facial details due to lighting (keep definition!)
+- ❌ Unnatural expression (genuine joy, not posed smile)
+- ❌ Face too flat (needs dimension even in golden light)
+- ❌ Rim lighting too harsh (should be soft and natural)
+- ❌ Pose looks unsafe or uncomfortable (child should look secure)
+- ❌ Wind effect looks fake or painted (needs realism)
+- ❌ Scale issues (child too big or small for dragon)
+
+## QUALITY CHECKLIST
+
+Before finalizing, verify:
+✓ Face looks photographically real even in dramatic lighting
+✓ Natural skin texture visible despite golden sunset light
+✓ All facial features match reference photos exactly
+✓ Expression shows genuine joy and excitement (not fake)
+✓ Sunset lighting enhances face without distorting features
+✓ Hair flows naturally and realistically in wind
+✓ No visible seams or integration artifacts
+✓ Face angle natural for someone riding a dragon
+✓ Rim lighting from sunset is subtle and realistic
+✓ Child looks secure and confident on dragon, not scared
+✓ Overall scene is epic and cinematic
+✓ Dragon looks majestic and powerful but still friendly
+✓ Clouds and sky are beautiful and well-rendered
+✓ Composition is dynamic but balanced
+✓ Mood is exhilarating, magical, and joyful
+✓ Lighting tells the story (golden hour magic)
+✓ Sense of flight and movement is clear
+✓ Could be a poster for an epic children's fantasy film
+
+## FINAL OUTPUT
+
+Create a semi-realistic digital painting that looks like a **real child photographed during an epic flying scene** in a fantasy movie. The child's face should be so realistic and expressive that you can see and feel their genuine joy, while the dragon and sunset sky create that cinematic, magical atmosphere.
+
+The viewer should think: "This looks like a real kid having the most amazing adventure of their life - and I can see exactly how happy they are!"
+
+This is the most exciting page - make it spectacular and emotionally powerful while keeping the face photorealistic and authentic.

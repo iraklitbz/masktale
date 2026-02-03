@@ -14,23 +14,32 @@ Usando la PRIMERA imagen como plantilla base, edítala reemplazando ÚNICAMENTE 
 ## EMOCIÓN
 {EMOTIONAL_TONE}
 
-## ESTILO ARTÍSTICO
+## ESTILO ARTÍSTICO BASE
 {ILLUSTRATION_STYLE}
+
+---
+
+# ⭐ CRITICAL: ABSOLUTE STYLE CONSISTENCY REQUIRED ⭐
+
+{STYLE_PROFILE}
+
+YOU MUST maintain EXACT consistency with the style profile above. This image is part of a multi-page story book, and ALL images must look like they were created by the same artist using identical techniques.
 
 ---
 
 # INSTRUCCIONES CRÍTICAS PARA FACE-SWAP
 
 ## 1. ANÁLISIS DE LA CARA DEL NIÑO/A (Segunda Imagen)
-- Estudia CUIDADOSAMENTE las características únicas:
-  * Forma exacta de la cara (redonda, ovalada, cuadrada)
-  * Color de ojos y su forma específica
-  * Forma y tamaño de la nariz
-  * Forma de la boca y labios
-  * Tono exacto de piel
-  * Color y textura del cabello
-  * Rasgos distintivos (pecas, lunares, hoyuelos)
-  * Estructura de cejas
+
+{CHARACTER_DESCRIPTION}
+
+⚠️ CRITICAL: You MUST render the child with EXACTLY these physical characteristics. This ensures the same child appears consistently across all pages of the story.
+
+Additionally, study the reference photos carefully for:
+  * Exact facial expressions and natural demeanor
+  * Head shape and proportions
+  * Ear size and position
+  * Any subtle features not captured in the description above
 
 ## 2. INTEGRACIÓN DE LA CARA (Proceso de Face-Swap)
 - Coloca la cara en la posición: {FACE_POSITION_X}% horizontal, {FACE_POSITION_Y}% vertical

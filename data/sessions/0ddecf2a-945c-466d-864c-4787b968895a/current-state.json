@@ -1,0 +1,100 @@
+{
+  "storyId": "story-001-first-day-school",
+  "sessionId": "0ddecf2a-945c-466d-864c-4787b968895a",
+  "selectedVersions": {
+    "1": {
+      "version": 1,
+      "generatedAt": "2026-01-02T13:20:11.526Z",
+      "imagePath": "data/sessions/0ddecf2a-945c-466d-864c-4787b968895a/generated/page-01-v1.png"
+    },
+    "2": {
+      "version": 1,
+      "generatedAt": "2026-01-02T13:20:26.401Z",
+      "imagePath": "data/sessions/0ddecf2a-945c-466d-864c-4787b968895a/generated/page-02-v1.png"
+    },
+    "3": {
+      "version": 1,
+      "generatedAt": "2026-01-02T13:20:37.272Z",
+      "imagePath": "data/sessions/0ddecf2a-945c-466d-864c-4787b968895a/generated/page-03-v1.png"
+    },
+    "4": {
+      "version": 1,
+      "generatedAt": "2026-01-02T13:20:56.015Z",
+      "imagePath": "data/sessions/0ddecf2a-945c-466d-864c-4787b968895a/generated/page-04-v1.png"
+    },
+    "5": {
+      "version": 1,
+      "generatedAt": "2026-01-02T13:21:06.432Z",
+      "imagePath": "data/sessions/0ddecf2a-945c-466d-864c-4787b968895a/generated/page-05-v1.png"
+    }
+  },
+  "regenerationCount": {
+    "1": 1,
+    "2": 1,
+    "3": 1,
+    "4": 1,
+    "5": 1
+  },
+  "lastUpdated": "2026-01-02T13:21:06.432Z",
+  "characterDescription": {
+    "ageRange": "7-8 years old",
+    "skinTone": "Light olive skin with cool undertones. Forehead and cheeks have a rosy hue, especially prominent on the cheekbones. The skin appears matte, not shiny.",
+    "eyeColor": "Dark brown eyes, almost black, with subtle lighter brown rings around the pupils. Minimal visible white of the eye, giving a deep and intense gaze.",
+    "eyeShape": "Almond-shaped eyes with slightly downturned outer corners, creating a serious and contemplative expression. The upper eyelids have a slight fold.",
+    "hairColor": "Dark chestnut brown with subtle natural highlights, especially towards the front. Some strands appear lighter due to sun exposure or natural variation.",
+    "hairTexture": "Slightly wavy hair with medium thickness. It appears somewhat unkempt, possibly from physical activity. The hair strands are generally straight but have gentle curves.",
+    "hairStyle": "Medium-length, slightly messy hairstyle, partly hidden by a green headband. The hair is parted towards the side and falls loosely around the face, with shorter strands framing the forehead.",
+    "faceShape": "Oval face with a slightly rounded forehead and a softly defined jawline. Cheeks are moderately full but not overly chubby.",
+    "nose": "Small to medium-sized nose with a straight bridge and a slightly rounded tip. The nostrils are not particularly flared.",
+    "lips": "Medium-sized lips, naturally pink in color. The upper lip is slightly thinner than the lower lip, with a subtle Cupid's bow.",
+    "smile": "No visible smile in the photo. Lips are closed in a neutral expression.",
+    "eyebrows": "Thick, dark brown eyebrows with a straight shape. The eyebrows are slightly furrowed, contributing to the serious expression.",
+    "ears": "Left ear is partially visible, medium-sized and positioned relatively close to the head. Minimal earlobe visibility.",
+    "cheeks": "Moderately full cheeks with a natural rosiness, particularly noticeable on the cheekbones.",
+    "chin": "Rounded, soft chin that is proportionate to the rest of the face. No cleft is visible.",
+    "facialProportions": "Balanced facial proportions with eyes that are appropriately sized relative to the face. The nose is of medium size and harmonizes well with other features.",
+    "distinctiveFeatures": "A faint, barely noticeable freckle or mole is present on the left cheek, close to the nose. Intense, almost piercing gaze due to the dark eyes and minimal visible white of the eye.",
+    "overallImpression": "A serious, thoughtful, and somewhat intense appearance. The child has a naturally handsome face with features that are well-balanced and proportionate.",
+    "fullDescription": "This 7-8-year-old child has light olive skin with cool undertones and rosy cheeks, especially prominent on the cheekbones. Their dark brown, almost black, almond-shaped eyes have slightly downturned outer corners creating a serious expression. The hair is a medium-length, slightly messy dark chestnut brown, parted to the side and held back with a green headband. The child has an oval face, a small to medium nose with a straight bridge, and medium-sized, naturally pink lips with a slightly thinner upper lip; a barely visible freckle resides on their left cheek near the nose, adding to their distinctive look.",
+    "generatedAt": "2026-01-02T13:19:59.887Z"
+  },
+  "styleReferenceImage": "data/sessions/0ddecf2a-945c-466d-864c-4787b968895a/generated/page-01-v1.png",
+  "versionHistory": {
+    "1": [
+      {
+        "version": 1,
+        "generatedAt": "2026-01-02T13:20:11.526Z",
+        "imagePath": "data/sessions/0ddecf2a-945c-466d-864c-4787b968895a/generated/page-01-v1.png"
+      }
+    ],
+    "2": [
+      {
+        "version": 1,
+        "generatedAt": "2026-01-02T13:20:26.401Z",
+        "imagePath": "data/sessions/0ddecf2a-945c-466d-864c-4787b968895a/generated/page-02-v1.png"
+      }
+    ],
+    "3": [
+      {
+        "version": 1,
+        "generatedAt": "2026-01-02T13:20:37.272Z",
+        "imagePath": "data/sessions/0ddecf2a-945c-466d-864c-4787b968895a/generated/page-03-v1.png"
+      }
+    ],
+    "4": [
+      {
+        "version": 1,
+        "generatedAt": "2026-01-02T13:20:56.015Z",
+        "imagePath": "data/sessions/0ddecf2a-945c-466d-864c-4787b968895a/generated/page-04-v1.png"
+      }
+    ],
+    "5": [
+      {
+        "version": 1,
+        "generatedAt": "2026-01-02T13:21:06.432Z",
+        "imagePath": "data/sessions/0ddecf2a-945c-466d-864c-4787b968895a/generated/page-05-v1.png"
+      }
+    ]
+  },
+  "favoriteVersions": {}
+}

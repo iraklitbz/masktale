@@ -1,0 +1,100 @@
+{
+  "storyId": "story-001-first-day-school",
+  "sessionId": "113c92c7-5bd2-488e-a7e8-41de49a239d9",
+  "selectedVersions": {
+    "1": {
+      "version": 1,
+      "generatedAt": "2026-01-03T11:18:01.396Z",
+      "imagePath": "data/sessions/113c92c7-5bd2-488e-a7e8-41de49a239d9/generated/page-01-v1.png"
+    },
+    "2": {
+      "version": 1,
+      "generatedAt": "2026-01-03T11:18:16.364Z",
+      "imagePath": "data/sessions/113c92c7-5bd2-488e-a7e8-41de49a239d9/generated/page-02-v1.png"
+    },
+    "3": {
+      "version": 1,
+      "generatedAt": "2026-01-03T11:18:26.748Z",
+      "imagePath": "data/sessions/113c92c7-5bd2-488e-a7e8-41de49a239d9/generated/page-03-v1.png"
+    },
+    "4": {
+      "version": 1,
+      "generatedAt": "2026-01-03T11:18:39.076Z",
+      "imagePath": "data/sessions/113c92c7-5bd2-488e-a7e8-41de49a239d9/generated/page-04-v1.png"
+    },
+    "5": {
+      "version": 1,
+      "generatedAt": "2026-01-03T11:18:51.774Z",
+      "imagePath": "data/sessions/113c92c7-5bd2-488e-a7e8-41de49a239d9/generated/page-05-v1.png"
+    }
+  },
+  "regenerationCount": {
+    "1": 1,
+    "2": 1,
+    "3": 1,
+    "4": 1,
+    "5": 1
+  },
+  "lastUpdated": "2026-01-03T11:18:51.774Z",
+  "characterDescription": {
+    "ageRange": "5-6 years old",
+    "skinTone": "Fair skin with cool pink undertones, particularly noticeable on cheeks and forehead. Skin is overall even but has subtle variations in tone, appearing slightly lighter under the eyes.",
+    "eyeColor": "Bright sky blue eyes with a slightly darker limbal ring around the iris. No visible flecks or variation within the iris itself, appearing uniformly light blue.",
+    "eyeShape": "Almond-shaped eyes, slightly downturned at the outer corners. Moderate epicanthic folds are present near the inner corners of the eyes. Moderate under eye dark circles.",
+    "hairColor": "Medium chestnut brown hair with subtle natural lighter brown highlights, particularly noticeable on the ends of the curls. The base color is consistently a medium brown throughout.",
+    "hairTexture": "Fine hair that has been styled into curly pigtails. Naturally wavy with some loose curls and slight frizziness.",
+    "hairStyle": "Styled into two high pigtails, positioned high on the head and secured with pink clips featuring white pom-poms. Some stray strands escape the pigtails, creating a slightly messy and playful look.",
+    "faceShape": "Round face with soft, full cheeks. The jawline is not strongly defined, contributing to the overall roundness. The forehead is medium-sized.",
+    "nose": "Small, slightly upturned button nose. The bridge of the nose is straight and narrow. Nostrils are small and subtly flared.",
+    "lips": "Medium-sized lips, with a slightly fuller lower lip. The lip color is a natural rose-pink. Lips are closed, creating a gentle, slight pout.",
+    "smile": "Not smiling, but the neutral expression suggests a full mouth. No visible teeth. No dimples are present in the current expression.",
+    "eyebrows": "Light brown eyebrows, slightly darker than the hair. The eyebrows are straight and fairly thin with a slight arch. Well-defined but not overly groomed.",
+    "ears": "Medium-sized ears, close to the head. The earlobes are attached.",
+    "cheeks": "Full, round cheeks with a subtle natural rosiness, particularly visible on the apples of the cheeks. No visible dimples.",
+    "chin": "Rounded, soft chin that blends seamlessly into the jawline. Not a prominent or pointy chin.",
+    "facialProportions": "Relatively large eyes in proportion to the face, a small nose, and a medium-sized mouth. Balanced facial proportions overall, contributing to a youthful appearance.",
+    "distinctiveFeatures": "Very faint freckles on the nose bridge. The faint undereye circles create a slightly tired look. There's a slight blue stain on the left hand. No visible moles or scars.",
+    "overallImpression": "Sweet and innocent appearance with baby-faced features. The round face, bright blue eyes, and playful hairstyle contribute to a youthful and cheerful look, though her expression is serious.",
+    "fullDescription": "This is a 5-6 year old child with fair skin displaying cool pink undertones, bright sky blue eyes framed by light brown eyebrows, and fine, medium chestnut brown hair styled into high curly pigtails adorned with pink clips and white pom-poms. Her face is round with full, rosy cheeks, a small upturned button nose, and medium lips with a slightly fuller lower lip. The eyes are almond-shaped, slightly downturned and prominent relative to the face size with slight undereye circles visible. Her soft, rounded chin completes the overall impression of a sweet and youthful child.",
+    "generatedAt": "2026-01-03T11:17:47.279Z"
+  },
+  "styleReferenceImage": "data/sessions/113c92c7-5bd2-488e-a7e8-41de49a239d9/generated/page-01-v1.png",
+  "versionHistory": {
+    "1": [
+      {
+        "version": 1,
+        "generatedAt": "2026-01-03T11:18:01.396Z",
+        "imagePath": "data/sessions/113c92c7-5bd2-488e-a7e8-41de49a239d9/generated/page-01-v1.png"
+      }
+    ],
+    "2": [
+      {
+        "version": 1,
+        "generatedAt": "2026-01-03T11:18:16.364Z",
+        "imagePath": "data/sessions/113c92c7-5bd2-488e-a7e8-41de49a239d9/generated/page-02-v1.png"
+      }
+    ],
+    "3": [
+      {
+        "version": 1,
+        "generatedAt": "2026-01-03T11:18:26.748Z",
+        "imagePath": "data/sessions/113c92c7-5bd2-488e-a7e8-41de49a239d9/generated/page-03-v1.png"
+      }
+    ],
+    "4": [
+      {
+        "version": 1,
+        "generatedAt": "2026-01-03T11:18:39.076Z",
+        "imagePath": "data/sessions/113c92c7-5bd2-488e-a7e8-41de49a239d9/generated/page-04-v1.png"
+      }
+    ],
+    "5": [
+      {
+        "version": 1,
+        "generatedAt": "2026-01-03T11:18:51.774Z",
+        "imagePath": "data/sessions/113c92c7-5bd2-488e-a7e8-41de49a239d9/generated/page-05-v1.png"
+      }
+    ]
+  },
+  "favoriteVersions": {}
+}

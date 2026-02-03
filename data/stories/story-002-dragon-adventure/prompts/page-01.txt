@@ -1,0 +1,176 @@
+## CONTEXT: PHOTOREALISTIC FACE-SWAP FOR CHILDREN'S STORYBOOK
+
+You are creating a semi-realistic digital painting for a personalized children's book using MAXIMUM FACIAL REALISM. This is NOT a cartoon - the child's face MUST look photographic while the environment can be more illustrated. Think Pixar/Disney's most realistic character rendering (like "Coco" or "Encanto").
+
+## CRITICAL: FACIAL REALISM REQUIREMENTS
+
+**PRIORITY #1 - PHOTOREALISTIC FACE INTEGRATION:**
+The child's face from the reference photos MUST be integrated with PHOTOGRAPHIC ACCURACY:
+
+1. **Skin Texture & Details** (CRITICAL):
+   - Preserve ALL natural skin texture from the reference photos
+   - Include subtle skin pores, natural skin variations, and real skin luminosity
+   - NO smoothing, NO cartoon-style simplification
+   - Real skin has slight imperfections - keep them for authenticity
+   - Skin should look like a high-quality portrait photograph
+
+2. **Facial Features Accuracy** (CRITICAL):
+   - Exact eye shape, color, and iris details from photos
+   - Real eyelashes with natural thickness and length
+   - Precise eyebrow shape, color, and hair texture
+   - Accurate nose structure with natural highlights and shadows
+   - Exact lip shape, color, and natural texture
+   - Real ear shape if visible
+   - Match hair texture, color, and the way it falls naturally
+
+3. **Lighting on Face** (CRITICAL):
+   - Natural, cinematic lighting as if photographed in real morning sunlight
+   - Soft, warm light coming from upper-left (morning sun angle ~45°)
+   - Natural skin subsurface scattering (light penetrating skin slightly)
+   - Realistic highlights on cheeks, nose tip, forehead
+   - Soft shadows under chin, nose - not harsh or cartoon-like
+   - Catch lights in eyes should look natural and real
+   - Light temperature: Warm (5500K) like natural morning sunlight
+
+4. **Expression & Emotion**:
+   - Emotion: Surprise and wonder (discovered something magical)
+   - Eyes: Wide open, pupils slightly dilated, eyebrows raised naturally
+   - Mouth: Slightly open in an "Oh!" expression of amazement
+   - Overall: Authentic child expression of discovering something incredible
+   - Facial muscles engaged naturally (not posed or stiff)
+
+## TASK: SEAMLESS FACE INTEGRATION
+
+**Source Materials:**
+- Reference photos: {CHARACTER_DESCRIPTION} - Use this as your facial blueprint
+- Base illustration: Garden scene with baby dragon
+- Target expression: Surprised wonder and delight
+
+**Your Task:**
+Replace the child's face in the base illustration with the PHOTOREALISTIC face from the reference photos. The face must look like a high-quality photograph while harmonizing with the semi-illustrated environment.
+
+**Face Position:**
+- Location: Left-center of image (x: 0.35, y: 0.4)
+- Pose: Child is kneeling on grass, body slightly turned toward the dragon
+- Head angle: Slight turn toward camera and dragon, natural child posture
+- Face size: Prominent but proportional to 4-8 year old child body
+
+## SCENE DETAILS
+
+**Setting: Sunny Garden Morning**
+- Time: Mid-morning (~10 AM)
+- Weather: Clear, sunny, perfect spring day
+- Location: Backyard garden with colorful flowers
+
+**Environment Elements:**
+- Foreground: Lush green grass where child is kneeling, some daisies and small flowers
+- Mid-ground: Large, vibrant sunflowers (yellow-orange), purple lavender, red roses
+- Background: Wooden garden fence (light brown), blue sky with few white clouds
+- Special: Baby dragon peeking from behind sunflowers on the right side
+
+**Baby Dragon Description:**
+- Size: Small (like a large cat or small dog)
+- Appearance: Cute and friendly, NOT scary
+- Scales: Iridescent blue-purple, shimmering in sunlight
+- Wings: Small, translucent with membrane visible
+- Eyes: Large, curious, friendly green eyes
+- Posture: Peeking out shyly but curiously from flowers
+
+**Child Posture & Clothing:**
+- Position: Kneeling on grass with hands slightly forward
+- Clothing: Casual summer clothes (bright colored t-shirt, shorts) - keep it simple
+- Body language: Leaning slightly toward dragon, showing interest but not fear
+- Hands: One hand slightly extended as if about to reach out gently
+
+## STYLE REQUIREMENTS - SEMI-REALISTIC HYBRID
+
+**CRITICAL STYLE BALANCE:**
+- Child's FACE: 95% photorealistic (as real as a portrait photo)
+- Child's BODY: 80% realistic with slight illustration stylization
+- Dragon: 60% illustrated fantasy creature with realistic textures
+- Environment: 50% painterly/illustrated with realistic lighting
+
+**Visual Reference Style:**
+Modern Pixar/Disney hybrid realism:
+- "Coco" (2017) - level of facial realism on human characters
+- "Encanto" (2021) - realistic skin tones and facial features
+- DreamWorks "How to Train Your Dragon" - environmental blending
+
+**Technique Specifications:**
+- Rendering: Semi-realistic digital painting
+- Brush style: Mix of photographic detail (face) and painterly strokes (background)
+- Texture: High detail on face, medium detail on body, stylized on environment
+- Edge quality: Soft, natural edges (not sharp vector-style)
+
+**Color Palette:**
+- Overall tone: Warm, inviting, magical but natural
+- Dominant colors: Greens (grass, leaves), blues (sky, dragon), yellows (sunflowers)
+- Accent colors: Purple (lavender, dragon scales), reds (roses)
+- Skin tones: Natural, warm caucasian/asian/latino (match {CHARACTER_DESCRIPTION})
+- Light quality: Warm golden sunlight, not oversaturated
+
+**Lighting Details:**
+- Primary light: Natural sunlight from upper-left at 45° angle
+- Light quality: Soft but directional (not harsh noon sun)
+- Fill light: Ambient sky light, subtle and cool-toned
+- Atmosphere: Light rays visible through flowers (volumetric light subtle)
+- Shadows: Soft-edged, natural density, warm-toned from grass reflection
+- Overall: Feels like real outdoor photography but in illustrated world
+
+**Atmosphere & Mood:**
+- Feeling: Magical discovery, wonder, safe and exciting
+- Air quality: Clear, crisp morning air with slight haze for depth
+- Depth of field: Slight focus on child's face and dragon, background softly blurred
+- Magic elements: Subtle sparkles around dragon, nothing too flashy
+
+## TECHNICAL SPECIFICATIONS
+
+**Image Quality:**
+- Resolution: High definition, print-ready quality
+- Face detail: Maximum detail preservation from reference photos
+- Integration quality: NO visible seams, perfect blending at face edges
+- Color accuracy: Natural, true-to-life skin tones
+
+**Integration Requirements:**
+1. Match lighting direction between face and scene perfectly
+2. Blend neck/face transition seamlessly (check jawline, ears, hairline)
+3. Ensure hair from photos integrates naturally with scene
+4. Face shadows must match scene's lighting logic
+5. Face size must be proportional to body and scene scale
+6. Expression must feel genuine, not artificially pasted
+
+**Avoid These Common Errors:**
+- ❌ Cartoon-smooth skin (keep natural texture!)
+- ❌ Overly saturated skin colors (keep natural tones)
+- ❌ Artificial-looking eyes (use real eye details from photos)
+- ❌ Flat lighting on face (needs dimension and depth)
+- ❌ Mismatched lighting direction (face vs scene)
+- ❌ Visible seams at face edges (blend perfectly!)
+- ❌ Expression looks pasted on (must be authentic)
+- ❌ Face too large or too small for body
+- ❌ Unnatural neck position or color
+- ❌ Lost facial details from reference photos
+
+## QUALITY CHECKLIST
+
+Before finalizing, verify:
+✓ Face looks like a real photograph (could fool someone)
+✓ Skin texture is natural with visible pores and variations
+✓ All facial features match reference photos exactly
+✓ Expression is authentic and age-appropriate for surprise/wonder
+✓ Lighting on face matches scene lighting direction and quality
+✓ No visible seams or integration artifacts
+✓ Face size proportional to body
+✓ Hair blends naturally into scene
+✓ Neck and shoulders transition seamlessly
+✓ Overall scene feels cohesive (photo-real child in illustrated-real world)
+✓ Dragon looks friendly and magical
+✓ Garden setting is inviting and colorful
+✓ Composition guides eye to child's face and dragon
+✓ Mood is magical, wonder-filled, and safe
+
+## FINAL OUTPUT
+
+Create a semi-realistic digital painting that looks like a **real child photographed in a painted storybook world**. The child's face should be so realistic that it could be mistaken for a photograph, while the dragon and garden have that magical illustrated quality that makes this clearly a fantasy storybook.
+
+The viewer should think: "That child looks exactly like the real kid in the photos, and they're in this beautiful, magical illustrated world!"
