@@ -5,7 +5,7 @@ import ConfirmDialog from '~/components/ConfirmDialog.vue'
 import VersionHistory from '~/components/story/VersionHistory.vue'
 import VersionComparator from '~/components/story/VersionComparator.vue'
 import BookPreview from '~/components/story/BookPreview.vue'
-import type { StoryTexts } from '~/types/story'
+import type { StoryTexts, StoryConfig } from '~/types/story'
 
 // Get session ID from route
 const route = useRoute()
@@ -64,23 +64,28 @@ const comparatorPage = ref<number | null>(null)
 // Book preview state
 const showBookPreview = ref(false)
 const storyTexts = ref<StoryTexts | null>(null)
+const storyConfig = ref<StoryConfig | null>(null)
 const isLoadingTexts = ref(false)
 
-// Load story texts for book preview
+// Load story texts and config for book preview
 const loadStoryTexts = async () => {
   if (!session.value) return
 
   try {
     isLoadingTexts.value = true
-    const { data, error: textsError } = await useFetch<StoryTexts>(
-      `/api/story/${session.value.storyId}/texts`
-    )
 
-    if (textsError.value || !data.value) {
+    // Load texts and config in parallel
+    const [textsResponse, configResponse] = await Promise.all([
+      useFetch<StoryTexts>(`/api/story/${session.value.storyId}/texts`),
+      useFetch<StoryConfig>(`/api/story/${session.value.storyId}`),
+    ])
+
+    if (textsResponse.error.value || !textsResponse.data.value) {
       throw new Error('No se pudieron cargar los textos')
     }
 
-    storyTexts.value = data.value
+    storyTexts.value = textsResponse.data.value
+    storyConfig.value = configResponse.data.value || null
   } catch (err: any) {
     console.error('[Preview] Error loading story texts:', err)
     toast.error('Error', 'No se pudieron cargar los textos del cuento')
@@ -672,6 +677,7 @@ const handleCloseComparator = () => {
         :session="session"
         :current-state="currentState"
         :story-texts="storyTexts"
+        :typography="storyConfig?.typography"
         @close="handleCloseBookPreview"
       />
     </Teleport>

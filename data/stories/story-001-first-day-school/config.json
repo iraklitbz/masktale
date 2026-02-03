@@ -1,6 +1,21 @@
 {
   "id": "story-001-first-day-school",
   "version": "1.0.0",
+  "typography": {
+    "kitUrl": "https://use.typekit.net/coq5pre.css",
+    "headline": {
+      "family": "cooper-black-std, serif",
+      "weight": 400,
+      "style": "normal",
+      "fallback": "Georgia, serif"
+    },
+    "body": {
+      "family": "source-sans-pro, sans-serif",
+      "weight": 400,
+      "style": "normal",
+      "fallback": "Arial, sans-serif"
+    }
+  },
   "title": {
     "es": "Mi Primer Día de Escuela",
     "en": "My First Day of School"

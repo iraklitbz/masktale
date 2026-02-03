@@ -4,13 +4,39 @@
  */
 import {jsPDF} from 'jspdf'
 import type {Session, CurrentState} from '~/types/session'
-import type {StoryTexts} from '~/types/story'
+import type {StoryTexts, StoryConfig, StoryTypography} from '~/types/story'
 
 export interface PdfGeneratorOptions {
   sessionId: string
   session: Session
   currentState: CurrentState
   useFavorites?: boolean
+}
+
+// Font mapping for jsPDF (maps fallback fonts to jsPDF font names)
+// jsPDF only supports: helvetica, times, courier with styles: normal, bold, italic, bolditalic
+const FONT_MAP: Record<string, { name: string; style: string }> = {
+  // Serif fonts -> Times
+  'Georgia, serif': { name: 'times', style: 'normal' },
+  'Times New Roman, serif': { name: 'times', style: 'normal' },
+  // Sans-serif fonts -> Helvetica
+  'Arial, sans-serif': { name: 'helvetica', style: 'normal' },
+  'Helvetica, sans-serif': { name: 'helvetica', style: 'normal' },
+  // Monospace -> Courier
+  'Courier, monospace': { name: 'courier', style: 'normal' },
+}
+
+// Get jsPDF font from fallback
+function getJsPDFFont(fallback: string): { name: string; style: string } {
+  const font = FONT_MAP[fallback]
+  if (font) {
+    return font
+  }
+  // Try to detect font type from fallback string
+  if (fallback.includes('serif') && !fallback.includes('sans')) {
+    return { name: 'times', style: 'normal' }
+  }
+  return { name: 'helvetica', style: 'normal' }
 }
 
 // Spread: 1000mm x 500mm (100cm x 50cm)
@@ -66,7 +92,8 @@ export function usePdfGenerator() {
     pdf: jsPDF,
     storyTexts: StoryTexts,
     childName: string,
-    imageUrl: string | null
+    imageUrl: string | null,
+    fonts: { headline: { name: string; style: string }; body: { name: string; style: string } }
   ) => {
     // IZQUIERDA: Fondo púrpura con degradado simulado más suave
     // Simulamos un degradado vertical del púrpura al rosa con bandas
@@ -83,10 +110,10 @@ export function usePdfGenerator() {
     // Contenido centrado verticalmente
     const centerY = SPREAD_HEIGHT / 2
 
-    // Título muy grande, todo en blanco
+    // Título muy grande, todo en blanco (usando fuente headline en BOLD)
     pdf.setTextColor(255, 255, 255)
     pdf.setFontSize(72)
-    pdf.setFont('helvetica', 'bold')
+    pdf.setFont(fonts.headline.name, 'bold')
     const titleLines = pdf.splitTextToSize(storyTexts.cover.title, PAGE_WIDTH - 80)
     let y = centerY - 120
 
@@ -96,9 +123,9 @@ export function usePdfGenerator() {
       y += 78
     })
 
-    // Tagline (blanco)
+    // Tagline (blanco, usando fuente body en itálica)
     pdf.setFontSize(28)
-    pdf.setFont('helvetica', 'italic')
+    pdf.setFont(fonts.body.name, 'italic')
     pdf.setTextColor(255, 255, 255)
     const tagW = pdf.getTextWidth(storyTexts.cover.tagline)
     pdf.text(storyTexts.cover.tagline, (PAGE_WIDTH - tagW) / 2, y + 20)
@@ -109,18 +136,18 @@ export function usePdfGenerator() {
     pdf.setLineWidth(3)
     pdf.line(PAGE_WIDTH / 2 - 60, y, PAGE_WIDTH / 2 + 60, y)
 
-    // Subtítulo (blanco)
+    // Subtítulo (blanco, usando fuente body normal)
     y += 45
     pdf.setFontSize(24)
-    pdf.setFont('helvetica', 'normal')
+    pdf.setFont(fonts.body.name, 'normal')
     pdf.setTextColor(255, 255, 255)
     const subW = pdf.getTextWidth(storyTexts.cover.subtitle)
     pdf.text(storyTexts.cover.subtitle, (PAGE_WIDTH - subW) / 2, y)
 
-    // Nombre del niño (blanco, grande)
+    // Nombre del niño (blanco, grande, usando fuente headline en BOLD)
     y += 60
     pdf.setFontSize(60)
-    pdf.setFont('helvetica', 'bold')
+    pdf.setFont(fonts.headline.name, 'bold')
     pdf.setTextColor(255, 255, 255)
     const nameW = pdf.getTextWidth(childName)
     pdf.text(childName, (PAGE_WIDTH - nameW) / 2, y)
@@ -165,7 +192,8 @@ export function usePdfGenerator() {
     pageText: { title: string; text: string },
     imageUrl: string | null,
     pageNumber: number,
-    childName: string
+    childName: string,
+    fonts: { headline: { name: string; style: string }; body: { name: string; style: string } }
   ) => {
     pdf.addPage()
 
@@ -181,11 +209,11 @@ export function usePdfGenerator() {
 
     // Calcular altura total del contenido para centrar verticalmente
     pdf.setFontSize(TITLE_SIZE)
-    pdf.setFont('helvetica', 'bold')
+    pdf.setFont(fonts.headline.name, 'bold')
     const titleLines = pdf.splitTextToSize(pageText.title, PAGE_WIDTH - 120)
 
     pdf.setFontSize(TEXT_SIZE)
-    pdf.setFont('helvetica', 'normal')
+    pdf.setFont(fonts.body.name, 'normal')
     const text = interpolateText(pageText.text, childName)
     const textLines = pdf.splitTextToSize(text, PAGE_WIDTH - 120)
     const textHeight = textLines.length * TEXT_LINE_H
@@ -196,10 +224,10 @@ export function usePdfGenerator() {
     const totalHeight = titleLines.length * TITLE_LINE_H + gapAfterTitle + gapAfterLine + textHeight
     let y = (SPREAD_HEIGHT - totalHeight) / 2 + TITLE_LINE_H * 0.7
 
-    // Título GRANDE
+    // Título GRANDE (usando fuente headline en BOLD)
     pdf.setTextColor(124, 58, 237)
     pdf.setFontSize(TITLE_SIZE)
-    pdf.setFont('helvetica', 'bold')
+    pdf.setFont(fonts.headline.name, 'bold')
     titleLines.forEach((line: string) => {
       const w = pdf.getTextWidth(line)
       pdf.text(line, (PAGE_WIDTH - w) / 2, y)
@@ -212,11 +240,11 @@ export function usePdfGenerator() {
     pdf.setLineWidth(3)
     pdf.line(PAGE_WIDTH / 2 - 60, y, PAGE_WIDTH / 2 + 60, y)
 
-    // Texto GRANDE
+    // Texto GRANDE (usando fuente body normal)
     y += gapAfterLine
     pdf.setTextColor(55, 65, 81)
     pdf.setFontSize(TEXT_SIZE)
-    pdf.setFont('helvetica', 'normal')
+    pdf.setFont(fonts.body.name, 'normal')
     textLines.forEach((line: string) => {
       const w = pdf.getTextWidth(line)
       pdf.text(line, (PAGE_WIDTH - w) / 2, y)
@@ -269,7 +297,8 @@ export function usePdfGenerator() {
     pdf: jsPDF,
     storyTexts: StoryTexts,
     childName: string,
-    imageUrl: string | null
+    imageUrl: string | null,
+    fonts: { headline: { name: string; style: string }; body: { name: string; style: string } }
   ) => {
     pdf.addPage()
 
@@ -289,10 +318,10 @@ export function usePdfGenerator() {
     const totalHeight = msgHeight + 60 + finHeight
     let y = (SPREAD_HEIGHT - totalHeight) / 2
 
-    // Mensaje (lg:text-2xl)
+    // Mensaje (lg:text-2xl, usando fuente body en itálica)
     pdf.setTextColor(75, 85, 99)
     pdf.setFontSize(32)
-    pdf.setFont('helvetica', 'italic')
+    pdf.setFont(fonts.body.name, 'italic')
     msgLines.forEach((line: string) => {
       const w = pdf.getTextWidth(line)
       pdf.text(line, (PAGE_WIDTH - w) / 2, y)
@@ -305,11 +334,11 @@ export function usePdfGenerator() {
     pdf.setLineWidth(2)
     pdf.line(PAGE_WIDTH / 2 - 35, y, PAGE_WIDTH / 2 + 35, y)
 
-    // Fin (lg:text-4xl)
+    // Fin (lg:text-4xl, usando fuente headline en BOLD)
     y += 50
     pdf.setTextColor(124, 58, 237)
     pdf.setFontSize(56)
-    pdf.setFont('helvetica', 'bold')
+    pdf.setFont(fonts.headline.name, 'bold')
     const finW = pdf.getTextWidth(storyTexts.backCover.footer)
     pdf.text(storyTexts.backCover.footer, (PAGE_WIDTH - finW) / 2, y)
 
@@ -367,12 +396,22 @@ export function usePdfGenerator() {
     try {
       const childName = session.userPhoto?.childName || 'Protagonista'
 
-      const {data: storyTexts, error: textsError} = await useFetch<StoryTexts>(
-        `/api/story/${session.storyId}/texts`
-      )
+      // Load texts and config in parallel
+      const [{data: storyTexts, error: textsError}, {data: storyConfig}] = await Promise.all([
+        useFetch<StoryTexts>(`/api/story/${session.storyId}/texts`),
+        useFetch<StoryConfig>(`/api/story/${session.storyId}`),
+      ])
+
       if (textsError.value || !storyTexts.value) {
         throw new Error('No se pudieron cargar los textos')
       }
+
+      // Get typography configuration
+      const typography = storyConfig.value?.typography
+      const headlineFont = getJsPDFFont(typography?.headline?.fallback || 'Georgia, serif')
+      const bodyFont = getJsPDFFont(typography?.body?.fallback || 'Arial, sans-serif')
+
+      console.log('[PDF] Using fonts:', { headline: headlineFont, body: bodyFont })
 
       // PDF 1000mm x 500mm landscape
       const pdf = new jsPDF({
@@ -395,19 +434,22 @@ export function usePdfGenerator() {
         return `/api/session/${sessionId}/image/${pageNum}?version=${version}`
       }
 
+      // Preparar objeto de fuentes para las funciones de generación
+      const fonts = { headline: headlineFont, body: bodyFont }
+
       // PORTADA
-      await generateCover(pdf, storyTexts.value, childName, getImageUrl(1))
+      await generateCover(pdf, storyTexts.value, childName, getImageUrl(1), fonts)
 
       // SPREADS HISTORIA
       const pages = storyTexts.value.pages.sort((a, b) => a.pageNumber - b.pageNumber)
       for (const page of pages) {
-        await generateStorySpread(pdf, page, getImageUrl(page.pageNumber), page.pageNumber, childName)
+        await generateStorySpread(pdf, page, getImageUrl(page.pageNumber), page.pageNumber, childName, fonts)
       }
 
       // CONTRAPORTADA (con última imagen - página 5)
       const lastImageUrl = getImageUrl(5) // Siempre página 5
       console.log('[PDF] Contraportada imagen URL:', lastImageUrl)
-      await generateBackCover(pdf, storyTexts.value, childName, lastImageUrl)
+      await generateBackCover(pdf, storyTexts.value, childName, lastImageUrl, fonts)
 
       // Descargar
       const safeName = childName.replace(/[^a-zA-Z0-9áéíóúñÁÉÍÓÚÑ\s]/g, '').replace(/\s+/g, '_')
