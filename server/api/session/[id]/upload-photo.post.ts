@@ -61,9 +61,21 @@ export default defineEventHandler(async (event) => {
       mimeType: string
     }> = []
 
+    // Extract childName from form data
+    let childName = ''
+    const fileItems: typeof formData = []
+
+    for (const item of formData) {
+      if (item.name === 'childName' && item.data) {
+        childName = item.data.toString('utf-8').trim()
+      } else {
+        fileItems.push(item)
+      }
+    }
+
     // Process each file
-    for (let i = 0; i < formData.length; i++) {
-      const file = formData[i]
+    for (let i = 0; i < fileItems.length; i++) {
+      const file = fileItems[i]
 
       // Validate file type
       if (!file.type || !ALLOWED_TYPES.includes(file.type)) {
@@ -109,8 +121,11 @@ export default defineEventHandler(async (event) => {
         format: uploadedPhotos[0].mimeType.split('/')[1],
         size: uploadedPhotos[0].size,
       },
+      childName: childName || undefined,
     }
     session.status = 'photo-uploaded'
+
+    console.log(`[API] Child name: "${childName || 'not provided'}"`);
 
     await saveSession(sessionId, session)
 

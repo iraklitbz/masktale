@@ -4,6 +4,8 @@ import CarouselSkeleton from '~/components/story/CarouselSkeleton.vue'
 import ConfirmDialog from '~/components/ConfirmDialog.vue'
 import VersionHistory from '~/components/story/VersionHistory.vue'
 import VersionComparator from '~/components/story/VersionComparator.vue'
+import BookPreview from '~/components/story/BookPreview.vue'
+import type { StoryTexts } from '~/types/story'
 
 // Get session ID from route
 const route = useRoute()
@@ -58,6 +60,49 @@ const versionHistoryPage = ref<number | null>(null)
 const showComparator = ref(false)
 const comparingVersions = ref<number[]>([])
 const comparatorPage = ref<number | null>(null)
+
+// Book preview state
+const showBookPreview = ref(false)
+const storyTexts = ref<StoryTexts | null>(null)
+const isLoadingTexts = ref(false)
+
+// Load story texts for book preview
+const loadStoryTexts = async () => {
+  if (!session.value) return
+
+  try {
+    isLoadingTexts.value = true
+    const { data, error: textsError } = await useFetch<StoryTexts>(
+      `/api/story/${session.value.storyId}/texts`
+    )
+
+    if (textsError.value || !data.value) {
+      throw new Error('No se pudieron cargar los textos')
+    }
+
+    storyTexts.value = data.value
+  } catch (err: any) {
+    console.error('[Preview] Error loading story texts:', err)
+    toast.error('Error', 'No se pudieron cargar los textos del cuento')
+  } finally {
+    isLoadingTexts.value = false
+  }
+}
+
+// Handle book preview
+const handleShowBookPreview = async () => {
+  if (!storyTexts.value) {
+    await loadStoryTexts()
+  }
+
+  if (storyTexts.value) {
+    showBookPreview.value = true
+  }
+}
+
+const handleCloseBookPreview = () => {
+  showBookPreview.value = false
+}
 
 // Handle page regeneration
 const handleRegenerate = async (pageNumber: number) => {
@@ -273,6 +318,34 @@ const handleCloseComparator = () => {
 
         <div class="header-actions">
           <template v-if="session?.status === 'completed'">
+            <!-- Botón: Vista previa del libro -->
+            <button
+              class="flex items-center px-3 py-2 bg-purple-100 text-purple-700 border-2 border-purple-200 rounded-lg font-medium transition-all hover:bg-purple-200 hover:border-purple-300 hover:-translate-y-0.5 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-purple-400 focus:ring-offset-2 disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-none"
+              :disabled="isLoadingTexts"
+              @click="handleShowBookPreview"
+              title="Ver vista previa del libro"
+            >
+              <div
+                v-if="isLoadingTexts"
+                class="spinner-small"
+              />
+              <svg
+                v-else
+                class="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+                />
+              </svg>
+              <span class="ml-2 hidden md:inline">Vista Libro</span>
+            </button>
+
             <!-- Botón principal: Añadir al carrito -->
             <button
               class="btn-cart"
@@ -590,6 +663,18 @@ const handleCloseComparator = () => {
       @select-version="(v) => handleSelectVersion(comparatorPage!, v)"
       @set-favorite="(v) => handleSetFavorite(comparatorPage!, v)"
     />
+
+    <!-- Book Preview Modal -->
+    <Teleport to="body">
+      <BookPreview
+        v-if="showBookPreview && session && currentState && storyTexts"
+        :session-id="sessionId"
+        :session="session"
+        :current-state="currentState"
+        :story-texts="storyTexts"
+        @close="handleCloseBookPreview"
+      />
+    </Teleport>
   </div>
 </template>
 

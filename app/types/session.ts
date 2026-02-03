@@ -22,6 +22,7 @@ export interface UserPhoto {
   processedPath?: string
   uploadedAt: string
   metadata: PhotoMetadata
+  childName?: string // Name of the child protagonist for text interpolation
 }
 
 export interface GenerationError {

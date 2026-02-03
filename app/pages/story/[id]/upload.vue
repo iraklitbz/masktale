@@ -17,6 +17,7 @@ const previews = ref<string[]>([])
 const uploading = ref(false)
 const uploadProgress = ref(0)
 const error = ref<string | null>(null)
+const childName = ref('')
 
 const MAX_FILES = 3
 const MAX_SIZE = 10 * 1024 * 1024 // 10MB
@@ -117,6 +118,12 @@ async function uploadPhotos() {
     return
   }
 
+  if (!childName.value.trim()) {
+    error.value = 'Por favor ingresa el nombre del protagonista'
+    toast.warning('Falta el nombre', 'Debes ingresar el nombre del protagonista')
+    return
+  }
+
   if (!session.value) {
     error.value = 'No hay sesión activa'
     toast.error('Error de sesión', 'No hay una sesión activa. Por favor reinicia el proceso')
@@ -133,6 +140,8 @@ async function uploadPhotos() {
     uploadedFiles.value.forEach((file, index) => {
       formData.append(`photo-${index}`, file)
     })
+    // Add child name to form data
+    formData.append('childName', childName.value.trim())
 
     // Simulate progress
     const progressInterval = setInterval(() => {
@@ -169,7 +178,7 @@ async function uploadPhotos() {
 
 // Computed
 const canUploadMore = computed(() => uploadedFiles.value.length < MAX_FILES)
-const canContinue = computed(() => uploadedFiles.value.length > 0 && !uploading.value)
+const canContinue = computed(() => uploadedFiles.value.length > 0 && childName.value.trim() !== '' && !uploading.value)
 </script>
 
 <template>
@@ -217,6 +226,25 @@ const canContinue = computed(() => uploadedFiles.value.length > 0 && !uploading.
             <span>Formatos: JPEG, PNG, WebP (máx. 10MB por foto)</span>
           </li>
         </ul>
+      </div>
+
+      <!-- Child Name Input -->
+      <div class="mb-8 rounded-2xl bg-white p-6 shadow-sm">
+        <label for="childName" class="mb-2 block text-lg font-semibold text-gray-900">
+          Nombre del protagonista
+        </label>
+        <p class="mb-4 text-sm text-gray-600">
+          Este nombre aparecerá en todo el cuento personalizado
+        </p>
+        <input
+          id="childName"
+          v-model="childName"
+          type="text"
+          placeholder="Ej: Lucas, Sofia, Emma..."
+          class="w-full rounded-lg border-2 border-gray-200 px-4 py-3 text-lg transition-colors focus:border-purple-500 focus:outline-none"
+          :class="{ 'border-red-300': error && !childName.trim() }"
+          maxlength="50"
+        >
       </div>
 
       <!-- Drop Zone -->

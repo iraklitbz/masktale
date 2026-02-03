@@ -1,0 +1,25 @@
+{
+  "id": "3941f2ec-5b28-4097-a584-311e21b79ef4",
+  "storyId": "story-001-first-day-school",
+  "createdAt": "2026-02-03T12:36:32.334Z",
+  "expiresAt": "2026-02-04T12:36:32.334Z",
+  "status": "completed",
+  "progress": {
+    "totalPages": 5,
+    "pagesGenerated": 5,
+    "errors": [],
+    "currentPage": 5,
+    "completedAt": "2026-02-03T12:37:44.841Z"
+  },
+  "userPhoto": {
+    "originalPath": "data/sessions/3941f2ec-5b28-4097-a584-311e21b79ef4/user-photos/photo-1.jpeg",
+    "uploadedAt": "2026-02-03T12:36:41.539Z",
+    "metadata": {
+      "width": 0,
+      "height": 0,
+      "format": "jpeg",
+      "size": 4849103
+    },
+    "childName": "Nia"
+  }
+}
