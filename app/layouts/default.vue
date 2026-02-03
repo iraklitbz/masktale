@@ -1,8 +1,16 @@
 <script setup lang="ts">
 import CartIcon from '~/components/cart/CartIcon.vue'
+import FloatingBookButton from '~/components/session/FloatingBookButton.vue'
 
 const {user, isAuthenticated, logout} = useAuth()
 const authInitialized = useState('auth-initialized', () => false)
+
+// Session management - restore session on mount
+const { restoreSession } = useSession()
+
+onMounted(async () => {
+  await restoreSession()
+})
 
 // User menu visibility
 const showUserMenu = ref(false)
@@ -142,6 +150,11 @@ onMounted(() => {
         <p>Mask Stories © 2025 - Cuentos personalizados con IA</p>
       </div>
     </footer>
+
+    <!-- Floating book button - shows when user has a generated book -->
+    <ClientOnly>
+      <FloatingBookButton />
+    </ClientOnly>
   </div>
 </template>
 

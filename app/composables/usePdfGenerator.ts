@@ -1,16 +1,78 @@
 /**
  * Composable for generating professional PDF from story session
  * DISEÑO IDÉNTICO A BookPreview.vue - 1000mm x 500mm spread
+ * Uses embedded Google Fonts (Alfa Slab One + Source Sans 3)
  */
 import {jsPDF} from 'jspdf'
 import type {Session, CurrentState} from '~/types/session'
-import type {StoryTexts} from '~/types/story'
+import type {StoryTexts, StoryConfig, StoryTypography} from '~/types/story'
 
 export interface PdfGeneratorOptions {
   sessionId: string
   session: Session
   currentState: CurrentState
   useFavorites?: boolean
+}
+
+// Cache for loaded fonts (base64)
+let fontsLoaded = false
+let alfaSlabOneBase64: string | null = null
+let sourceSans3Base64: string | null = null
+
+/**
+ * Load font files and convert to base64
+ */
+async function loadFonts(): Promise<boolean> {
+  if (fontsLoaded) return true
+
+  try {
+    // Load both font files in parallel
+    const [alfaResponse, sourceResponse] = await Promise.all([
+      fetch('/fonts/AlfaSlabOne-Regular.base64.txt'),
+      fetch('/fonts/SourceSans3-Regular.base64.txt'),
+    ])
+
+    if (!alfaResponse.ok || !sourceResponse.ok) {
+      console.error('[PDF] Failed to load font files')
+      return false
+    }
+
+    alfaSlabOneBase64 = await alfaResponse.text()
+    sourceSans3Base64 = await sourceResponse.text()
+    fontsLoaded = true
+
+    console.log('[PDF] Custom fonts loaded successfully')
+    return true
+  } catch (error) {
+    console.error('[PDF] Error loading fonts:', error)
+    return false
+  }
+}
+
+/**
+ * Register custom fonts with jsPDF
+ */
+function registerFonts(pdf: jsPDF): boolean {
+  if (!alfaSlabOneBase64 || !sourceSans3Base64) {
+    console.warn('[PDF] Fonts not loaded, using fallback')
+    return false
+  }
+
+  try {
+    // Register Alfa Slab One (headline font)
+    pdf.addFileToVFS('AlfaSlabOne-Regular.ttf', alfaSlabOneBase64)
+    pdf.addFont('AlfaSlabOne-Regular.ttf', 'AlfaSlabOne', 'normal')
+
+    // Register Source Sans 3 (body font)
+    pdf.addFileToVFS('SourceSans3-Regular.ttf', sourceSans3Base64)
+    pdf.addFont('SourceSans3-Regular.ttf', 'SourceSans3', 'normal')
+
+    console.log('[PDF] Custom fonts registered')
+    return true
+  } catch (error) {
+    console.error('[PDF] Error registering fonts:', error)
+    return false
+  }
 }
 
 // Spread: 1000mm x 500mm (100cm x 50cm)
@@ -66,7 +128,8 @@ export function usePdfGenerator() {
     pdf: jsPDF,
     storyTexts: StoryTexts,
     childName: string,
-    imageUrl: string | null
+    imageUrl: string | null,
+    fonts: { headline: string; body: string; isCustom: boolean }
   ) => {
     // IZQUIERDA: Fondo púrpura con degradado simulado más suave
     // Simulamos un degradado vertical del púrpura al rosa con bandas
@@ -83,10 +146,10 @@ export function usePdfGenerator() {
     // Contenido centrado verticalmente
     const centerY = SPREAD_HEIGHT / 2
 
-    // Título muy grande, todo en blanco
+    // Título muy grande, todo en blanco (Alfa Slab One o Helvetica Bold)
     pdf.setTextColor(255, 255, 255)
     pdf.setFontSize(72)
-    pdf.setFont('helvetica', 'bold')
+    pdf.setFont(fonts.headline, 'normal')
     const titleLines = pdf.splitTextToSize(storyTexts.cover.title, PAGE_WIDTH - 80)
     let y = centerY - 120
 
@@ -96,9 +159,9 @@ export function usePdfGenerator() {
       y += 78
     })
 
-    // Tagline (blanco)
+    // Tagline (blanco, Source Sans 3 o Helvetica Italic)
     pdf.setFontSize(28)
-    pdf.setFont('helvetica', 'italic')
+    pdf.setFont(fonts.body, 'normal')
     pdf.setTextColor(255, 255, 255)
     const tagW = pdf.getTextWidth(storyTexts.cover.tagline)
     pdf.text(storyTexts.cover.tagline, (PAGE_WIDTH - tagW) / 2, y + 20)
@@ -109,18 +172,18 @@ export function usePdfGenerator() {
     pdf.setLineWidth(3)
     pdf.line(PAGE_WIDTH / 2 - 60, y, PAGE_WIDTH / 2 + 60, y)
 
-    // Subtítulo (blanco)
+    // Subtítulo (blanco, Source Sans 3 o Helvetica Normal)
     y += 45
     pdf.setFontSize(24)
-    pdf.setFont('helvetica', 'normal')
+    pdf.setFont(fonts.body, 'normal')
     pdf.setTextColor(255, 255, 255)
     const subW = pdf.getTextWidth(storyTexts.cover.subtitle)
     pdf.text(storyTexts.cover.subtitle, (PAGE_WIDTH - subW) / 2, y)
 
-    // Nombre del niño (blanco, grande)
+    // Nombre del niño (blanco, grande, Alfa Slab One o Helvetica Bold)
     y += 60
     pdf.setFontSize(60)
-    pdf.setFont('helvetica', 'bold')
+    pdf.setFont(fonts.headline, 'normal')
     pdf.setTextColor(255, 255, 255)
     const nameW = pdf.getTextWidth(childName)
     pdf.text(childName, (PAGE_WIDTH - nameW) / 2, y)
@@ -165,7 +228,8 @@ export function usePdfGenerator() {
     pageText: { title: string; text: string },
     imageUrl: string | null,
     pageNumber: number,
-    childName: string
+    childName: string,
+    fonts: { headline: string; body: string; isCustom: boolean }
   ) => {
     pdf.addPage()
 
@@ -181,11 +245,11 @@ export function usePdfGenerator() {
 
     // Calcular altura total del contenido para centrar verticalmente
     pdf.setFontSize(TITLE_SIZE)
-    pdf.setFont('helvetica', 'bold')
+    pdf.setFont(fonts.headline, 'normal')
     const titleLines = pdf.splitTextToSize(pageText.title, PAGE_WIDTH - 120)
 
     pdf.setFontSize(TEXT_SIZE)
-    pdf.setFont('helvetica', 'normal')
+    pdf.setFont(fonts.body, 'normal')
     const text = interpolateText(pageText.text, childName)
     const textLines = pdf.splitTextToSize(text, PAGE_WIDTH - 120)
     const textHeight = textLines.length * TEXT_LINE_H
@@ -196,10 +260,10 @@ export function usePdfGenerator() {
     const totalHeight = titleLines.length * TITLE_LINE_H + gapAfterTitle + gapAfterLine + textHeight
     let y = (SPREAD_HEIGHT - totalHeight) / 2 + TITLE_LINE_H * 0.7
 
-    // Título GRANDE
+    // Título GRANDE (Alfa Slab One)
     pdf.setTextColor(124, 58, 237)
     pdf.setFontSize(TITLE_SIZE)
-    pdf.setFont('helvetica', 'bold')
+    pdf.setFont(fonts.headline, 'normal')
     titleLines.forEach((line: string) => {
       const w = pdf.getTextWidth(line)
       pdf.text(line, (PAGE_WIDTH - w) / 2, y)
@@ -212,11 +276,11 @@ export function usePdfGenerator() {
     pdf.setLineWidth(3)
     pdf.line(PAGE_WIDTH / 2 - 60, y, PAGE_WIDTH / 2 + 60, y)
 
-    // Texto GRANDE
+    // Texto GRANDE (Source Sans 3)
     y += gapAfterLine
     pdf.setTextColor(55, 65, 81)
     pdf.setFontSize(TEXT_SIZE)
-    pdf.setFont('helvetica', 'normal')
+    pdf.setFont(fonts.body, 'normal')
     textLines.forEach((line: string) => {
       const w = pdf.getTextWidth(line)
       pdf.text(line, (PAGE_WIDTH - w) / 2, y)
@@ -269,7 +333,8 @@ export function usePdfGenerator() {
     pdf: jsPDF,
     storyTexts: StoryTexts,
     childName: string,
-    imageUrl: string | null
+    imageUrl: string | null,
+    fonts: { headline: string; body: string; isCustom: boolean }
   ) => {
     pdf.addPage()
 
@@ -289,10 +354,10 @@ export function usePdfGenerator() {
     const totalHeight = msgHeight + 60 + finHeight
     let y = (SPREAD_HEIGHT - totalHeight) / 2
 
-    // Mensaje (lg:text-2xl)
+    // Mensaje (lg:text-2xl, Source Sans 3)
     pdf.setTextColor(75, 85, 99)
     pdf.setFontSize(32)
-    pdf.setFont('helvetica', 'italic')
+    pdf.setFont(fonts.body, 'normal')
     msgLines.forEach((line: string) => {
       const w = pdf.getTextWidth(line)
       pdf.text(line, (PAGE_WIDTH - w) / 2, y)
@@ -305,11 +370,11 @@ export function usePdfGenerator() {
     pdf.setLineWidth(2)
     pdf.line(PAGE_WIDTH / 2 - 35, y, PAGE_WIDTH / 2 + 35, y)
 
-    // Fin (lg:text-4xl)
+    // Fin (lg:text-4xl, Alfa Slab One)
     y += 50
     pdf.setTextColor(124, 58, 237)
     pdf.setFontSize(56)
-    pdf.setFont('helvetica', 'bold')
+    pdf.setFont(fonts.headline, 'normal')
     const finW = pdf.getTextWidth(storyTexts.backCover.footer)
     pdf.text(storyTexts.backCover.footer, (PAGE_WIDTH - finW) / 2, y)
 
@@ -367,12 +432,18 @@ export function usePdfGenerator() {
     try {
       const childName = session.userPhoto?.childName || 'Protagonista'
 
-      const {data: storyTexts, error: textsError} = await useFetch<StoryTexts>(
-        `/api/story/${session.storyId}/texts`
-      )
+      // Load texts and config in parallel
+      const [{data: storyTexts, error: textsError}, {data: storyConfig}] = await Promise.all([
+        useFetch<StoryTexts>(`/api/story/${session.storyId}/texts`),
+        useFetch<StoryConfig>(`/api/story/${session.storyId}`),
+      ])
+
       if (textsError.value || !storyTexts.value) {
         throw new Error('No se pudieron cargar los textos')
       }
+
+      // Load custom fonts
+      const fontsAvailable = await loadFonts()
 
       // PDF 1000mm x 500mm landscape
       const pdf = new jsPDF({
@@ -380,6 +451,22 @@ export function usePdfGenerator() {
         unit: 'mm',
         format: [SPREAD_HEIGHT, SPREAD_WIDTH],
       })
+
+      // Register custom fonts if available
+      const customFontsRegistered = fontsAvailable && registerFonts(pdf)
+
+      // Font names to use
+      const headlineFontName = customFontsRegistered ? 'AlfaSlabOne' : 'helvetica'
+      const bodyFontName = customFontsRegistered ? 'SourceSans3' : 'helvetica'
+
+      console.log('[PDF] Using fonts:', { headline: headlineFontName, body: bodyFontName, custom: customFontsRegistered })
+
+      // Prepare fonts object for generation functions
+      const fonts = {
+        headline: headlineFontName,
+        body: bodyFontName,
+        isCustom: customFontsRegistered,
+      }
 
       console.log(`[PDF] Tamaño: ${pdf.internal.pageSize.getWidth()}mm x ${pdf.internal.pageSize.getHeight()}mm`)
 
@@ -396,18 +483,18 @@ export function usePdfGenerator() {
       }
 
       // PORTADA
-      await generateCover(pdf, storyTexts.value, childName, getImageUrl(1))
+      await generateCover(pdf, storyTexts.value, childName, getImageUrl(1), fonts)
 
       // SPREADS HISTORIA
       const pages = storyTexts.value.pages.sort((a, b) => a.pageNumber - b.pageNumber)
       for (const page of pages) {
-        await generateStorySpread(pdf, page, getImageUrl(page.pageNumber), page.pageNumber, childName)
+        await generateStorySpread(pdf, page, getImageUrl(page.pageNumber), page.pageNumber, childName, fonts)
       }
 
       // CONTRAPORTADA (con última imagen - página 5)
       const lastImageUrl = getImageUrl(5) // Siempre página 5
       console.log('[PDF] Contraportada imagen URL:', lastImageUrl)
-      await generateBackCover(pdf, storyTexts.value, childName, lastImageUrl)
+      await generateBackCover(pdf, storyTexts.value, childName, lastImageUrl, fonts)
 
       // Descargar
       const safeName = childName.replace(/[^a-zA-Z0-9áéíóúñÁÉÍÓÚÑ\s]/g, '').replace(/\s+/g, '_')

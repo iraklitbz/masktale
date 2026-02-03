@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { StoryTexts, PageText } from '~/types/story'
+import type { StoryTexts, PageText, StoryTypography } from '~/types/story'
 import type { Session, CurrentState } from '~/types/session'
 
 interface Props {
@@ -7,6 +7,7 @@ interface Props {
   session: Session
   currentState: CurrentState
   storyTexts: StoryTexts
+  typography?: StoryTypography
 }
 
 const props = defineProps<Props>()
@@ -14,8 +15,26 @@ const emit = defineEmits<{
   close: []
 }>()
 
+// Font loading
+const {
+  loadTypography,
+  getHeadlineStyle,
+  getBodyStyle,
+  isLoading: fontsLoading,
+  isLoaded: fontsLoaded,
+} = useStoryFonts()
+
+// Load fonts when component mounts
+onMounted(async () => {
+  await loadTypography(props.typography)
+})
+
 // Get child name
 const childName = computed(() => props.session.userPhoto?.childName || 'Protagonista')
+
+// Typography styles
+const headlineStyle = computed(() => getHeadlineStyle(props.typography))
+const bodyStyle = computed(() => getBodyStyle(props.typography))
 
 // Interpolate text with child name
 const interpolateText = (text: string): string => {
@@ -106,17 +125,29 @@ onUnmounted(() => {
         <template v-if="currentSpread === 0">
           <div class="flex-1 relative flex items-center justify-center p-4 md:p-8 bg-gradient-to-br from-purple-600 via-purple-500 to-pink-500 text-white">
             <div class="text-center max-w-[80%]">
-              <h1 class="text-xl md:text-3xl lg:text-5xl font-bold mb-2 drop-shadow-lg">
+              <h1
+                class="text-xl md:text-3xl lg:text-5xl mb-2 drop-shadow-lg"
+                :style="headlineStyle"
+              >
                 {{ storyTexts.cover.title }}
               </h1>
-              <p class="text-sm md:text-base lg:text-xl opacity-90 italic">
+              <p
+                class="text-sm md:text-base lg:text-xl opacity-90 italic"
+                :style="bodyStyle"
+              >
                 {{ storyTexts.cover.tagline }}
               </p>
               <div class="w-16 h-1 bg-white/50 mx-auto my-4 md:my-6 rounded" />
-              <p class="text-sm md:text-base opacity-80 mb-2">
+              <p
+                class="text-sm md:text-base opacity-80 mb-2"
+                :style="bodyStyle"
+              >
                 {{ storyTexts.cover.subtitle }}
               </p>
-              <h2 class="text-xl md:text-2xl lg:text-4xl font-bold mt-2">
+              <h2
+                class="text-xl md:text-2xl lg:text-4xl mt-2"
+                :style="headlineStyle"
+              >
                 {{ childName }}
               </h2>
             </div>
@@ -142,11 +173,17 @@ onUnmounted(() => {
         <template v-else-if="currentSpread > 0 && currentSpread < totalSpreads - 1">
           <div class="flex-1 relative flex flex-col items-center justify-center p-4 md:p-8 bg-gray-50">
             <div class="max-w-[90%] text-center">
-              <h2 class="text-lg md:text-xl lg:text-3xl font-bold text-purple-600 mb-4">
+              <h2
+                class="text-lg md:text-xl lg:text-3xl text-purple-600 mb-4"
+                :style="headlineStyle"
+              >
                 {{ currentPageText?.title }}
               </h2>
               <div class="w-12 h-0.5 bg-gradient-to-r from-purple-600 to-pink-500 mx-auto mb-6 rounded" />
-              <p class="text-sm md:text-base lg:text-lg leading-relaxed text-gray-700">
+              <p
+                class="text-sm md:text-base lg:text-lg leading-relaxed text-gray-700"
+                :style="bodyStyle"
+              >
                 {{ interpolateText(currentPageText?.text || '') }}
               </p>
             </div>
@@ -177,11 +214,17 @@ onUnmounted(() => {
         <template v-else>
           <div class="flex-1 relative flex items-center justify-center p-4 md:p-8 bg-gray-50">
             <div class="text-center max-w-[80%]">
-              <p class="text-base md:text-lg lg:text-2xl leading-relaxed text-gray-600 italic">
+              <p
+                class="text-base md:text-lg lg:text-2xl leading-relaxed text-gray-600 italic"
+                :style="bodyStyle"
+              >
                 {{ interpolateText(storyTexts.backCover.message) }}
               </p>
               <div class="w-10 h-0.5 bg-purple-600 mx-auto my-6 md:my-8 rounded" />
-              <h2 class="text-2xl md:text-3xl lg:text-4xl font-bold text-purple-600">
+              <h2
+                class="text-2xl md:text-3xl lg:text-4xl text-purple-600"
+                :style="headlineStyle"
+              >
                 {{ storyTexts.backCover.footer }}
               </h2>
             </div>

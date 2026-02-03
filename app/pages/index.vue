@@ -1,23 +1,75 @@
 <script setup lang="ts">
 import type { StoryListItem } from '~/app/types/story'
+import ExistingBookModal from '~/components/session/ExistingBookModal.vue'
 
 // Use session composable
-const { createSession, loading: sessionLoading, error: sessionError } = useSession()
+const {
+  createSession,
+  deleteSession,
+  hasGeneratedBook,
+  getPreviewUrl,
+  sessionId,
+  loading: sessionLoading,
+  error: sessionError
+} = useSession()
 
 // Fetch stories
 const { data: stories, pending, error } = await useFetch<StoryListItem[]>('/api/story')
 
+// Modal state
+const showExistingBookModal = ref(false)
+const pendingStoryId = ref<string | null>(null)
+
 async function handleStorySelect(storyId: string) {
   console.log('Selected story:', storyId)
 
-  // Create session for this story
-  const sessionId = await createSession(storyId)
+  // Check if there's an existing book
+  if (hasGeneratedBook()) {
+    pendingStoryId.value = storyId
+    showExistingBookModal.value = true
+    return
+  }
 
-  if (sessionId) {
+  // No existing book, create new session directly
+  await createNewSession(storyId)
+}
+
+async function createNewSession(storyId: string) {
+  // Create session for this story
+  const newSessionId = await createSession(storyId)
+
+  if (newSessionId) {
     // Navigate to upload page
-    console.log('Session created:', sessionId)
+    console.log('Session created:', newSessionId)
     await navigateTo(`/story/${storyId}/upload`)
   }
+}
+
+// Modal handlers
+function handleContinueExisting() {
+  showExistingBookModal.value = false
+  const previewUrl = getPreviewUrl()
+  if (previewUrl) {
+    navigateTo(previewUrl)
+  }
+}
+
+async function handleDeleteAndCreate() {
+  if (!pendingStoryId.value) return
+
+  // Delete existing session
+  const deleted = await deleteSession()
+
+  if (deleted) {
+    showExistingBookModal.value = false
+    // Create new session
+    await createNewSession(pendingStoryId.value)
+  }
+}
+
+function handleCloseModal() {
+  showExistingBookModal.value = false
+  pendingStoryId.value = null
 }
 </script>
 
@@ -100,5 +152,13 @@ async function handleStorySelect(storyId: string) {
         </p>
       </div>
     </main>
+
+    <!-- Existing book modal -->
+    <ExistingBookModal
+      :show="showExistingBookModal"
+      @close="handleCloseModal"
+      @continue-existing="handleContinueExisting"
+      @delete-and-create="handleDeleteAndCreate"
+    />
   </div>
 </template>

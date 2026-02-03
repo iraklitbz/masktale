@@ -69,6 +69,33 @@ export interface ImageQuality {
   maxHeight: number
 }
 
+/**
+ * Font configuration for a specific use case
+ */
+export interface FontConfig {
+  family: string // CSS font-family value
+  weight: number // Font weight (400, 700, etc.)
+  style?: 'normal' | 'italic'
+  fallback: string // Fallback for PDF generation
+  // Optional URLs to TTF/OTF files to embed in PDF generation
+  pdf?: {
+    normal?: string
+    bold?: string
+    italic?: string
+    bolditalic?: string
+  }
+}
+
+/**
+ * Typography configuration for a story
+ * Each story can have its own fonts for headlines and body text
+ */
+export interface StoryTypography {
+  kitUrl?: string // TypeKit/Google Fonts CSS URL (loaded dynamically)
+  headline: FontConfig
+  body: FontConfig
+}
+
 export interface StorySettings {
   maxRegenerations: number
   defaultAspectRatio: AspectRatio
@@ -86,6 +113,7 @@ export interface StoryConfig {
   pages: StoryPage[]
   settings: StorySettings
   thumbnail?: string // Optional thumbnail image path
+  typography?: StoryTypography // Custom fonts for this story
 }
 
 /**

@@ -102,7 +102,7 @@ export function useSession() {
   }
 
   /**
-   * Clear current session
+   * Clear current session (client-side only, does not delete from server)
    */
   function clearSession() {
     sessionId.value = null
@@ -115,6 +115,57 @@ export function useSession() {
     }
 
     console.log('[useSession] Session cleared')
+  }
+
+  /**
+   * Delete session from server and clear local state
+   * Also removes all generated images and files
+   */
+  async function deleteSession(id?: string): Promise<boolean> {
+    const targetId = id || sessionId.value
+    if (!targetId) return false
+
+    loading.value = true
+    error.value = null
+
+    try {
+      await $fetch(`/api/session/${targetId}`, {
+        method: 'DELETE',
+      })
+
+      // Clear local state
+      clearSession()
+
+      console.log('[useSession] Deleted session:', targetId)
+      return true
+    } catch (e: any) {
+      error.value = e.data?.statusMessage || e.message || 'Failed to delete session'
+      console.error('[useSession] Error deleting session:', error.value)
+      return false
+    } finally {
+      loading.value = false
+    }
+  }
+
+  /**
+   * Check if there's a valid session with generated pages
+   */
+  function hasGeneratedBook(): boolean {
+    if (!session.value || !currentState.value) return false
+
+    // Check if session has completed status or has generated pages
+    const hasPages = Object.keys(currentState.value.selectedVersions || {}).length > 0
+    const isCompleted = session.value.status === 'completed'
+
+    return hasPages || isCompleted
+  }
+
+  /**
+   * Get the preview URL for the current session
+   */
+  function getPreviewUrl(): string | null {
+    if (!session.value || !sessionId.value) return null
+    return `/story/${sessionId.value}/preview`
   }
 
   /**
@@ -152,9 +203,12 @@ export function useSession() {
     loadSession,
     restoreSession,
     clearSession,
+    deleteSession,
 
     // Utilities
     isExpired,
     getTimeRemaining,
+    hasGeneratedBook,
+    getPreviewUrl,
   }
 }
