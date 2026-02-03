@@ -2,15 +2,15 @@
   "id": "story-001-first-day-school",
   "version": "1.0.0",
   "typography": {
-    "kitUrl": "https://use.typekit.net/coq5pre.css",
+    "kitUrl": "https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400;1,600&display=swap",
     "headline": {
-      "family": "cooper-black-std, serif",
+      "family": "'Alfa Slab One', serif",
       "weight": 400,
       "style": "normal",
       "fallback": "Georgia, serif"
     },
     "body": {
-      "family": "source-sans-pro, sans-serif",
+      "family": "'Source Sans 3', sans-serif",
       "weight": 400,
       "style": "normal",
       "fallback": "Arial, sans-serif"

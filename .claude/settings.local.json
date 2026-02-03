@@ -22,7 +22,8 @@
       "Bash(xargs ls:*)",
       "Bash(convert:*)",
       "Bash(npm run dev:*)",
-      "Bash(npm run build:*)"
+      "Bash(npm run build:*)",
+      "Bash(base64:*)"
     ]
   }
 }
