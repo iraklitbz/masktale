@@ -2,9 +2,9 @@
  * Composable for generating professional PDF from story session
  * DISEÑO IDÉNTICO A BookPreview.vue - 1000mm x 500mm spread
  */
-import { jsPDF } from 'jspdf'
-import type { Session, CurrentState } from '~/types/session'
-import type { StoryTexts } from '~/types/story'
+import {jsPDF} from 'jspdf'
+import type {Session, CurrentState} from '~/types/session'
+import type {StoryTexts} from '~/types/story'
 
 export interface PdfGeneratorOptions {
   sessionId: string
@@ -21,8 +21,19 @@ const PAGE_WIDTH = 500 // cada mitad
 export function usePdfGenerator() {
   const toast = useToast()
 
+  // Helper to set global opacity safely with TypeScript
+  const setOpacity = (pdf: jsPDF, opacity: number) => {
+    const anyPdf = pdf as any
+    if (anyPdf?.setGState && anyPdf?.GState) {
+      anyPdf.setGState(new anyPdf.GState({opacity}))
+    }
+  }
+
+  // Helper to round positions/sizes to reduce anti-aliasing seams
+  const r2 = (n: number) => Math.round(n * 100) / 100
+
   const interpolateText = (text: string, childName: string): string => {
-    return text.replace(/\{childName\}/g, childName)
+    return text.replace(/\{childName}/g, childName)
   }
 
   const loadImageAsBase64 = async (imageUrl: string): Promise<{ base64: string; width: number; height: number }> => {
@@ -57,54 +68,58 @@ export function usePdfGenerator() {
     childName: string,
     imageUrl: string | null
   ) => {
-    // IZQUIERDA: Fondo púrpura con gradiente simulado
-    pdf.setFillColor(124, 58, 237)
-    pdf.rect(0, 0, PAGE_WIDTH, SPREAD_HEIGHT, 'F')
-    // Gradiente rosa en esquina
-    pdf.setFillColor(219, 39, 119)
-    pdf.rect(0, SPREAD_HEIGHT * 0.7, PAGE_WIDTH * 0.4, SPREAD_HEIGHT * 0.3, 'F')
+    // IZQUIERDA: Fondo púrpura con degradado simulado más suave
+    // Simulamos un degradado vertical del púrpura al rosa con bandas
+    for (let i = 0; i <= 10; i++) {
+      const t = i / 10
+      const r = Math.round(124 + (219 - 124) * t) // 124->219
+      const g = Math.round(58 + (39 - 58) * t)    // 58->39
+      const b = Math.round(237 + (119 - 237) * t) // 237->119
+      pdf.setFillColor(r, g, b)
+      const bandY = (SPREAD_HEIGHT / 10) * i
+      pdf.rect(0, bandY, PAGE_WIDTH, SPREAD_HEIGHT / 10, 'F')
+    }
 
     // Contenido centrado verticalmente
     const centerY = SPREAD_HEIGHT / 2
 
-    // Título (grande como lg:text-5xl)
+    // Título muy grande, todo en blanco
     pdf.setTextColor(255, 255, 255)
-    pdf.setFontSize(56)
+    pdf.setFontSize(72)
     pdf.setFont('helvetica', 'bold')
     const titleLines = pdf.splitTextToSize(storyTexts.cover.title, PAGE_WIDTH - 80)
-    const titleHeight = titleLines.length * 65
-    let y = centerY - 100
+    let y = centerY - 120
 
     titleLines.forEach((line: string) => {
       const w = pdf.getTextWidth(line)
       pdf.text(line, (PAGE_WIDTH - w) / 2, y)
-      y += 65
+      y += 78
     })
 
-    // Tagline (lg:text-xl)
-    pdf.setFontSize(24)
+    // Tagline (blanco)
+    pdf.setFontSize(28)
     pdf.setFont('helvetica', 'italic')
-    pdf.setTextColor(255, 255, 255, 0.9)
+    pdf.setTextColor(255, 255, 255)
     const tagW = pdf.getTextWidth(storyTexts.cover.tagline)
-    pdf.text(storyTexts.cover.tagline, (PAGE_WIDTH - tagW) / 2, y + 15)
+    pdf.text(storyTexts.cover.tagline, (PAGE_WIDTH - tagW) / 2, y + 20)
 
-    // Línea decorativa
-    y += 50
+    // Línea decorativa en blanco
+    y += 60
     pdf.setDrawColor(255, 255, 255)
     pdf.setLineWidth(3)
-    pdf.line(PAGE_WIDTH / 2 - 50, y, PAGE_WIDTH / 2 + 50, y)
+    pdf.line(PAGE_WIDTH / 2 - 60, y, PAGE_WIDTH / 2 + 60, y)
 
-    // Subtítulo
-    y += 40
-    pdf.setFontSize(22)
+    // Subtítulo (blanco)
+    y += 45
+    pdf.setFontSize(24)
     pdf.setFont('helvetica', 'normal')
-    pdf.setTextColor(255, 255, 255, 0.8)
+    pdf.setTextColor(255, 255, 255)
     const subW = pdf.getTextWidth(storyTexts.cover.subtitle)
     pdf.text(storyTexts.cover.subtitle, (PAGE_WIDTH - subW) / 2, y)
 
-    // Nombre del niño (grande como lg:text-4xl)
-    y += 55
-    pdf.setFontSize(52)
+    // Nombre del niño (blanco, grande)
+    y += 60
+    pdf.setFontSize(60)
     pdf.setFont('helvetica', 'bold')
     pdf.setTextColor(255, 255, 255)
     const nameW = pdf.getTextWidth(childName)
@@ -137,7 +152,7 @@ export function usePdfGenerator() {
           offsetY = -(drawH - targetH) / 2
         }
 
-        pdf.addImage(img.base64, 'JPEG', PAGE_WIDTH + offsetX, offsetY, drawW, drawH)
+        pdf.addImage(img.base64, 'JPEG', PAGE_WIDTH + r2(offsetX), r2(offsetY), r2(drawW), r2(drawH))
       } catch (e) {
         console.error('Cover image error:', e)
       }
@@ -162,13 +177,12 @@ export function usePdfGenerator() {
     const TITLE_SIZE = 72 // Headline muy grande
     const TEXT_SIZE = 42  // Párrafo grande y legible
     const TITLE_LINE_H = 85
-    const TEXT_LINE_H = 55
+    const TEXT_LINE_H = 34
 
     // Calcular altura total del contenido para centrar verticalmente
     pdf.setFontSize(TITLE_SIZE)
     pdf.setFont('helvetica', 'bold')
     const titleLines = pdf.splitTextToSize(pageText.title, PAGE_WIDTH - 120)
-    const titleHeight = titleLines.length * TITLE_LINE_H
 
     pdf.setFontSize(TEXT_SIZE)
     pdf.setFont('helvetica', 'normal')
@@ -179,7 +193,7 @@ export function usePdfGenerator() {
     const gapAfterTitle = 40
     const gapAfterLine = 50
 
-    const totalHeight = titleHeight + gapAfterTitle + gapAfterLine + textHeight
+    const totalHeight = titleLines.length * TITLE_LINE_H + gapAfterTitle + gapAfterLine + textHeight
     let y = (SPREAD_HEIGHT - totalHeight) / 2 + TITLE_LINE_H * 0.7
 
     // Título GRANDE
@@ -215,7 +229,7 @@ export function usePdfGenerator() {
     const numL = String((pageNumber * 2) - 1)
     pdf.text(numL, (PAGE_WIDTH - pdf.getTextWidth(numL)) / 2, SPREAD_HEIGHT - 25)
 
-    // DERECHA: Imagen (object-contain con sombra)
+    // DERECHA: Imagen (sin sombra)
     pdf.setFillColor(255, 255, 255)
     pdf.rect(PAGE_WIDTH, 0, PAGE_WIDTH, SPREAD_HEIGHT, 'F')
 
@@ -236,14 +250,8 @@ export function usePdfGenerator() {
         const imgX = PAGE_WIDTH + (PAGE_WIDTH - imgW) / 2
         const imgY = (SPREAD_HEIGHT - imgH) / 2 - 10
 
-        // Sombra
-        pdf.setFillColor(0, 0, 0)
-        pdf.setGState(new pdf.GState({ opacity: 0.1 }))
-        pdf.roundedRect(imgX + 8, imgY + 8, imgW, imgH, 8, 8, 'F')
-        pdf.setGState(new pdf.GState({ opacity: 1 }))
-
-        // Imagen
-        pdf.addImage(img.base64, 'JPEG', imgX, imgY, imgW, imgH)
+        // Imagen sin sombra: eliminamos el rectángulo de sombra para evitar borde gris
+        pdf.addImage(img.base64, 'JPEG', r2(imgX), r2(imgY), r2(imgW), r2(imgH))
       } catch (e) {
         console.error(`Image error page ${pageNumber}:`, e)
       }
@@ -305,7 +313,7 @@ export function usePdfGenerator() {
     const finW = pdf.getTextWidth(storyTexts.backCover.footer)
     pdf.text(storyTexts.backCover.footer, (PAGE_WIDTH - finW) / 2, y)
 
-    // DERECHA: Imagen de la última página (como en Vista Libro)
+    // DERECHA: Imagen de la última página sin overlay
     if (imageUrl) {
       try {
         const img = await loadImageAsBase64(imageUrl)
@@ -327,13 +335,8 @@ export function usePdfGenerator() {
           offsetY = -(drawH - targetH) / 2
         }
 
-        pdf.addImage(img.base64, 'JPEG', PAGE_WIDTH + offsetX, offsetY, drawW, drawH)
-
-        // Overlay púrpura semi-transparente
-        pdf.setFillColor(124, 58, 237)
-        pdf.setGState(new pdf.GState({ opacity: 0.7 }))
-        pdf.rect(PAGE_WIDTH, 0, PAGE_WIDTH, SPREAD_HEIGHT, 'F')
-        pdf.setGState(new pdf.GState({ opacity: 1 }))
+        pdf.addImage(img.base64, 'JPEG', PAGE_WIDTH + r2(offsetX), r2(offsetY), r2(drawW), r2(drawH))
+        // Quitamos overlay púrpura para que coincida con "Visita Libro"
       } catch (e) {
         console.error('Back cover image error:', e)
         // Fallback: solo fondo púrpura
@@ -347,24 +350,24 @@ export function usePdfGenerator() {
 
       // Patrón puntos
       pdf.setFillColor(255, 255, 255)
-      pdf.setGState(new pdf.GState({ opacity: 0.15 }))
+      setOpacity(pdf, 0.15)
       for (let px = PAGE_WIDTH + 25; px < SPREAD_WIDTH - 25; px += 30) {
         for (let py = 25; py < SPREAD_HEIGHT - 25; py += 30) {
           pdf.circle(px, py, 3, 'F')
         }
       }
-      pdf.setGState(new pdf.GState({ opacity: 1 }))
+      setOpacity(pdf, 1)
     }
   }
 
   // ==================== GENERAR PDF ====================
   const generatePdf = async (options: PdfGeneratorOptions) => {
-    const { sessionId, session, currentState, useFavorites = true } = options
+    const {sessionId, session, currentState, useFavorites = true} = options
 
     try {
       const childName = session.userPhoto?.childName || 'Protagonista'
 
-      const { data: storyTexts, error: textsError } = await useFetch<StoryTexts>(
+      const {data: storyTexts, error: textsError} = await useFetch<StoryTexts>(
         `/api/story/${session.storyId}/texts`
       )
       if (textsError.value || !storyTexts.value) {
@@ -411,14 +414,14 @@ export function usePdfGenerator() {
       pdf.save(`${safeName}_Cuento.pdf`)
 
       toast.success('PDF generado', 'Libro 100x50cm descargado')
-      return { success: true }
+      return {success: true}
 
     } catch (error: any) {
       console.error('[PDF] Error:', error)
       toast.error('Error', error.message || 'No se pudo generar el PDF')
-      return { success: false, error: error.message }
+      return {success: false, error: error.message}
     }
   }
 
-  return { generatePdf }
+  return {generatePdf}
 }
