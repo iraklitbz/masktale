@@ -1,0 +1,49 @@
+{
+  "id": "4de2e9a8-1a85-4106-a4cd-750c85d12b91",
+  "storyId": "story-001-first-day-school",
+  "createdAt": "2026-02-03T11:36:05.637Z",
+  "expiresAt": "2026-02-04T11:36:05.637Z",
+  "status": "generating",
+  "progress": {
+    "totalPages": 5,
+    "pagesGenerated": 3,
+    "errors": [
+      {
+        "pageNumber": 4,
+        "attempt": 1,
+        "error": "Failed to generate image after 3 attempts: Candidate has no content",
+        "timestamp": "2026-02-03T11:37:40.799Z"
+      },
+      {
+        "pageNumber": 5,
+        "attempt": 1,
+        "error": "Failed to generate image after 3 attempts: Candidate has no content",
+        "timestamp": "2026-02-03T11:38:15.152Z"
+      },
+      {
+        "pageNumber": 4,
+        "attempt": 1,
+        "error": "Failed to generate image after 3 attempts: Candidate has no content",
+        "timestamp": "2026-02-03T12:00:54.164Z"
+      },
+      {
+        "pageNumber": 5,
+        "attempt": 1,
+        "error": "Failed to generate image after 3 attempts: Candidate has no content",
+        "timestamp": "2026-02-03T12:01:35.155Z"
+      }
+    ],
+    "currentPage": 5
+  },
+  "userPhoto": {
+    "originalPath": "data/sessions/4de2e9a8-1a85-4106-a4cd-750c85d12b91/user-photos/photo-1.jpeg",
+    "uploadedAt": "2026-02-03T11:36:17.693Z",
+    "metadata": {
+      "width": 0,
+      "height": 0,
+      "format": "jpeg",
+      "size": 4849103
+    },
+    "childName": "Nia"
+  }
+}

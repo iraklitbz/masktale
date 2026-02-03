@@ -80,7 +80,7 @@ CRITICAL REQUIREMENTS:
 
     // Use text model for analysis (not image generation)
     const response = await ai.models.generateContent({
-      model: 'gemini-2.0-flash-exp',
+      model: 'gemini-2.0-flash',
       contents,
     })
 

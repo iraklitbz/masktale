@@ -5,7 +5,7 @@
 
 import fs from 'node:fs/promises'
 import path from 'node:path'
-import type { StoryConfig, StoryListItem, StoryPage } from '~/app/types/story'
+import type { StoryConfig, StoryListItem, StoryPage, StoryTexts } from '~/app/types/story'
 
 const STORIES_DIR = path.join(process.cwd(), 'data', 'stories')
 
@@ -218,4 +218,43 @@ export async function getBaseImageBase64(
  */
 export function getStoryPath(storyId: string): string {
   return path.join(STORIES_DIR, storyId)
+}
+
+/**
+ * Load narrative texts for a story in a specific locale
+ *
+ * @param storyId - Story ID
+ * @param locale - Locale code (default: 'es')
+ * @returns Story texts with page content, cover, and back cover
+ */
+export async function loadStoryTexts(
+  storyId: string,
+  locale: string = 'es'
+): Promise<StoryTexts> {
+  try {
+    const textsPath = path.join(STORIES_DIR, storyId, 'texts', `${locale}.json`)
+    const data = await fs.readFile(textsPath, 'utf-8')
+    const texts: StoryTexts = JSON.parse(data)
+
+    console.log(`[StoryLoader] Loaded story texts: ${storyId} (${locale})`)
+    return texts
+  } catch (error: any) {
+    if (error.code === 'ENOENT') {
+      throw new Error(`Story texts not found for ${storyId} in locale ${locale}`)
+    }
+    console.error(`[StoryLoader] Error loading story texts ${storyId}:`, error)
+    throw error
+  }
+}
+
+/**
+ * Interpolate placeholders in text with actual values
+ * Replaces {childName} with the provided child name
+ *
+ * @param text - Text with placeholders
+ * @param childName - Child's name to interpolate
+ * @returns Text with placeholders replaced
+ */
+export function interpolateText(text: string, childName: string): string {
+  return text.replace(/\{childName\}/g, childName)
 }

@@ -100,3 +100,41 @@ export interface StoryListItem {
   ageRange: AgeRange
   pageCount: number
 }
+
+/**
+ * Narrative text for a single page
+ * Used for PDF generation with proper story text
+ */
+export interface PageText {
+  pageNumber: number
+  title: string
+  text: string // Contains {childName} placeholder for interpolation
+}
+
+/**
+ * Cover page text content
+ */
+export interface CoverText {
+  title: string
+  subtitle: string
+  tagline: string
+}
+
+/**
+ * Back cover text content
+ */
+export interface BackCoverText {
+  message: string // Contains {childName} placeholder
+  footer: string
+}
+
+/**
+ * Complete story texts for a specific locale
+ * Loaded from /data/stories/{storyId}/texts/{locale}.json
+ */
+export interface StoryTexts {
+  locale: string
+  pages: PageText[]
+  cover: CoverText
+  backCover: BackCoverText
+}
