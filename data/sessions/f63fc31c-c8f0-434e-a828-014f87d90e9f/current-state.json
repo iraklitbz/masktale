@@ -1,0 +1,74 @@
+{
+  "storyId": "story-002-dragon-adventure",
+  "sessionId": "f63fc31c-c8f0-434e-a828-014f87d90e9f",
+  "selectedVersions": {
+    "1": {
+      "version": 1,
+      "generatedAt": "2026-02-04T16:50:51.265Z",
+      "imagePath": "data/sessions/f63fc31c-c8f0-434e-a828-014f87d90e9f/generated/page-01-v1.png"
+    },
+    "2": {
+      "version": 1,
+      "generatedAt": "2026-02-04T16:51:08.172Z",
+      "imagePath": "data/sessions/f63fc31c-c8f0-434e-a828-014f87d90e9f/generated/page-02-v1.png"
+    },
+    "3": {
+      "version": 1,
+      "generatedAt": "2026-02-04T16:51:29.580Z",
+      "imagePath": "data/sessions/f63fc31c-c8f0-434e-a828-014f87d90e9f/generated/page-03-v1.png"
+    }
+  },
+  "regenerationCount": {
+    "1": 1,
+    "2": 1,
+    "3": 1
+  },
+  "lastUpdated": "2026-02-04T16:51:29.580Z",
+  "characterDescription": {
+    "ageRange": "5-6 years old",
+    "skinTone": "Fair skin with subtle rosy undertones, slightly pale complexion, particularly around the eyes.",
+    "eyeColor": "Bright sky blue eyes with a slightly darker blue limbal ring and subtle grey undertones.",
+    "eyeShape": "Almond-shaped eyes, slightly downturned at the outer corners, with visible upper eyelids and slightly puffy under-eye area.",
+    "hairColor": "Dark chestnut brown hair with subtle auburn highlights in some strands, particularly around the face.",
+    "hairTexture": "Wavy hair with a mix of loose curls and defined coils, medium density with some flyaways.",
+    "hairStyle": "Hair styled in two high pigtail buns on top of the head, secured with pink hair clips adorned with white fluffy pom-poms. Some loose strands frame the face.",
+    "faceShape": "Oval face with soft, rounded features, full cheeks, and a gentle jawline.",
+    "nose": "Small, slightly button nose with a rounded tip and a subtle indentation at the bridge.",
+    "lips": "Medium-full lips, naturally rosy pink, with a slightly more defined lower lip and a subtle Cupid's bow on the upper lip.",
+    "smile": "Currently not smiling, but lips are slightly pursed, suggesting a potentially wide smile. Teeth not visible.",
+    "eyebrows": "Medium-thick eyebrows, slightly darker than hair color, with a gentle arch and a natural, slightly unkempt appearance.",
+    "ears": "Medium-sized ears, set relatively close to the head.",
+    "cheeks": "Full, rounded cheeks with a slight flush of natural rosiness.",
+    "chin": "Softly rounded chin, proportionate to the face, without a prominent cleft.",
+    "facialProportions": "Balanced facial proportions, with eyes being the most prominent feature relative to the size of the face. The nose is small relative to the other features.",
+    "distinctiveFeatures": "Slightly puffy under-eye area. The light auburn highlights dispersed throughout the dark chestnut brown hair add dimension. Subtle indentation at the bridge of the nose.",
+    "overallImpression": "Sweet and slightly serious appearance. The child has delicate features and a naturally rosy complexion, giving her a youthful, innocent look.",
+    "fullDescription": "This is a 5-6 year old girl with fair skin that has rosy undertones. She has bright sky blue, almond shaped eyes which are slightly downturned at the outer corners and framed by medium-thick, dark chestnut brown hair. The girl's hair is styled in two high pigtail buns on top of her head with loose strands framing her face. Her facial features include a small, slightly button nose with a rounded tip, medium-full lips that are naturally rosy pink, and full, rounded cheeks with a slight flush of natural rosiness. Her overall look is completed by her softly rounded chin, giving her a sweet and slightly serious appearance.",
+    "generatedAt": "2026-02-04T16:50:34.180Z"
+  },
+  "styleReferenceImage": "data/sessions/f63fc31c-c8f0-434e-a828-014f87d90e9f/generated/page-01-v1.png",
+  "versionHistory": {
+    "1": [
+      {
+        "version": 1,
+        "generatedAt": "2026-02-04T16:50:51.265Z",
+        "imagePath": "data/sessions/f63fc31c-c8f0-434e-a828-014f87d90e9f/generated/page-01-v1.png"
+      }
+    ],
+    "2": [
+      {
+        "version": 1,
+        "generatedAt": "2026-02-04T16:51:08.172Z",
+        "imagePath": "data/sessions/f63fc31c-c8f0-434e-a828-014f87d90e9f/generated/page-02-v1.png"
+      }
+    ],
+    "3": [
+      {
+        "version": 1,
+        "generatedAt": "2026-02-04T16:51:29.580Z",
+        "imagePath": "data/sessions/f63fc31c-c8f0-434e-a828-014f87d90e9f/generated/page-03-v1.png"
+      }
+    ]
+  },
+  "favoriteVersions": {}
+}

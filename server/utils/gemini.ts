@@ -39,7 +39,7 @@ export async function generateImageWithGemini(params: {
     baseImageBase64,
     userImagesBase64,
     aspectRatio = '3:4',
-    model = 'gemini-2.5-flash-image'
+    model = 'imagen-3.0-generate-001'
   } = params
 
   const ai = getGeminiClient()
@@ -135,7 +135,7 @@ export async function generateImageFromPromptOnly(params: {
     prompt,
     userImagesBase64,
     aspectRatio = '3:4',
-    model = 'gemini-2.5-flash-image'
+    model = 'imagen-3.0-generate-001'
   } = params
 
   const ai = getGeminiClient()
