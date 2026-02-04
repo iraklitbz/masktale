@@ -73,21 +73,19 @@ function generateStorySpread(
   const rightPageNum = spreadIndex * 2
 
   return `
-  <div class="spread">
-    <div class="page bg-light">
+  <div class="spread story-spread">
+    <div class="story-image-bg">
+      ${image ? `<img src="${image}" alt="Ilustracion pagina ${pageText.pageNumber}">` : ''}
+    </div>
+    <div class="story-text-overlay">
       <div class="story-content">
         <h2 class="story-title">${pageText.title}</h2>
         <div class="story-divider"></div>
         <p class="story-text">${interpolateText(pageText.text, childName)}</p>
       </div>
-      <span class="page-number">${leftPageNum}</span>
     </div>
-    <div class="page">
-      <div class="image-container cover-image">
-        ${image ? `<img src="${image}" alt="Ilustracion pagina ${pageText.pageNumber}">` : ''}
-      </div>
-      <span class="page-number page-number-light">${rightPageNum}</span>
-    </div>
+    <span class="page-number" style="left: 25%; color: #9ca3af;">${leftPageNum}</span>
+    <span class="page-number page-number-light" style="left: 75%;">${rightPageNum}</span>
   </div>`
 }
 

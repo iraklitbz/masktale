@@ -169,42 +169,42 @@ onUnmounted(() => {
           </div>
         </template>
 
-        <!-- STORY SPREADS (Text left, Image right) -->
+        <!-- STORY SPREADS (Immersive design) -->
         <template v-else-if="currentSpread > 0 && currentSpread < totalSpreads - 1">
-          <div class="flex-1 relative flex flex-col items-center justify-center p-4 md:p-8 bg-gray-50">
-            <div class="max-w-[90%] text-center">
-              <h2
-                class="text-lg md:text-xl lg:text-3xl text-purple-600 mb-4"
-                :style="headlineStyle"
+          <div class="relative w-full h-full">
+            <!-- Background image -->
+            <div class="absolute top-0 right-0 w-[60%] h-full">
+              <img
+                v-if="currentPageText && currentState.selectedVersions[currentPageText.pageNumber]"
+                :src="getImageUrl(currentPageText.pageNumber)"
+                :alt="`Ilustracion pagina ${currentPageText.pageNumber}`"
+                class="w-full h-full object-cover"
               >
-                {{ currentPageText?.title }}
-              </h2>
-              <div class="w-12 h-0.5 bg-gradient-to-r from-purple-600 to-pink-500 mx-auto mb-6 rounded" />
-              <p
-                class="text-sm md:text-base lg:text-lg leading-relaxed text-gray-700"
-                :style="bodyStyle"
-              >
-                {{ interpolateText(currentPageText?.text || '') }}
-              </p>
+              <div v-else class="w-full h-full bg-gray-200" />
             </div>
-            <span class="absolute bottom-4 left-1/2 -translate-x-1/2 text-sm text-gray-400">
+            <!-- Text overlay with gradient -->
+            <div class="absolute top-0 left-0 w-[55%] h-full flex items-center justify-start pl-6 md:pl-10 bg-gradient-to-r from-white from-60% via-white/95 via-75% to-transparent">
+              <div class="max-w-[85%] text-left">
+                <h2
+                  class="text-lg md:text-xl lg:text-3xl text-purple-600 mb-3 md:mb-4"
+                  :style="headlineStyle"
+                >
+                  {{ currentPageText?.title }}
+                </h2>
+                <div class="w-12 h-0.5 bg-gradient-to-r from-purple-600 to-pink-500 mb-4 md:mb-6 rounded" />
+                <p
+                  class="text-sm md:text-base lg:text-lg leading-relaxed text-gray-700"
+                  :style="bodyStyle"
+                >
+                  {{ interpolateText(currentPageText?.text || '') }}
+                </p>
+              </div>
+            </div>
+            <!-- Page numbers -->
+            <span class="absolute bottom-4 left-[25%] -translate-x-1/2 text-sm text-gray-400">
               {{ (currentSpread * 2) - 1 }}
             </span>
-          </div>
-          <div class="flex-1 relative flex items-center justify-center p-4 bg-white">
-            <img
-              v-if="currentPageText && currentState.selectedVersions[currentPageText.pageNumber]"
-              :src="getImageUrl(currentPageText.pageNumber)"
-              :alt="`Ilustracion pagina ${currentPageText.pageNumber}`"
-              class="w-full h-full object-contain rounded-lg shadow-lg"
-            >
-            <div v-else class="flex flex-col items-center justify-center w-full h-full bg-gray-100 rounded-lg">
-              <svg class="w-16 h-16 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
-              <p class="text-gray-400 mt-2">Imagen no disponible</p>
-            </div>
-            <span class="absolute bottom-4 left-1/2 -translate-x-1/2 text-sm text-gray-400">
+            <span class="absolute bottom-4 left-[75%] -translate-x-1/2 text-sm text-white/70 drop-shadow">
               {{ currentSpread * 2 }}
             </span>
           </div>
