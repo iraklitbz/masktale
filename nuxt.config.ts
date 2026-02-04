@@ -26,12 +26,25 @@ export default defineNuxtConfig({
     ],
     optimizeDeps: {
       include: ['qs']
+    },
+    build: {
+      rollupOptions: {
+        onwarn(warning, warn) {
+          if (warning.code === 'THIS_IS_UNDEFINED') return
+          warn(warning)
+        }
+      }
     }
   },
   svgo: {
     global: false,
     defaultImport: 'component',
     customComponent: 'Icon',
+  },
+  nitro: {
+    externals: {
+      inline: ['puppeteer']
+    }
   },
   runtimeConfig: {
     geminiApiKey: '',
