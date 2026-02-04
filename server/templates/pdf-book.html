@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1000mm, height=500mm">
+  <title>{{childName}} - Cuento Personalizado</title>
+  <style>
+    /* Font imports */
+    {{fontImports}}
+
+    /* Reset */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    /* Page setup for print */
+    @page {
+      size: 1000mm 500mm;
+      margin: 0;
+    }
+
+    html, body {
+      width: 1000mm;
+      height: 500mm;
+      font-family: {{bodyFontFamily}};
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    /* Spread container */
+    .spread {
+      width: 1000mm;
+      height: 500mm;
+      display: flex;
+      page-break-after: always;
+      page-break-inside: avoid;
+    }
+
+    .spread:last-child {
+      page-break-after: auto;
+    }
+
+    /* Half page */
+    .page {
+      width: 500mm;
+      height: 500mm;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Cover gradient */
+    .cover-gradient {
+      background: linear-gradient(135deg, #7c3aed 0%, #a855f7 50%, #ec4899 100%);
+      color: white;
+    }
+
+    /* Light background */
+    .bg-light {
+      background-color: #fafafa;
+    }
+
+    .bg-white {
+      background-color: white;
+    }
+
+    /* Cover content */
+    .cover-content {
+      text-align: center;
+      max-width: 400mm;
+      padding: 40mm;
+    }
+
+    .cover-title {
+      font-family: {{headlineFontFamily}};
+      font-size: 120pt;
+      font-weight: 400;
+      margin-bottom: 20mm;
+      text-shadow: 3px 3px 6px rgba(0,0,0,0.2);
+      line-height: 1.1;
+    }
+
+    .cover-tagline {
+      font-family: {{bodyFontFamily}};
+      font-size: 48pt;
+      font-style: italic;
+      opacity: 0.9;
+      margin-bottom: 30mm;
+    }
+
+    .cover-divider {
+      width: 120mm;
+      height: 4mm;
+      background-color: rgba(255,255,255,0.5);
+      margin: 0 auto 30mm auto;
+      border-radius: 2mm;
+    }
+
+    .cover-subtitle {
+      font-family: {{bodyFontFamily}};
+      font-size: 40pt;
+      opacity: 0.8;
+      margin-bottom: 15mm;
+    }
+
+    .cover-childname {
+      font-family: {{headlineFontFamily}};
+      font-size: 100pt;
+      font-weight: 400;
+    }
+
+    /* Image container */
+    .image-container {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 3mm;
+    }
+
+    .image-container img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      border-radius: 0;
+      box-shadow: none;
+    }
+
+    .image-container.cover-image {
+      padding: 0;
+    }
+
+    .image-container.cover-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 0;
+      box-shadow: none;
+    }
+
+    /* Story page content */
+    .story-content {
+      text-align: center;
+      max-width: 380mm;
+      padding: 40mm;
+    }
+
+    .story-title {
+      font-family: {{headlineFontFamily}};
+      font-size: 72pt;
+      font-weight: 400;
+      color: #7c3aed;
+      margin-bottom: 25mm;
+      line-height: 1.2;
+    }
+
+    .story-divider {
+      width: 80mm;
+      height: 3mm;
+      background: linear-gradient(90deg, #7c3aed, #ec4899);
+      margin: 0 auto 30mm auto;
+      border-radius: 2mm;
+    }
+
+    .story-text {
+      font-family: {{bodyFontFamily}};
+      font-size: 42pt;
+      line-height: 1.6;
+      color: #374151;
+    }
+
+    /* Page number */
+    .page-number {
+      position: absolute;
+      bottom: 20mm;
+      left: 50%;
+      transform: translateX(-50%);
+      font-family: {{bodyFontFamily}};
+      font-size: 24pt;
+      color: #9ca3af;
+    }
+
+    .page-number-light {
+      color: rgba(255,255,255,0.7);
+      text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+    }
+
+    /* Back cover */
+    .backcover-content {
+      text-align: center;
+      max-width: 380mm;
+      padding: 50mm;
+    }
+
+    .backcover-message {
+      font-family: {{bodyFontFamily}};
+      font-size: 48pt;
+      font-style: italic;
+      line-height: 1.6;
+      color: #4b5563;
+      margin-bottom: 40mm;
+    }
+
+    .backcover-divider {
+      width: 70mm;
+      height: 3mm;
+      background-color: #7c3aed;
+      margin: 0 auto 40mm auto;
+      border-radius: 2mm;
+    }
+
+    .backcover-footer {
+      font-family: {{headlineFontFamily}};
+      font-size: 90pt;
+      font-weight: 400;
+      color: #7c3aed;
+    }
+
+    /* Purple pattern background */
+    .purple-pattern {
+      background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
+    }
+
+    .purple-pattern .image-container img {
+      border-radius: 0;
+    }
+
+    /* Pattern overlay */
+    .pattern-dots {
+      position: absolute;
+      inset: 0;
+      background-image: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
+      background-size: 20px 20px;
+    }
+  </style>
+</head>
+<body>
+  {{spreads}}
+</body>
+</html>

@@ -3,7 +3,7 @@
   "storyId": "story-001-first-day-school",
   "createdAt": "2026-02-03T12:36:32.334Z",
   "expiresAt": "2026-02-04T12:36:32.334Z",
-  "status": "completed",
+  "status": "expired",
   "progress": {
     "totalPages": 5,
     "pagesGenerated": 5,
