@@ -1,6 +1,21 @@
 {
   "id": "story-002-dragon-adventure",
   "version": "1.0.0",
+  "typography": {
+    "kitUrl": "https://use.typekit.net/coq5pre.css",
+    "headline": {
+      "family": "fairy-tale-jf, sans-serif",
+      "weight": 400,
+      "style": "normal",
+      "fallback": "Georgia, serif"
+    },
+    "body": {
+      "family": "source-sans-pro, sans-serif",
+      "weight": 400,
+      "style": "normal",
+      "fallback": "Arial, sans-serif"
+    }
+  },
   "title": {
     "es": "La Aventura del Dragón Amigable",
     "en": "The Friendly Dragon Adventure"

@@ -1,0 +1,25 @@
+{
+  "id": "9a47923c-5077-482b-a1f0-b07a68dc65ce",
+  "storyId": "story-002-dragon-adventure",
+  "createdAt": "2026-02-04T13:56:06.090Z",
+  "expiresAt": "2026-02-05T13:56:06.090Z",
+  "status": "completed",
+  "progress": {
+    "totalPages": 3,
+    "pagesGenerated": 3,
+    "errors": [],
+    "currentPage": 3,
+    "completedAt": "2026-02-04T13:57:23.555Z"
+  },
+  "userPhoto": {
+    "originalPath": "data/sessions/9a47923c-5077-482b-a1f0-b07a68dc65ce/user-photos/photo-1.jpeg",
+    "uploadedAt": "2026-02-04T13:56:15.143Z",
+    "metadata": {
+      "width": 0,
+      "height": 0,
+      "format": "jpeg",
+      "size": 4849103
+    },
+    "childName": "Nia"
+  }
+}

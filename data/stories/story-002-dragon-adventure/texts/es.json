@@ -1,0 +1,29 @@
+{
+  "locale": "es",
+  "pages": [
+    {
+      "pageNumber": 1,
+      "title": "El Encuentro Mágico",
+      "text": "Una mañana soleada, mientras jugaba en el jardín, {childName} escuchó un sonido extraño detrás de las flores. ¡Era un pequeño dragón bebé de escamas brillantes! Sus ojos dorados brillaban con curiosidad y su colita se movía de un lado a otro."
+    },
+    {
+      "pageNumber": 2,
+      "title": "Volando Entre Nubes",
+      "text": "El dragón creció de repente y le ofreció a {childName} un paseo mágico. Juntos volaron por encima de las nubes, sintiendo el viento en el rostro y la libertad en el corazón. El mundo entero se veía pequeñito desde allá arriba."
+    },
+    {
+      "pageNumber": 3,
+      "title": "Una Amistad Eterna",
+      "text": "Al caer la noche, el dragón debía regresar a su hogar mágico. {childName} le dio un abrazo de despedida, sabiendo que los verdaderos amigos siempre se encuentran de nuevo. Una estrella fugaz cruzó el cielo, sellando su promesa."
+    }
+  ],
+  "cover": {
+    "title": "La Aventura del Dragón Amigable",
+    "subtitle": "Un cuento personalizado para",
+    "tagline": "Una historia mágica de amistad"
+  },
+  "backCover": {
+    "message": "Este cuento fue creado especialmente para {childName}, con amor y un poco de magia de dragón.",
+    "footer": "Fin"
+  }
+}
