@@ -8,6 +8,10 @@ export type EmotionalTone = 'excited' | 'happy' | 'curious' | 'surprised' | 'cal
 export type Difficulty = 'easy' | 'medium' | 'hard'
 export type IllustrationStyle = 'watercolor' | 'digital' | 'cartoon' | 'realistic' | 'painterly'
 export type Theme = 'education' | 'adventure' | 'celebration' | 'family' | 'nature' | 'friendship'
+export type StoryFormat = 'book' | 'comic'
+export type BubbleType = 'speech' | 'thought' | 'sfx'
+export type TailDirection = 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right' | 'none'
+export type BubbleSize = 'small' | 'medium' | 'large'
 
 export interface FacePosition {
   x: number // Percentage from left (0-100)
@@ -55,12 +59,32 @@ export interface PageMetadata {
   difficulty: Difficulty
 }
 
+/**
+ * Speech bubble position configuration for comics
+ */
+export interface SpeechBubblePosition {
+  x: number // Percentage from left (0-1)
+  y: number // Percentage from top (0-1)
+}
+
+/**
+ * Speech bubble configuration for comic pages
+ */
+export interface SpeechBubble {
+  type: BubbleType
+  speaker: string // 'hero', 'cat', etc.
+  position: SpeechBubblePosition
+  tailDirection?: TailDirection
+  size?: BubbleSize
+}
+
 export interface StoryPage {
   pageNumber: number
-  baseImagePath: string // Relative path: "base-images/page-01.jpg"
+  baseImagePath?: string // Relative path: "base-images/page-01.jpg" (optional for new generation mode)
   promptPath: string // Relative path: "prompts/page-01.txt"
   aspectRatio: AspectRatio
   metadata: PageMetadata
+  speechBubbles?: SpeechBubble[] // Comic format only
 }
 
 export interface ImageQuality {
@@ -96,17 +120,33 @@ export interface StoryTypography {
   body: FontConfig
 }
 
+/**
+ * Comic-specific settings for speech bubbles and styling
+ */
+export interface ComicSettings {
+  addSpeechBubbles?: boolean
+  bubbleStyle?: 'classic' | 'modern'
+  fontFamily?: string
+  fontSize?: number
+  bubbleColor?: string
+  bubbleBorderColor?: string
+  bubbleBorderWidth?: number
+  textColor?: string
+}
+
 export interface StorySettings {
   maxRegenerations: number
   defaultAspectRatio: AspectRatio
   geminiModel: string
   processingTimeout: number // Seconds
   imageQuality: ImageQuality
+  comicSettings?: ComicSettings // Comic format only
 }
 
 export interface StoryConfig {
   id: string
   version: string
+  format?: StoryFormat // 'book' (default) or 'comic'
   title: LocalizedText
   description: LocalizedText
   metadata: StoryMetadata
@@ -130,13 +170,23 @@ export interface StoryListItem {
 }
 
 /**
+ * Speech bubble text content for comics
+ */
+export interface SpeechBubbleText {
+  speaker: string
+  type: BubbleType
+  text: string
+}
+
+/**
  * Narrative text for a single page
  * Used for PDF generation with proper story text
  */
 export interface PageText {
   pageNumber: number
   title: string
-  text: string // Contains {childName} placeholder for interpolation
+  text?: string // Contains {childName} placeholder for interpolation (book format)
+  speechBubbles?: SpeechBubbleText[] // Comic format
 }
 
 /**

@@ -1,0 +1,37 @@
+{
+  "id": "201ff352-2eb8-4edf-854d-c9b319f9db81",
+  "storyId": "story-003-cat-rescue",
+  "createdAt": "2026-02-05T12:36:21.059Z",
+  "expiresAt": "2026-02-06T12:36:21.059Z",
+  "status": "generating",
+  "progress": {
+    "totalPages": 3,
+    "pagesGenerated": 1,
+    "errors": [
+      {
+        "pageNumber": 2,
+        "attempt": 1,
+        "error": "Failed to generate image after 3 attempts: Candidate has no content",
+        "timestamp": "2026-02-05T12:37:23.962Z"
+      },
+      {
+        "pageNumber": 3,
+        "attempt": 1,
+        "error": "Failed to generate image after 3 attempts: Candidate has no content",
+        "timestamp": "2026-02-05T12:38:01.519Z"
+      }
+    ],
+    "currentPage": 1
+  },
+  "userPhoto": {
+    "originalPath": "data/sessions/201ff352-2eb8-4edf-854d-c9b319f9db81/user-photos/photo-1.jpeg",
+    "uploadedAt": "2026-02-05T12:36:30.968Z",
+    "metadata": {
+      "width": 0,
+      "height": 0,
+      "format": "jpeg",
+      "size": 2081959
+    },
+    "childName": "rakel"
+  }
+}

@@ -1,0 +1,62 @@
+{
+  "locale": "es",
+  "pages": [
+    {
+      "pageNumber": 1,
+      "title": "El Maullido",
+      "speechBubbles": [
+        {
+          "speaker": "cat",
+          "type": "speech",
+          "text": "¡Miauu! ¡Socorro!"
+        },
+        {
+          "speaker": "hero",
+          "type": "thought",
+          "text": "¡Un gatito en peligro! Tengo que ayudarlo..."
+        }
+      ]
+    },
+    {
+      "pageNumber": 2,
+      "title": "El Ascenso",
+      "speechBubbles": [
+        {
+          "speaker": "hero",
+          "type": "speech",
+          "text": "¡Tranquilo pequeño! ¡Ya casi llego!"
+        },
+        {
+          "speaker": "cat",
+          "type": "speech",
+          "text": "¡Miu!"
+        }
+      ]
+    },
+    {
+      "pageNumber": 3,
+      "title": "A Salvo",
+      "speechBubbles": [
+        {
+          "speaker": "hero",
+          "type": "speech",
+          "text": "Ya estás a salvo, amiguito."
+        },
+        {
+          "speaker": "cat",
+          "type": "sfx",
+          "text": "Prrrr... Prrrr..."
+        }
+      ]
+    }
+  ],
+  "cover": {
+    "title": "El Rescate del Gatito",
+    "subtitle": "Protagonizado por",
+    "tagline": "Un héroe cotidiano"
+  },
+  "backCover": {
+    "message": "A veces no necesitas superpoderes para ser un héroe. Solo necesitas un corazón valiente.",
+    "footer": "Fin"
+  }
+}

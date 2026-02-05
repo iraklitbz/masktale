@@ -1,0 +1,74 @@
+{
+  "storyId": "story-003-cat-rescue",
+  "sessionId": "829db995-3674-4451-86d2-cc5d1903e332",
+  "selectedVersions": {
+    "1": {
+      "version": 1,
+      "generatedAt": "2026-02-05T12:31:30.062Z",
+      "imagePath": "data/sessions/829db995-3674-4451-86d2-cc5d1903e332/generated/page-01-v1.png"
+    },
+    "2": {
+      "version": 1,
+      "generatedAt": "2026-02-05T12:31:45.396Z",
+      "imagePath": "data/sessions/829db995-3674-4451-86d2-cc5d1903e332/generated/page-02-v1.png"
+    },
+    "3": {
+      "version": 1,
+      "generatedAt": "2026-02-05T12:31:55.959Z",
+      "imagePath": "data/sessions/829db995-3674-4451-86d2-cc5d1903e332/generated/page-03-v1.png"
+    }
+  },
+  "regenerationCount": {
+    "1": 1,
+    "2": 1,
+    "3": 1
+  },
+  "lastUpdated": "2026-02-05T12:31:55.959Z",
+  "characterDescription": {
+    "ageRange": "5-6 years old",
+    "skinTone": "fair porcelain skin with cool pink undertones, faint rosy tint on cheeks, even complexion",
+    "eyeColor": "bright sky blue eyes with subtle darker blue limbal rings",
+    "eyeShape": "large, slightly almond-shaped eyes, straight across the top and slightly upturned at the outer corners, eyelashes of medium length",
+    "hairColor": "dark chestnut brown with subtle natural lighter streaks, especially noticeable around the face",
+    "hairTexture": "slightly wavy with natural volume, fine to medium strands",
+    "hairStyle": "hair pulled up into two high bunched pigtails on top of the head, secured with pink hair clips adorned with white pom-poms",
+    "faceShape": "round cherubic face with full, round cheeks and a soft, undefined jawline",
+    "nose": "small, slightly button nose with a barely upturned tip",
+    "lips": "naturally pink lips, slightly fuller bottom lip, defined cupid's bow",
+    "smile": "straight face expression, but the corners of her mouth suggest a natural tendency to smile; teeth not visible",
+    "eyebrows": "medium-thick dark brown eyebrows, straight shape, well-groomed",
+    "ears": "medium-sized ears close to the head",
+    "cheeks": "full round cheeks with natural rosiness",
+    "chin": "rounded soft chin",
+    "facialProportions": "large eyes relative to face size, small nose and mouth, balanced proportions",
+    "distinctiveFeatures": "very slight dark circles under the eyes, especially noticeable on the inner corners, barely visible faint light brown freckles across the nose bridge",
+    "overallImpression": "sweet innocent appearance, baby-faced features, slightly serious expression",
+    "fullDescription": "This young girl, estimated to be between 5 and 6 years old, has fair porcelain skin with cool pink undertones and bright sky blue eyes. Her dark chestnut brown hair, with subtle natural lighter streaks, is styled in two high bunched pigtails secured with pink pom-pom clips. She has a round, cherubic face with full, round rosy cheeks, a small slightly button nose, and naturally pink lips with a fuller bottom lip. Her facial features are balanced, with large eyes relative to her face size, and she has very slight dark circles under her eyes and faint freckles across her nose bridge, lending to her sweet and innocent appearance.",
+    "generatedAt": "2026-02-05T12:31:20.256Z"
+  },
+  "styleReferenceImage": "data/sessions/829db995-3674-4451-86d2-cc5d1903e332/generated/page-01-v1.png",
+  "versionHistory": {
+    "1": [
+      {
+        "version": 1,
+        "generatedAt": "2026-02-05T12:31:30.062Z",
+        "imagePath": "data/sessions/829db995-3674-4451-86d2-cc5d1903e332/generated/page-01-v1.png"
+      }
+    ],
+    "2": [
+      {
+        "version": 1,
+        "generatedAt": "2026-02-05T12:31:45.396Z",
+        "imagePath": "data/sessions/829db995-3674-4451-86d2-cc5d1903e332/generated/page-02-v1.png"
+      }
+    ],
+    "3": [
+      {
+        "version": 1,
+        "generatedAt": "2026-02-05T12:31:55.959Z",
+        "imagePath": "data/sessions/829db995-3674-4451-86d2-cc5d1903e332/generated/page-03-v1.png"
+      }
+    ]
+  },
+  "favoriteVersions": {}
+}

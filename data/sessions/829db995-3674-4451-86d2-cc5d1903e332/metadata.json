@@ -1,0 +1,25 @@
+{
+  "id": "829db995-3674-4451-86d2-cc5d1903e332",
+  "storyId": "story-003-cat-rescue",
+  "createdAt": "2026-02-05T12:31:05.120Z",
+  "expiresAt": "2026-02-06T12:31:05.120Z",
+  "status": "completed",
+  "progress": {
+    "totalPages": 3,
+    "pagesGenerated": 3,
+    "errors": [],
+    "currentPage": 3,
+    "completedAt": "2026-02-05T12:31:55.959Z"
+  },
+  "userPhoto": {
+    "originalPath": "data/sessions/829db995-3674-4451-86d2-cc5d1903e332/user-photos/photo-1.jpeg",
+    "uploadedAt": "2026-02-05T12:31:13.403Z",
+    "metadata": {
+      "width": 0,
+      "height": 0,
+      "format": "jpeg",
+      "size": 4849103
+    },
+    "childName": "jklh"
+  }
+}
