@@ -25,7 +25,9 @@
       "Bash(npm run build:*)",
       "Bash(base64:*)",
       "Bash(npm install:*)",
-      "Bash(pnpm run build:*)"
+      "Bash(pnpm run build:*)",
+      "Bash(npx tsc:*)",
+      "Bash(npx nuxi typecheck:*)"
     ]
   }
 }

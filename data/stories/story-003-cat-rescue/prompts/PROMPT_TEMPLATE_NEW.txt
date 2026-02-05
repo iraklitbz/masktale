@@ -1,0 +1,152 @@
+## COMIC ILLUSTRATION - INK & MARKER STYLE ##
+
+Create a comic book panel illustration with bold ink lines and marker coloring. This is classic hand-drawn comic art - clean linework, expressive characters, and vibrant but controlled colors.
+
+**IMPORTANT:** You have been provided with reference photos of the protagonist. Study ALL photos carefully to capture their likeness in a stylized comic art way. The final image must look like THIS SPECIFIC PERSON drawn as a comic character.
+
+---
+
+# 🎨 ARTISTIC STYLE
+
+{STYLE_PROFILE}
+
+**Style:** {ILLUSTRATION_STYLE}
+
+**CRITICAL STYLE REQUIREMENTS:**
+- **BOLD BLACK INK OUTLINES** - Every shape has a clear black border
+- **Clean line art** - Confident brush pen or marker strokes
+- **Varying line weight** - Thicker outlines, thinner details
+- **Limited color palette** - Muted, marker-like colors
+- **Hand-drawn feel** - Visible ink texture and character
+
+**Think:** European bande dessinée, Tintin/Hergé ligne claire, Darwyn Cooke retro comics. Classic comic strip quality.
+
+---
+
+# 👤 THE PROTAGONIST - RECOGNIZABLE LIKENESS
+
+Study ALL reference photos. Your illustrated figure must be THIS PERSON drawn in comic style - recognizable but stylized.
+
+## KEY FEATURES TO CAPTURE:
+
+**FACE STRUCTURE:**
+- Capture the overall face shape
+- Key distinguishing features emphasized
+- Simplified but accurate proportions
+
+**EXPRESSION:**
+- Clear, readable emotions
+- Expressive eyes and mouth
+- Comic-style expressiveness
+
+**HAIR:**
+- Hair color and general style
+- Simplified into graphic shapes
+- Clean ink rendering
+
+**DISTINCTIVE TRAITS:**
+- Any unique features that make them recognizable
+- Drawn as stylized comic elements
+
+{CHARACTER_DESCRIPTION}
+
+**LIKENESS GOAL:** The person should be recognizable, but drawn as a comic character with bold outlines and stylized features.
+
+---
+
+# 📐 COMIC PANEL COMPOSITION
+
+**Scene:** {SCENE_DESCRIPTION}
+
+**Emotion:** {EMOTIONAL_TONE}
+
+**Figure Position:** Approximately {FACE_POSITION_X}% from left, {FACE_POSITION_Y}% from top
+
+**COMIC PANEL REQUIREMENTS:**
+- Leave clear space for speech bubbles (will be added in post-processing)
+- Dynamic but clear composition
+- Characters are the focal point
+- Simplified background with key elements
+
+**IMPORTANT FOR SPEECH BUBBLES:**
+- Do NOT include any text or speech bubbles in the image
+- Leave open areas in the composition where bubbles can be placed
+- Keep some clear space in corners/edges for dialogue
+
+---
+
+# 🖊️ INK & MARKER RENDERING TECHNIQUE
+
+**Line Work:**
+- Bold black outlines defining all shapes
+- Confident, slightly rough brush strokes
+- Varying thickness - thick for silhouettes, thin for details
+- Crosshatching for shadows (optional, keep minimal)
+
+**Coloring:**
+- Flat or slightly textured marker colors
+- Limited, harmonious palette
+- Colors stay within the black lines
+- Slight paper texture visible
+- Not fully saturated - soft, muted tones
+
+**Shadows:**
+- Simple directional shadows
+- Either solid black areas OR crosshatching
+- Not photorealistic - stylized comic shadows
+
+**Background:**
+- Simplified, key elements only
+- Same ink line treatment
+- Less detail than foreground
+- Supports the story without competing
+
+---
+
+# 🎬 COMIC STORYTELLING
+
+This should read clearly as a comic panel:
+- Immediate emotional impact
+- Clear focal point on character
+- Action or emotion readable at a glance
+- Classic comic book feel
+
+**Mood:** {EMOTIONAL_TONE}
+
+---
+
+# ✅ QUALITY CHECKLIST
+
+**Likeness:**
+☑ Character recognizable from reference photos?
+☑ Key features captured in comic style?
+☑ Expression matches {EMOTIONAL_TONE}?
+
+**Comic Style:**
+☑ Bold black outlines on everything?
+☑ Clean ink line quality?
+☑ Marker-like coloring?
+☑ Hand-drawn feel?
+☑ Limited color palette?
+
+**Composition:**
+☑ Space left for speech bubbles?
+☑ No text or lettering in image?
+☑ Clear focal point?
+☑ Readable at a glance?
+
+---
+
+# 🎨 GENERATE THE COMIC PANEL
+
+Create a single comic panel:
+
+1. **Study the reference photos** - Capture recognizable likeness
+2. **Apply ink & marker style** - Bold outlines, flat colors
+3. **Compose the scene** - {SCENE_DESCRIPTION}
+4. **Express the emotion** - {EMOTIONAL_TONE}
+5. **Leave space for bubbles** - Clean areas for post-processing text
+
+**This person becomes the hero of their own comic adventure. Bold lines. Expressive. Classic comic quality.**
+
+NO TEXT. NO SPEECH BUBBLES. NO LETTERING. Pure illustration only.

@@ -1,0 +1,53 @@
+{
+  "storyId": "story-003-cat-rescue",
+  "sessionId": "201ff352-2eb8-4edf-854d-c9b319f9db81",
+  "selectedVersions": {
+    "1": {
+      "version": 2,
+      "generatedAt": "2026-02-05T12:38:26.897Z",
+      "imagePath": "data/sessions/201ff352-2eb8-4edf-854d-c9b319f9db81/generated/page-01-v2.png"
+    }
+  },
+  "regenerationCount": {
+    "1": 2
+  },
+  "lastUpdated": "2026-02-05T12:38:26.897Z",
+  "characterDescription": {
+    "ageRange": "30-35 years old",
+    "skinTone": "light to medium beige with warm golden undertones and freckles distributed across the face, most concentrated around the nose and cheek area; some sun damage evident on forehead",
+    "eyeColor": "hazel eyes with a predominantly brown center and an outer ring of green, with golden flecks visible upon closer inspection",
+    "eyeShape": "almond-shaped eyes, slightly downturned at the outer corners, with a visible crease on the upper eyelid",
+    "hairColor": "dark brown with subtle auburn highlights, particularly noticeable towards the ends",
+    "hairTexture": "slightly wavy hair with natural volume and a soft, smooth texture; individual strands appear fine",
+    "hairStyle": "long hair, parted in the middle, falling loosely around the shoulders; no styling is apparent",
+    "faceShape": "oval face with balanced proportions and a soft jawline; cheekbones are slightly defined but not prominent",
+    "nose": "medium-sized nose with a straight bridge and a slightly rounded tip; nostrils are moderately flared",
+    "lips": "medium-sized lips with a slightly fuller bottom lip; natural lip color is a muted rosy pink",
+    "smile": "closed-lip smile with slight upturn at the corners, indicating a genuine but subdued expression",
+    "eyebrows": "thick, dark brown eyebrows with a natural arch; well-groomed but not overly shaped",
+    "ears": "partially visible, medium-sized ears close to the head",
+    "cheeks": "full cheeks with natural rosiness and a slight hollow beneath the cheekbones",
+    "chin": "rounded soft chin",
+    "facialProportions": "balanced proportions with the eyes taking up a significant portion of the upper face; nose is proportionate to the face length",
+    "distinctiveFeatures": "Numerous freckles covering the face, particularly concentrated around the nose and cheeks. There is a small, faint scar above her left eyebrow and visible sun damage on her forehead. Wrinkles below the eyes",
+    "overallImpression": "natural, approachable appearance with a warm and friendly demeanor; face appears slightly tired but with a gentle expression",
+    "fullDescription": "This woman is in her early thirties with light beige skin, extensively freckled across her face with the highest concentration around her nose. She has hazel almond-shaped eyes that appear slightly downturned. Her dark brown hair is parted down the middle and falls past her shoulders. A straight bridge leads to a slightly rounded tip of her medium sized nose, and her full cheeks create a soft curve in her oval face shape. The visible freckles and subtle auburn highlights in her hair add to her unique and distinct appearance, while sun damage on her forehead tells a story of time spent outdoors.",
+    "generatedAt": "2026-02-05T12:36:38.595Z"
+  },
+  "styleReferenceImage": "data/sessions/201ff352-2eb8-4edf-854d-c9b319f9db81/generated/page-01-v1.png",
+  "versionHistory": {
+    "1": [
+      {
+        "version": 1,
+        "generatedAt": "2026-02-05T12:36:47.886Z",
+        "imagePath": "data/sessions/201ff352-2eb8-4edf-854d-c9b319f9db81/generated/page-01-v1.png"
+      },
+      {
+        "version": 2,
+        "generatedAt": "2026-02-05T12:38:26.897Z",
+        "imagePath": "data/sessions/201ff352-2eb8-4edf-854d-c9b319f9db81/generated/page-01-v2.png"
+      }
+    ]
+  },
+  "favoriteVersions": {}
+}

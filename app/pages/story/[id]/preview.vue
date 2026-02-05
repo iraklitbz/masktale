@@ -5,6 +5,7 @@ import ConfirmDialog from '~/components/ConfirmDialog.vue'
 import VersionHistory from '~/components/story/VersionHistory.vue'
 import VersionComparator from '~/components/story/VersionComparator.vue'
 import BookPreview from '~/components/story/BookPreview.vue'
+import ComicPreview from '~/components/story/ComicPreview.vue'
 import type { StoryTexts, StoryConfig } from '~/types/story'
 
 // Get session ID from route
@@ -15,8 +16,11 @@ const sessionId = computed(() => route.params.id as string)
 // Toast notifications
 const toast = useToast()
 
-// PDF generator
+// PDF generator (for book format)
 const { generatePdf } = usePdfGenerator()
+
+// Comic generator (for comic format)
+const { downloadPdf: downloadComicPdf } = useComicGenerator()
 
 // Cart
 const { addItem, hasItem } = useCart()
@@ -66,26 +70,49 @@ const showBookPreview = ref(false)
 const storyTexts = ref<StoryTexts | null>(null)
 const storyConfig = ref<StoryConfig | null>(null)
 const isLoadingTexts = ref(false)
+const isLoadingConfig = ref(false)
 
-// Load story texts and config for book preview
+// Comic preview state
+const showComicPreview = ref(false)
+
+// Check if story is comic format
+const isComicFormat = computed(() => storyConfig.value?.format === 'comic')
+
+// Load story config (needed to determine format)
+const loadStoryConfig = async () => {
+  if (!session.value || storyConfig.value) return
+
+  try {
+    isLoadingConfig.value = true
+    const { data } = await useFetch<StoryConfig>(`/api/story/${session.value.storyId}`)
+    storyConfig.value = data.value || null
+  } catch (err: any) {
+    console.error('[Preview] Error loading story config:', err)
+  } finally {
+    isLoadingConfig.value = false
+  }
+}
+
+// Load story texts for preview modals
 const loadStoryTexts = async () => {
   if (!session.value) return
 
   try {
     isLoadingTexts.value = true
 
-    // Load texts and config in parallel
-    const [textsResponse, configResponse] = await Promise.all([
-      useFetch<StoryTexts>(`/api/story/${session.value.storyId}/texts`),
-      useFetch<StoryConfig>(`/api/story/${session.value.storyId}`),
-    ])
+    // Load texts (config should already be loaded)
+    const { data, error: fetchError } = await useFetch<StoryTexts>(`/api/story/${session.value.storyId}/texts`)
 
-    if (textsResponse.error.value || !textsResponse.data.value) {
+    if (fetchError.value || !data.value) {
       throw new Error('No se pudieron cargar los textos')
     }
 
-    storyTexts.value = textsResponse.data.value
-    storyConfig.value = configResponse.data.value || null
+    storyTexts.value = data.value
+
+    // Also load config if not loaded yet
+    if (!storyConfig.value) {
+      await loadStoryConfig()
+    }
   } catch (err: any) {
     console.error('[Preview] Error loading story texts:', err)
     toast.error('Error', 'No se pudieron cargar los textos del cuento')
@@ -93,6 +120,17 @@ const loadStoryTexts = async () => {
     isLoadingTexts.value = false
   }
 }
+
+// Auto-load story config when session is ready
+watch(
+  () => session.value?.status,
+  async (status) => {
+    if (status === 'completed' && !storyConfig.value) {
+      await loadStoryConfig()
+    }
+  },
+  { immediate: true }
+)
 
 // Handle book preview
 const handleShowBookPreview = async () => {
@@ -107,6 +145,21 @@ const handleShowBookPreview = async () => {
 
 const handleCloseBookPreview = () => {
   showBookPreview.value = false
+}
+
+// Handle comic preview
+const handleShowComicPreview = async () => {
+  if (!storyTexts.value) {
+    await loadStoryTexts()
+  }
+
+  if (storyTexts.value && storyConfig.value) {
+    showComicPreview.value = true
+  }
+}
+
+const handleCloseComicPreview = () => {
+  showComicPreview.value = false
 }
 
 // Handle page regeneration
@@ -200,25 +253,45 @@ const handleAddToCart = async () => {
   }
 }
 
-// Handle direct download PDF
+// Handle direct download PDF (works for both book and comic formats)
 const handleDownloadPdf = async () => {
   if (!session.value || !currentState.value) {
     toast.error('Error', 'No se pudo cargar la información del cuento')
     return
   }
 
+  // Load story config if not loaded
+  if (!storyConfig.value) {
+    await loadStoryTexts()
+  }
+
   try {
     isGeneratingPdf.value = true
 
-    const result = await generatePdf({
-      sessionId: sessionId.value,
-      session: session.value,
-      currentState: currentState.value,
-      useFavorites: true,
-    })
+    // Use different generator based on format
+    if (isComicFormat.value) {
+      const result = await downloadComicPdf({
+        sessionId: sessionId.value,
+        session: session.value,
+        layout: 'classic-2-1',
+        locale: 'es',
+        includeBubbles: true,
+      })
 
-    if (!result.success) {
-      toast.error('Error al generar PDF', result.error || 'No se pudo generar el PDF')
+      if (!result.success) {
+        toast.error('Error al generar PDF', result.error || 'No se pudo generar el PDF del comic')
+      }
+    } else {
+      const result = await generatePdf({
+        sessionId: sessionId.value,
+        session: session.value,
+        currentState: currentState.value,
+        useFavorites: true,
+      })
+
+      if (!result.success) {
+        toast.error('Error al generar PDF', result.error || 'No se pudo generar el PDF')
+      }
     }
     // Success toast is shown by the composable
   } catch (error: any) {
@@ -323,8 +396,38 @@ const handleCloseComparator = () => {
 
         <div class="header-actions">
           <template v-if="session?.status === 'completed'">
-            <!-- Botón: Vista previa del libro -->
+            <!-- Botón: Vista previa - Solo mostrar cuando sabemos el formato -->
+            <!-- Comic format: Vista Comic -->
             <button
+              v-if="isComicFormat"
+              class="flex items-center px-3 py-2 bg-orange-100 text-orange-700 border-2 border-orange-200 rounded-lg font-medium transition-all hover:bg-orange-200 hover:border-orange-300 hover:-translate-y-0.5 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-orange-400 focus:ring-offset-2 disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-none"
+              :disabled="isLoadingTexts"
+              @click="handleShowComicPreview"
+              title="Ver vista previa del comic"
+            >
+              <div
+                v-if="isLoadingTexts"
+                class="spinner-small spinner-orange"
+              />
+              <svg
+                v-else
+                class="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"
+                />
+              </svg>
+              <span class="ml-2 hidden md:inline">Vista Comic</span>
+            </button>
+            <!-- Book format: Vista Libro (solo si NO es comic y ya tenemos el config) -->
+            <button
+              v-else-if="storyConfig && !isComicFormat"
               class="flex items-center px-3 py-2 bg-purple-100 text-purple-700 border-2 border-purple-200 rounded-lg font-medium transition-all hover:bg-purple-200 hover:border-purple-300 hover:-translate-y-0.5 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-purple-400 focus:ring-offset-2 disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-none"
               :disabled="isLoadingTexts"
               @click="handleShowBookPreview"
@@ -349,6 +452,15 @@ const handleCloseComparator = () => {
                 />
               </svg>
               <span class="ml-2 hidden md:inline">Vista Libro</span>
+            </button>
+            <!-- Loading state: mientras carga el config -->
+            <button
+              v-else-if="isLoadingConfig"
+              class="flex items-center px-3 py-2 bg-gray-100 text-gray-500 border-2 border-gray-200 rounded-lg font-medium"
+              disabled
+            >
+              <div class="spinner-small spinner-gray" />
+              <span class="ml-2 hidden md:inline">Cargando...</span>
             </button>
 
             <!-- Botón principal: Añadir al carrito -->
@@ -681,6 +793,19 @@ const handleCloseComparator = () => {
         @close="handleCloseBookPreview"
       />
     </Teleport>
+
+    <!-- Comic Preview Modal -->
+    <Teleport to="body">
+      <ComicPreview
+        v-if="showComicPreview && session && currentState && storyTexts && storyConfig"
+        :session-id="sessionId"
+        :session="session"
+        :current-state="currentState"
+        :story-texts="storyTexts"
+        :story-config="storyConfig"
+        @close="handleCloseComicPreview"
+      />
+    </Teleport>
   </div>
 </template>
 
@@ -835,6 +960,16 @@ const handleCloseComparator = () => {
   border-top-color: white;
   border-radius: 9999px;
   animation: spin 0.8s linear infinite;
+}
+
+.spinner-small.spinner-orange {
+  border: 2px solid rgba(234, 88, 12, 0.3);
+  border-top-color: #ea580c;
+}
+
+.spinner-small.spinner-gray {
+  border: 2px solid rgba(107, 114, 128, 0.3);
+  border-top-color: #6b7280;
 }
 
 /* Main content */
