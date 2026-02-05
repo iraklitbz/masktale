@@ -124,6 +124,16 @@ export interface CurrentState {
   characterDescription?: CharacterDescription
   // NEW: Path to style reference image (first successful generation)
   styleReferenceImage?: string
+  // NEW: Custom bubble positions from user editor
+  customBubblePositions?: {
+    [pageNumber: string]: {
+      bubbles: Array<{
+        position: { x: number; y: number }
+        appliedAt: string
+      }>
+      updatedAt: string
+    }
+  }
   lastUpdated: string
 }
 

@@ -61,7 +61,7 @@
         "facePosition": {
           "x": 0.4,
           "y": 0.55,
-          "description": "Adult standing at base of tree, head tilted up looking at the kitten, expression of concerned determination"
+          "description": "Person standing at base of tree, head tilted up looking at the kitten, expression of concerned determination"
         },
         "timeOfDay": "late-afternoon",
         "difficulty": "medium"
@@ -70,14 +70,14 @@
         {
           "type": "speech",
           "speaker": "cat",
-          "position": { "x": 0.7, "y": 0.15 },
+          "position": { "x": 0.7, "y": 0.08 },
           "tailDirection": "bottom-left",
           "size": "small"
         },
         {
           "type": "thought",
           "speaker": "hero",
-          "position": { "x": 0.25, "y": 0.35 },
+          "position": { "x": 0.15, "y": 0.25 },
           "tailDirection": "bottom-right",
           "size": "medium"
         }
@@ -97,7 +97,7 @@
         "facePosition": {
           "x": 0.5,
           "y": 0.45,
-          "description": "Adult mid-climb, looking up toward the kitten, face showing effort and reassurance"
+          "description": "Person mid-climb, looking up toward the kitten, face showing effort and reassurance"
         },
         "timeOfDay": "late-afternoon",
         "difficulty": "hard"
@@ -106,14 +106,14 @@
         {
           "type": "speech",
           "speaker": "hero",
-          "position": { "x": 0.3, "y": 0.65 },
+          "position": { "x": 0.2, "y": 0.75 },
           "tailDirection": "top-right",
           "size": "medium"
         },
         {
           "type": "speech",
           "speaker": "cat",
-          "position": { "x": 0.7, "y": 0.12 },
+          "position": { "x": 0.75, "y": 0.08 },
           "tailDirection": "bottom-left",
           "size": "small"
         }
@@ -133,7 +133,7 @@
         "facePosition": {
           "x": 0.5,
           "y": 0.4,
-          "description": "Adult holding kitten gently, warm smile of satisfaction, looking down at the rescued cat with affection"
+          "description": "Person holding kitten gently, warm smile of satisfaction, looking down at the rescued cat with affection"
         },
         "timeOfDay": "sunset",
         "difficulty": "medium"
@@ -142,14 +142,14 @@
         {
           "type": "speech",
           "speaker": "hero",
-          "position": { "x": 0.65, "y": 0.2 },
+          "position": { "x": 0.75, "y": 0.15 },
           "tailDirection": "bottom-left",
           "size": "medium"
         },
         {
           "type": "sfx",
           "speaker": "cat",
-          "position": { "x": 0.35, "y": 0.55 },
+          "position": { "x": 0.25, "y": 0.65 },
           "tailDirection": "none",
           "size": "small"
         }
@@ -159,7 +159,7 @@
   "settings": {
     "maxRegenerations": 3,
     "defaultAspectRatio": "3:4",
-    "geminiModel": "gemini-2.5-flash-image",
+    "geminiModel": "gemini-3-pro-image-preview",
     "processingTimeout": 180,
     "imageQuality": {
       "compression": 95,

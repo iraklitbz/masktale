@@ -80,6 +80,13 @@ export async function generateImageWithGemini(params: {
       },
     })
 
+    // Debug: log full response structure
+    console.log('[Gemini] Response structure:', JSON.stringify({
+      hasResponse: !!response,
+      hasCandidates: !!(response?.candidates),
+      candidatesCount: response?.candidates?.length || 0,
+    }))
+
     // Validate response structure
     if (!response) {
       throw new Error('Empty response from Gemini API')
@@ -94,8 +101,29 @@ export async function generateImageWithGemini(params: {
       throw new Error('First candidate is undefined')
     }
 
+    // Debug: log candidate details
+    console.log('[Gemini] Candidate details:', JSON.stringify({
+      hasContent: !!candidate.content,
+      hasFinishReason: !!candidate.finishReason,
+      finishReason: candidate.finishReason,
+      hasSafetyRatings: !!(candidate.safetyRatings),
+      safetyRatings: candidate.safetyRatings,
+    }))
+
     if (!candidate.content) {
-      throw new Error('Candidate has no content')
+      const finishReason = candidate.finishReason || 'unknown'
+      const safetyRatings = candidate.safetyRatings
+      
+      // Detect safety-related blocks
+      const isSafetyBlock = finishReason?.toLowerCase().includes('safety') || 
+                           finishReason?.toLowerCase().includes('block') ||
+                           safetyRatings?.some((r: any) => r.probability === 'HIGH' || r.blocked)
+      
+      if (isSafetyBlock) {
+        throw new Error(`SAFETY_BLOCK: Image generation blocked by safety filters. This often happens with adult faces. Finish reason: ${finishReason}`)
+      }
+      
+      throw new Error(`Candidate has no content. Finish reason: ${finishReason}`)
     }
 
     if (!candidate.content.parts || candidate.content.parts.length === 0) {
@@ -158,6 +186,9 @@ export async function generateImageFromPromptOnly(params: {
 
   console.log(`[Gemini] Generating NEW image from prompt with ${userImageArray.length} reference photo(s)`)
   console.log(`[Gemini] Mode: Complete generation (NO base image)`)
+  console.log(`[Gemini] Model: ${model}`)
+  console.log(`[Gemini] Aspect ratio: ${aspectRatio}`)
+  console.log(`[Gemini] Image sizes: ${userImageArray.map((img, i) => `img${i+1}=${Math.round(img.length/1024)}KB`).join(', ')}`)
 
   try {
     const response = await ai.models.generateContent({
@@ -237,9 +268,11 @@ export async function generateImageWithRetry(
       console.warn(`[Gemini] Attempt ${attempt} failed:`, error.message)
 
       if (attempt < maxRetries) {
-        // Exponential backoff: 2s, 4s, 8s...
-        const delay = Math.pow(2, attempt) * 1000
-        console.log(`[Gemini] Retrying in ${delay / 1000}s...`)
+        // Exponential backoff with jitter: 2s, 4s, 8s... plus random 0-2s
+        const baseDelay = Math.pow(2, attempt) * 1000
+        const jitter = Math.random() * 2000
+        const delay = baseDelay + jitter
+        console.log(`[Gemini] Retrying in ${(delay / 1000).toFixed(1)}s...`)
         await new Promise(resolve => setTimeout(resolve, delay))
       }
     }

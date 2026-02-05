@@ -1,0 +1,61 @@
+{
+  "id": "259b184f-0d9a-40a8-b071-d28c727bd368",
+  "storyId": "story-002-dragon-adventure",
+  "createdAt": "2026-02-05T13:22:11.087Z",
+  "expiresAt": "2026-02-06T13:22:11.087Z",
+  "status": "generating",
+  "progress": {
+    "totalPages": 0,
+    "pagesGenerated": 0,
+    "errors": [
+      {
+        "pageNumber": 1,
+        "attempt": 1,
+        "error": "pipeline.density is not a function",
+        "timestamp": "2026-02-05T13:22:20.014Z"
+      },
+      {
+        "pageNumber": 2,
+        "attempt": 1,
+        "error": "pipeline.density is not a function",
+        "timestamp": "2026-02-05T13:22:21.175Z"
+      },
+      {
+        "pageNumber": 3,
+        "attempt": 1,
+        "error": "pipeline.density is not a function",
+        "timestamp": "2026-02-05T13:22:22.316Z"
+      },
+      {
+        "pageNumber": 1,
+        "attempt": 1,
+        "error": "pipeline.density is not a function",
+        "timestamp": "2026-02-05T13:27:00.892Z"
+      },
+      {
+        "pageNumber": 2,
+        "attempt": 1,
+        "error": "pipeline.density is not a function",
+        "timestamp": "2026-02-05T13:27:02.042Z"
+      },
+      {
+        "pageNumber": 3,
+        "attempt": 1,
+        "error": "pipeline.density is not a function",
+        "timestamp": "2026-02-05T13:27:03.190Z"
+      }
+    ],
+    "currentPage": 3
+  },
+  "userPhoto": {
+    "originalPath": "data/sessions/259b184f-0d9a-40a8-b071-d28c727bd368/user-photos/photo-1.jpeg",
+    "uploadedAt": "2026-02-05T13:22:19.287Z",
+    "metadata": {
+      "width": 0,
+      "height": 0,
+      "format": "jpeg",
+      "size": 1544931
+    },
+    "childName": "raki"
+  }
+}

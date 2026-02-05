@@ -1,0 +1,48 @@
+{
+  "storyId": "story-003-cat-rescue",
+  "sessionId": "ab68a684-8374-4407-88c6-771c8a895495",
+  "selectedVersions": {
+    "1": {
+      "version": 1,
+      "generatedAt": "2026-02-05T13:16:48.619Z",
+      "imagePath": "data/sessions/ab68a684-8374-4407-88c6-771c8a895495/generated/page-01-v1.png"
+    }
+  },
+  "regenerationCount": {
+    "1": 1
+  },
+  "lastUpdated": "2026-02-05T13:16:48.619Z",
+  "characterDescription": {
+    "ageRange": "30-35 years old",
+    "skinTone": "Light to medium tan skin with warm golden undertones and numerous freckles concentrated on the forehead, cheeks, and nose, with some visible sun damage around the temple area.",
+    "eyeColor": "Hazel eyes with a dominant green hue and subtle brown flecks radiating from the pupil, surrounded by a darker limbal ring.",
+    "eyeShape": "Almond-shaped eyes, slightly downturned at the outer corners, with moderate eyelid exposure.",
+    "hairColor": "Dark brown hair with warm chestnut highlights, particularly near the ends, and darker roots.",
+    "hairTexture": "Slightly wavy hair, with a smooth texture and moderate shine.",
+    "hairStyle": "Long hair, parted in the middle, falling straight with a slight wave to below the shoulders.",
+    "faceShape": "Oval face with moderately defined cheekbones and a soft, gently rounded jawline.",
+    "nose": "Medium-sized nose with a straight bridge and slightly bulbous tip.",
+    "lips": "Medium-sized lips with a naturally rosy color, the upper lip is slightly thinner than the lower lip, with a defined cupid's bow.",
+    "smile": "Closed-lip smile, creating slight lines under the eyes and around the mouth; shows no teeth",
+    "eyebrows": "Medium-thick eyebrows with a natural arch, slightly darker than the hair color, well-groomed and defined.",
+    "ears": "Ears are not clearly visible in the provided image.",
+    "cheeks": "Full cheeks with a slight natural flush, noticeable when smiling, creating subtle lines alongside the nose.",
+    "chin": "Rounded chin with a smooth contour.",
+    "facialProportions": "Balanced facial proportions with even spacing between features, the eyes are slightly larger relative to the nose and mouth.",
+    "distinctiveFeatures": "Numerous freckles concentrated across the forehead, nose, and cheeks; subtle smile lines around the eyes; slight asymmetry in eyebrow shape.",
+    "overallImpression": "A woman in her early thirties with a relaxed and friendly appearance. Her complexion is warm and natural, with many freckles emphasizing her features. She appears to have a youthful glow. ",
+    "fullDescription": "This is a woman between 30 and 35 years old, with light to medium tan skin covered in warm golden freckles concentrated on her forehead and nose. Her eyes are hazel with green hues and a dark limbal ring, almond-shaped, slightly downturned. She has dark brown hair with warmer highlights worn long and parted in the middle, falling straight past the shoulders. Her nose is a medium-size with a straight bridge ending in a slightly bulbous tip; Her lips are of medium size with a natural rosy color. She has medium-thick eyebrows with a well-defined arch, and her oval-shaped face is accompanied with slight smile lines that define her cheeks.",
+    "generatedAt": "2026-02-05T13:05:37.870Z"
+  },
+  "styleReferenceImage": "data/sessions/ab68a684-8374-4407-88c6-771c8a895495/generated/page-01-v1.png",
+  "versionHistory": {
+    "1": [
+      {
+        "version": 1,
+        "generatedAt": "2026-02-05T13:16:48.619Z",
+        "imagePath": "data/sessions/ab68a684-8374-4407-88c6-771c8a895495/generated/page-01-v1.png"
+      }
+    ]
+  },
+  "favoriteVersions": {}
+}

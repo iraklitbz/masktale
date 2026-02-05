@@ -172,7 +172,11 @@ export default defineEventHandler(async (event) => {
           layout
         )
 
-        console.log(`[Comic] Composed bubbles:`, composedBubbles)
+        console.log(`[Comic] Composed bubbles:`, composedBubbles.map((b: any) => ({
+          type: b.type,
+          text: b.text?.substring(0, 30),
+          position: b.position
+        })))
 
         if (composedBubbles.length > 0) {
           console.log(`[Comic] Adding ${composedBubbles.length} speech bubbles`)
@@ -246,13 +250,30 @@ function buildComposedBubbleConfigs(
       const bubbleConfig = page.speechBubbles[j]
       const textConfig = textPage.speechBubbles[j]
 
-      if (!textConfig?.text) continue
+      // Validate text config exists and has non-empty text
+      if (!textConfig?.text || textConfig.text.trim().length === 0) {
+        console.log(`[Comic] Skipping bubble ${j} on page ${page.pageNumber}: no text or empty text`)
+        continue
+      }
+
+      // Validate bubble config
+      if (!bubbleConfig || !bubbleConfig.position) {
+        console.log(`[Comic] Skipping bubble ${j} on page ${page.pageNumber}: invalid bubble config`)
+        continue
+      }
 
       // Recalculate position within the composed page
       // Original position is relative to the single image (0-1)
       // New position needs to be relative to the panel's position in the composed page
       const newX = panel.x + bubbleConfig.position.x * panel.width
       const newY = panel.y + bubbleConfig.position.y * panel.height
+      
+      console.log(`[Comic] Page ${page.pageNumber}, Bubble ${j}:`, {
+        panel: { x: panel.x, y: panel.y, w: panel.width, h: panel.height },
+        originalPos: bubbleConfig.position,
+        newPos: { x: newX.toFixed(3), y: newY.toFixed(3) },
+        text: textConfig.text.substring(0, 30)
+      })
 
       bubbles.push({
         type: bubbleConfig.type || 'speech',

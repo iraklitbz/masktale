@@ -17,7 +17,7 @@ import {
 } from '../../../utils/session-manager'
 import { loadStoryConfig, getNewPromptTemplate } from '../../../utils/story-loader'
 import { generateImageWithRetry } from '../../../utils/gemini'
-import { createImageCollage } from '../../../utils/image-processor'
+import { createImageCollage, optimizeImage } from '../../../utils/image-processor'
 import { buildPromptForPage, getGenerationSummary } from '../../../utils/prompt-builder'
 import { analyzeCharacterFromPhotos } from '../../../utils/character-analyzer'
 
@@ -117,7 +117,18 @@ export default defineEventHandler(async (event) => {
     for (const filename of photoFiles) {
       const filepath = path.join(photosDir, filename)
       const buffer = await fs.readFile(filepath)
-      userPhotosBase64.push(buffer.toString('base64'))
+      
+      // Optimize images before sending to Gemini
+      // This prevents issues with very large DSLR photos (>4K resolution)
+      const optimizedBuffer = await optimizeImage(buffer, {
+        maxWidth: 1024,
+        maxHeight: 1024,
+        quality: 90,
+        format: 'jpeg'
+      })
+      
+      userPhotosBase64.push(optimizedBuffer.toString('base64'))
+      console.log(`[Generate] Optimized ${filename}: ${buffer.length} -> ${optimizedBuffer.length} bytes`)
     }
 
     // IMPORTANT: Gemini 3 Pro Image supports up to 5 human reference images!
@@ -161,18 +172,93 @@ export default defineEventHandler(async (event) => {
       console.log('[Generate] Using detailed style profile for consistency')
     }
 
+    // Log the full prompt for debugging
+    console.log('[Generate] ===== FULL PROMPT START =====')
+    console.log(finalPrompt)
+    console.log('[Generate] ===== FULL PROMPT END =====')
+
     // Generate with Gemini 3 Pro Image - NEW MODE: NO base image, complete generation
     // Send ALL reference photos (Gemini 3 Pro supports up to 5 human images)
-    const generatedImageBase64 = await generateImageWithRetry(
-      {
-        prompt: finalPrompt,
-        userImagesBase64: userPhotosBase64, // Send ALL photos for Pro model analysis
-        aspectRatio: page.aspectRatio,
-        model: storyConfig.settings.geminiModel,
-      },
-      3, // max retries
-      false // useBaseImage = false (NEW MODE)
-    )
+    let generatedImageBase64: string
+    
+    try {
+      generatedImageBase64 = await generateImageWithRetry(
+        {
+          prompt: finalPrompt,
+          userImagesBase64: userPhotosBase64,
+          aspectRatio: page.aspectRatio,
+          model: storyConfig.settings.geminiModel,
+        },
+        3, // max retries
+        false // useBaseImage = false (NEW MODE)
+      )
+    } catch (error: any) {
+      // If it fails with character description, try without it as fallback
+      if (currentState.characterDescription && error.message?.includes('Candidate has no content')) {
+        console.warn('[Generate] Failed with character description, trying without it...')
+        
+        const fallbackPrompt = buildPromptForPage(
+          promptTemplate,
+          page.metadata,
+          storyConfig.metadata.illustrationStyle,
+          storyConfig.metadata.styleProfile,
+          undefined // No character description
+        )
+        
+        console.log('[Generate] ===== FALLBACK PROMPT START =====')
+        console.log(fallbackPrompt)
+        console.log('[Generate] ===== FALLBACK PROMPT END =====')
+        
+        try {
+          generatedImageBase64 = await generateImageWithRetry(
+            {
+              prompt: fallbackPrompt,
+              userImagesBase64: userPhotosBase64,
+              aspectRatio: page.aspectRatio,
+              model: storyConfig.settings.geminiModel,
+            },
+            2, // fewer retries for fallback
+            false
+          )
+        } catch (fallbackError: any) {
+          // Try with alternative model
+          console.warn('[Generate] Failed with primary model, trying alternative model...')
+          
+          try {
+            generatedImageBase64 = await generateImageWithRetry(
+              {
+                prompt: fallbackPrompt,
+                userImagesBase64: userPhotosBase64,
+                aspectRatio: page.aspectRatio,
+                model: 'gemini-2.0-flash-exp-image-generation', // Alternative model
+              },
+              2,
+              false
+            )
+          } catch (altModelError: any) {
+            // Last resort: try without reference images (text only)
+            console.warn('[Generate] Failed with alternative model, trying text-only generation...')
+            
+            const textOnlyPrompt = `${fallbackPrompt}
+
+Create an illustration of a heroic adult character in this scene. The character should look warm and approachable.`
+            
+            generatedImageBase64 = await generateImageWithRetry(
+              {
+                prompt: textOnlyPrompt,
+                userImagesBase64: [], // NO reference images
+                aspectRatio: page.aspectRatio,
+                model: storyConfig.settings.geminiModel,
+              },
+              2,
+              false
+            )
+          }
+        }
+      } else {
+        throw error
+      }
+    }
 
     // Save generated image
     const generatedDir = path.join(

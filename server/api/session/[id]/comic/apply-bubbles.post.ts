@@ -13,7 +13,7 @@ import {
   getGeneratedImagePath,
 } from '../../../../utils/session-manager'
 import { loadStoryConfig } from '../../../../utils/story-loader'
-import { addSpeechBubblesToImage, type SpeechBubbleConfig } from '../../../../utils/speech-bubble-processor'
+import { addSpeechBubblesToImage, type SpeechBubbleConfig, type FacePosition } from '../../../../utils/speech-bubble-processor'
 
 interface ApplyBubblesRequest {
   pageNumber?: number // If not provided, applies to all pages
@@ -115,17 +115,32 @@ export default defineEventHandler(async (event) => {
         continue
       }
 
+      // Log raw data for debugging
+      console.log(`[Comic] Page ${page.pageNumber} config bubbles:`, pageBubbles.length)
+      console.log(`[Comic] Page ${page.pageNumber} text bubbles:`, pageTexts.speechBubbles?.length || 0)
+      
       // Build bubble configs with text
       const bubbleConfigs: SpeechBubbleConfig[] = pageBubbles.map((bubble: any, index: number) => {
         const textConfig = pageTexts.speechBubbles[index]
+        console.log(`[Comic] Mapping bubble ${index}:`, {
+          config: { type: bubble.type, speaker: bubble.speaker },
+          text: textConfig?.text?.substring(0, 30)
+        })
         return {
           type: bubble.type || 'speech',
           text: textConfig?.text || '',
           position: bubble.position,
           tailDirection: bubble.tailDirection,
           size: bubble.size || 'medium',
+          avoidFace: true, // Enable smart avoid by default
         }
-      }).filter((b: SpeechBubbleConfig) => b.text) // Only include bubbles with text
+      }).filter((b: SpeechBubbleConfig, index: number) => {
+        const hasText = b.text && b.text.trim().length > 0
+        if (!hasText) {
+          console.log(`[Comic] Filtering out bubble ${index} (no text)`)
+        }
+        return hasText
+      })
 
       if (bubbleConfigs.length === 0) {
         console.log(`[Comic] No valid bubbles for page ${page.pageNumber}`)
@@ -145,12 +160,21 @@ export default defineEventHandler(async (event) => {
         continue
       }
 
+      // Extract face position from page metadata for smart avoid
+      const facePosition: FacePosition | undefined = page.metadata?.facePosition ? {
+        x: page.metadata.facePosition.x,
+        y: page.metadata.facePosition.y,
+        radius: 0.18 // 18% protection radius around face
+      } : undefined
+
       // Apply speech bubbles
       console.log(`[Comic] Applying ${bubbleConfigs.length} bubbles to page ${page.pageNumber}`)
+      console.log(`[Comic] Face position:`, facePosition)
       const processedBuffer = await addSpeechBubblesToImage(
         imageBuffer,
         bubbleConfigs,
-        storyConfig.settings.comicSettings || {}
+        storyConfig.settings.comicSettings || {},
+        facePosition
       )
 
       // Save to a new file (with-bubbles suffix)

@@ -125,7 +125,7 @@
   "settings": {
     "maxRegenerations": 3,
     "defaultAspectRatio": "3:4",
-    "geminiModel": "gemini-2.5-flash-image",
+    "geminiModel": "gemini-2.0-flash-exp-image-generation",
     "processingTimeout": 120,
     "imageQuality": {
       "compression": 85,

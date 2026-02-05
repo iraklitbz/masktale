@@ -11,6 +11,13 @@ export interface SpeechBubbleConfig {
   position: { x: number; y: number } // 0-1 percentage of image
   tailDirection?: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right' | 'none'
   size?: 'small' | 'medium' | 'large'
+  avoidFace?: boolean // If true, bubble will avoid face position
+}
+
+export interface FacePosition {
+  x: number // 0-1 percentage
+  y: number // 0-1 percentage
+  radius?: number // protection radius (default: 0.15)
 }
 
 export interface ComicSettings {
@@ -34,6 +41,101 @@ const DEFAULT_SETTINGS: Required<ComicSettings> = {
 }
 
 /**
+ * Calculate bubble position avoiding face area
+ * Uses smart positioning to find best alternative location
+ */
+export function calculateSmartPosition(
+  originalPosition: { x: number; y: number },
+  facePosition: FacePosition,
+  bubbleSize: 'small' | 'medium' | 'large' = 'medium',
+  imageAspectRatio: number = 0.75
+): { x: number; y: number } {
+  const faceRadius = facePosition.radius || 0.18 // 18% margin around face
+  const protectionRadius = faceRadius * (bubbleSize === 'large' ? 1.3 : bubbleSize === 'small' ? 0.8 : 1.0)
+  
+  // Calculate distance from bubble to face center
+  const dx = originalPosition.x - facePosition.x
+  const dy = originalPosition.y - facePosition.y
+  const distance = Math.sqrt(dx * dx + dy * dy)
+  
+  // If bubble is far enough from face, use original position
+  if (distance > protectionRadius) {
+    return originalPosition
+  }
+  
+  console.log(`[SmartAvoid] Bubble too close to face (${distance.toFixed(2)} < ${protectionRadius}), repositioning...`)
+  
+  // Define alternative positions (corners and edges)
+  // Prioritize positions based on original direction from face
+  const alternatives: Array<{ x: number; y: number; priority: number }> = []
+  
+  // Corners (highest priority for staying out of the way)
+  const corners = [
+    { x: 0.12, y: 0.08 },  // Top-left
+    { x: 0.88, y: 0.08 },  // Top-right
+    { x: 0.12, y: 0.92 },  // Bottom-left
+    { x: 0.88, y: 0.92 },  // Bottom-right
+  ]
+  
+  // Edge centers
+  const edges = [
+    { x: 0.5, y: 0.06 },   // Top center
+    { x: 0.94, y: 0.5 },   // Right center
+    { x: 0.5, y: 0.94 },   // Bottom center
+    { x: 0.06, y: 0.5 },   // Left center
+  ]
+  
+  // Determine which quadrant the original position is in relative to face
+  const isLeft = originalPosition.x < facePosition.x
+  const isTop = originalPosition.y < facePosition.y
+  
+  // Score each alternative based on distance from face and closeness to original
+  const evaluatePosition = (pos: { x: number; y: number }) => {
+    const dFace = Math.sqrt(
+      Math.pow(pos.x - facePosition.x, 2) + 
+      Math.pow(pos.y - facePosition.y, 2)
+    )
+    const dOriginal = Math.sqrt(
+      Math.pow(pos.x - originalPosition.x, 2) + 
+      Math.pow(pos.y - originalPosition.y, 2)
+    )
+    
+    // Must be outside protection zone
+    if (dFace < protectionRadius) return { score: -1, pos }
+    
+    // Prefer positions far from face but close to original
+    // Bonus for being in the same general direction
+    const sameQuadrant = (isLeft && pos.x < facePosition.x) || (!isLeft && pos.x >= facePosition.x)
+    const sameVertical = (isTop && pos.y < facePosition.y) || (!isTop && pos.y >= facePosition.y)
+    const quadrantBonus = (sameQuadrant && sameVertical) ? 0.3 : 0
+    
+    const score = dFace - (dOriginal * 0.5) + quadrantBonus
+    return { score, pos }
+  }
+  
+  // Evaluate all alternatives
+  const allPositions = [...corners, ...edges]
+  const scored = allPositions
+    .map(evaluatePosition)
+    .filter(s => s.score > 0)
+    .sort((a, b) => b.score - a.score)
+  
+  if (scored.length > 0) {
+    const best = scored[0].pos
+    console.log(`[SmartAvoid] Repositioned from (${originalPosition.x.toFixed(2)}, ${originalPosition.y.toFixed(2)}) to (${best.x.toFixed(2)}, ${best.y.toFixed(2)})`)
+    return best
+  }
+  
+  // Fallback: push bubble away from face in the same direction
+  const angle = Math.atan2(dy, dx)
+  const pushDistance = protectionRadius + 0.1
+  return {
+    x: Math.max(0.1, Math.min(0.9, facePosition.x + Math.cos(angle) * pushDistance)),
+    y: Math.max(0.1, Math.min(0.9, facePosition.y + Math.sin(angle) * pushDistance))
+  }
+}
+
+/**
  * Generate SVG for a speech bubble
  */
 function generateSpeechBubbleSVG(
@@ -42,6 +144,12 @@ function generateSpeechBubbleSVG(
   imageHeight: number,
   settings: Required<ComicSettings>
 ): string {
+  // Validate text
+  if (!bubble.text || bubble.text.trim().length === 0) {
+    console.log(`[SpeechBubble] Skipping SVG generation: no text for bubble`)
+    return '' // Return empty string, caller should handle this
+  }
+
   const sizeMultiplier = bubble.size === 'small' ? 0.7 : bubble.size === 'large' ? 1.3 : 1
 
   // Thought bubbles need more padding because ellipse has less usable space
@@ -71,6 +179,12 @@ function generateSpeechBubbleSVG(
   }
   if (currentLine) lines.push(currentLine)
 
+  // Validate we have lines to render
+  if (lines.length === 0 || lines.every(line => line.trim().length === 0)) {
+    console.log(`[SpeechBubble] No valid lines to render for bubble`)
+    return ''
+  }
+
   // Calculate bubble dimensions
   const textWidth = Math.max(...lines.map(line => line.length * fontSize * 0.55))
   const textHeight = lines.length * lineHeight
@@ -78,8 +192,14 @@ function generateSpeechBubbleSVG(
   // Thought bubbles are wider/taller to accommodate the ellipse shape
   const widthMultiplier = isThought ? 1.4 : 1
   const heightMultiplier = isThought ? 1.3 : 1
-  const bubbleWidth = (textWidth + basePadding * 2) * widthMultiplier
-  const bubbleHeight = (textHeight + basePadding * 2) * heightMultiplier
+  let bubbleWidth = (textWidth + basePadding * 2) * widthMultiplier
+  let bubbleHeight = (textHeight + basePadding * 2) * heightMultiplier
+  
+  // Minimum sizes for thought bubbles to ensure text fits
+  if (isThought) {
+    bubbleWidth = Math.max(bubbleWidth, fontSize * 8)
+    bubbleHeight = Math.max(bubbleHeight, fontSize * 4)
+  }
 
   // Position (convert percentage to pixels)
   const x = bubble.position.x * imageWidth
@@ -99,8 +219,8 @@ function generateSpeechBubbleSVG(
                   Q ${bubbleWidth * 0.92},${bubbleHeight * 0.08} ${bubbleWidth * 0.92},${bubbleHeight / 2}
                   Q ${bubbleWidth * 0.92},${bubbleHeight * 0.92} ${bubbleWidth / 2},${bubbleHeight * 0.92}
                   Q ${bubbleWidth * 0.08},${bubbleHeight * 0.92} ${bubbleWidth * 0.08},${bubbleHeight / 2} Z`
-    // Center text vertically in the ellipse
-    textOffsetY = (bubbleHeight - textHeight) / 2 - basePadding
+    // Center text vertically in the ellipse - adjust for better centering
+    textOffsetY = (bubbleHeight - textHeight) / 2 - fontSize * 0.3
     // Thought bubbles use circles for tail, handled separately
     tailPath = ''
   } else if (bubble.type === 'sfx') {
@@ -135,6 +255,18 @@ function generateSpeechBubbleSVG(
             fill="${settings.textColor}"
             text-anchor="middle">${escapeXml(line)}</text>`
   }).join('\n')
+  
+  // Debug: log thought bubble details
+  if (isThought) {
+    console.log(`[SpeechBubble] Thought bubble debug:`, {
+      lines: lines.length,
+      lineTexts: lines,
+      textElements: textElements.substring(0, 200),
+      bubbleWidth: Math.round(bubbleWidth),
+      bubbleHeight: Math.round(bubbleHeight),
+      textOffsetY: Math.round(textOffsetY)
+    })
+  }
 
   // Generate thought bubble tail circles
   let thoughtTailCircles = ''
@@ -299,10 +431,12 @@ function escapeXml(text: string): string {
 export async function addSpeechBubblesToImage(
   imageBuffer: Buffer,
   bubbles: SpeechBubbleConfig[],
-  settings: ComicSettings = {}
+  settings: ComicSettings = {},
+  facePosition?: FacePosition
 ): Promise<Buffer> {
   console.log(`[SpeechBubble] Adding ${bubbles.length} bubbles to image`)
   console.log(`[SpeechBubble] Settings:`, settings)
+  console.log(`[SpeechBubble] Face position:`, facePosition)
 
   const mergedSettings = { ...DEFAULT_SETTINGS, ...settings }
 
@@ -313,28 +447,72 @@ export async function addSpeechBubblesToImage(
 
   console.log(`[SpeechBubble] Image dimensions: ${width}x${height}`)
 
+  // Apply smart avoid if face position is provided
+  const adjustedBubbles = bubbles.map(bubble => {
+    if (facePosition && bubble.avoidFace !== false) {
+      const adjusted = calculateSmartPosition(
+        bubble.position,
+        facePosition,
+        bubble.size,
+        width / height
+      )
+      return { ...bubble, position: adjusted }
+    }
+    return bubble
+  })
+
   // Generate SVG overlays for each bubble
   const svgOverlays: Buffer[] = []
-  for (const bubble of bubbles) {
-    console.log(`[SpeechBubble] Generating bubble:`, {
+  console.log(`[SpeechBubble] Processing ${adjustedBubbles.length} bubbles`)
+  
+  for (let i = 0; i < adjustedBubbles.length; i++) {
+    const bubble = adjustedBubbles[i]
+    console.log(`[SpeechBubble] [${i + 1}/${adjustedBubbles.length}] Generating bubble:`, {
       type: bubble.type,
-      text: bubble.text?.substring(0, 30) + '...',
+      text: bubble.text?.substring(0, 40) + (bubble.text?.length > 40 ? '...' : ''),
+      textLength: bubble.text?.length,
       position: bubble.position,
       positionPixels: {
-        x: bubble.position.x * width,
-        y: bubble.position.y * height
+        x: Math.round(bubble.position.x * width),
+        y: Math.round(bubble.position.y * height)
       }
     })
+    
     const svg = generateSpeechBubbleSVG(bubble, width, height, mergedSettings)
-    svgOverlays.push(Buffer.from(svg))
+    
+    // Only add non-empty SVGs
+    if (svg && svg.length > 0) {
+      console.log(`[SpeechBubble] [${i + 1}] SVG generated, length: ${svg.length}`)
+      svgOverlays.push(Buffer.from(svg))
+    } else {
+      console.log(`[SpeechBubble] [${i + 1}] SKIPPING - Empty SVG generated`)
+    }
   }
+  
+  console.log(`[SpeechBubble] Total SVG overlays: ${svgOverlays.length}`)
 
   // Composite all bubbles onto the image
   let result = sharp(imageBuffer)
 
   for (let i = 0; i < svgOverlays.length; i++) {
     const svgBuffer = svgOverlays[i]
-    console.log(`[SpeechBubble] Compositing bubble ${i + 1}/${svgOverlays.length}`)
+    const svgString = svgBuffer.toString('utf-8')
+    
+    // Check if SVG has actual content
+    const hasText = svgString.includes('<text')
+    const hasPath = svgString.includes('<path')
+    
+    console.log(`[SpeechBubble] [${i + 1}/${svgOverlays.length}] Compositing:`, {
+      size: svgBuffer.length,
+      hasText,
+      hasPath
+    })
+    
+    if (!hasText && !hasPath) {
+      console.log(`[SpeechBubble] [${i + 1}] SKIPPING - No content`)
+      continue
+    }
+    
     result = sharp(await result.toBuffer()).composite([
       { input: svgBuffer, top: 0, left: 0 },
     ])

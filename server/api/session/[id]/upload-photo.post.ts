@@ -7,6 +7,7 @@
 
 import fs from 'node:fs/promises'
 import path from 'node:path'
+import sharp from 'sharp'
 import { getSession, saveSession, getUserPhotoPath } from '../../../utils/session-manager'
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB
@@ -59,7 +60,14 @@ export default defineEventHandler(async (event) => {
       path: string
       size: number
       mimeType: string
+      metadata?: {
+        width: number
+        height: number
+        density?: number
+      }
     }> = []
+    
+    const warnings: string[] = []
 
     // Extract childName from form data
     let childName = ''
@@ -101,11 +109,35 @@ export default defineEventHandler(async (event) => {
       // Save file
       await fs.writeFile(filepath, file.data)
 
+      // Analyze image metadata
+      const metadata = await sharp(file.data).metadata()
+      console.log(`[API] Photo ${filename} metadata:`, {
+        width: metadata.width,
+        height: metadata.height,
+        density: metadata.density,
+        format: metadata.format
+      })
+
+      // Check for potentially problematic characteristics
+      if (metadata.density && metadata.density > 150) {
+        warnings.push(`Photo ${i + 1} has high resolution (${metadata.density} DPI). This may cause generation issues. Consider using a standard photo.`)
+      }
+      
+      if (metadata.width && metadata.height && 
+          (metadata.width > 4000 || metadata.height > 4000)) {
+        warnings.push(`Photo ${i + 1} has very large dimensions (${metadata.width}x${metadata.height}). This may cause generation issues.`)
+      }
+
       uploadedPhotos.push({
         filename,
         path: path.relative(process.cwd(), filepath),
         size: file.data.length,
         mimeType: file.type,
+        metadata: {
+          width: metadata.width || 0,
+          height: metadata.height || 0,
+          density: metadata.density,
+        }
       })
 
       console.log(`[API] Uploaded photo ${filename} (${file.data.length} bytes)`)
@@ -135,6 +167,7 @@ export default defineEventHandler(async (event) => {
       success: true,
       photosCount: uploadedPhotos.length,
       photos: uploadedPhotos,
+      warnings: warnings.length > 0 ? warnings : undefined,
     }
   } catch (error: any) {
     console.error('[API] Error uploading photos:', error)
