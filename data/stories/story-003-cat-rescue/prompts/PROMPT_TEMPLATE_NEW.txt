@@ -68,10 +68,18 @@ Study ALL reference photos. Your illustrated figure must be THIS PERSON drawn in
 - Characters are the focal point
 - Simplified background with key elements
 
-**IMPORTANT FOR SPEECH BUBBLES:**
-- Do NOT include any text or speech bubbles in the image
-- Leave open areas in the composition where bubbles can be placed
-- Keep some clear space in corners/edges for dialogue
+**CRITICAL - NO TEXT ELEMENTS:**
+🚫 ABSOLUTELY NO SPEECH BUBBLES - Do NOT draw any circles, ovals, or cloud shapes that look like speech bubbles
+🚫 ABSOLUTELY NO TEXT - Do NOT write any words, letters, numbers, or dialogue in the image
+🚫 ABSOLUTELY NO LETTERING - Do NOT include sound effects like "POW", "BAM", written text
+🚫 NO EMPTY BUBBLE SHAPES - Do NOT draw blank oval or circular shapes anywhere
+
+The illustration should contain ONLY:
+✅ Characters and scenery
+✅ Background elements
+✅ Visual storytelling without any written elements
+
+Leave open areas in corners/edges where bubbles will be added later by software.
 
 ---
 
@@ -149,4 +157,10 @@ Create a single comic panel:
 
 **This person becomes the hero of their own comic adventure. Bold lines. Expressive. Classic comic quality.**
 
-NO TEXT. NO SPEECH BUBBLES. NO LETTERING. Pure illustration only.
+⚠️ FINAL VERIFICATION - CHECK YOUR IMAGE:
+- [ ] Are there ANY white circles or ovals? REMOVE THEM
+- [ ] Are there ANY cloud-like shapes? REMOVE THEM  
+- [ ] Is there ANY text visible? REMOVE IT
+- [ ] Are there ANY empty bubble shapes? REMOVE THEM
+
+ONLY OUTPUT the pure illustration. NO TEXT. NO BUBBLES. NO LETTERING.

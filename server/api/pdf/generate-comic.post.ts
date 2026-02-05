@@ -223,11 +223,28 @@ function buildComposedBubbleConfigs(
       const bubbleConfig = page.speechBubbles[j]
       const textConfig = textPage.speechBubbles[j]
 
-      if (!textConfig?.text) continue
+      // Validate text config exists and has non-empty text
+      if (!textConfig?.text || textConfig.text.trim().length === 0) {
+        console.log(`[ComicPDF] Skipping bubble ${j} on page ${page.pageNumber}: no text or empty text`)
+        continue
+      }
+
+      // Validate bubble config
+      if (!bubbleConfig || !bubbleConfig.position) {
+        console.log(`[ComicPDF] Skipping bubble ${j} on page ${page.pageNumber}: invalid bubble config`)
+        continue
+      }
 
       // Recalculate position within the composed page
       const newX = panel.x + bubbleConfig.position.x * panel.width
       const newY = panel.y + bubbleConfig.position.y * panel.height
+      
+      console.log(`[ComicPDF] Page ${page.pageNumber}, Bubble ${j}:`, {
+        panel: { x: panel.x, y: panel.y, w: panel.width, h: panel.height },
+        originalPos: bubbleConfig.position,
+        newPos: { x: newX, y: newY },
+        text: textConfig.text.substring(0, 30)
+      })
 
       bubbles.push({
         type: bubbleConfig.type || 'speech',

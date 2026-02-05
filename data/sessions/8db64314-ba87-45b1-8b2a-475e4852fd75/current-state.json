@@ -1,0 +1,74 @@
+{
+  "storyId": "story-003-cat-rescue",
+  "sessionId": "8db64314-ba87-45b1-8b2a-475e4852fd75",
+  "selectedVersions": {
+    "1": {
+      "version": 1,
+      "generatedAt": "2026-02-05T14:36:03.632Z",
+      "imagePath": "data/sessions/8db64314-ba87-45b1-8b2a-475e4852fd75/generated/page-01-v1.png"
+    },
+    "2": {
+      "version": 1,
+      "generatedAt": "2026-02-05T14:36:19.397Z",
+      "imagePath": "data/sessions/8db64314-ba87-45b1-8b2a-475e4852fd75/generated/page-02-v1.png"
+    },
+    "3": {
+      "version": 1,
+      "generatedAt": "2026-02-05T14:36:37.637Z",
+      "imagePath": "data/sessions/8db64314-ba87-45b1-8b2a-475e4852fd75/generated/page-03-v1.png"
+    }
+  },
+  "regenerationCount": {
+    "1": 1,
+    "2": 1,
+    "3": 1
+  },
+  "lastUpdated": "2026-02-05T14:36:37.637Z",
+  "characterDescription": {
+    "ageRange": "30-35 years old",
+    "skinTone": "Light olive skin with warm golden undertones and a noticeable amount of freckles concentrated around the nose and cheeks; slightly uneven pigmentation with some redness, especially near the chin.",
+    "eyeColor": "Hazel-green eyes with a prominent darker green limbal ring and subtle amber flecks around the pupil.",
+    "eyeShape": "Almond-shaped eyes with slightly downturned outer corners and moderate eyelid exposure.",
+    "hairColor": "Dark chestnut brown with lighter warm brown highlights and undertones.",
+    "hairTexture": "Slightly wavy with natural volume and a somewhat coarse texture.",
+    "hairStyle": "Long hair past the shoulders, parted slightly off-center to the right with face-framing layers.",
+    "faceShape": "Oval face with soft, full cheeks and a gently rounded jawline.",
+    "nose": "Medium-sized nose with a straight bridge and a slightly rounded tip.",
+    "lips": "Medium-sized lips with a slightly fuller bottom lip and a natural pink hue.",
+    "smile": "Gentle, closed-lip smile with a slight upward turn at the corners of the mouth; teeth are not visible.",
+    "eyebrows": "Medium-thick, dark brown eyebrows with a natural arch and a well-defined shape.",
+    "ears": "Ears are not fully visible, but appear to be medium-sized and positioned close to the head.",
+    "cheeks": "Full cheeks with slight rosiness, especially noticeable when smiling.",
+    "chin": "Rounded soft chin with a smooth contour.",
+    "facialProportions": "Balanced facial proportions with eyes taking up approximately 1/5th of the face vertically, nose approximately 1/3rd of the vertical face length.",
+    "distinctiveFeatures": "Extensive freckles distributed across the face, primarily concentrated on the nose and cheek areas. The subject also shows some acne scarring near the chin. There is a slightly visible line between the eyebrows",
+    "overallImpression": "Appears approachable and friendly, with a natural and slightly worn appearance.",
+    "fullDescription": "The subject is a woman between 30 and 35 years old with light olive skin, warmed by golden undertones and covered in a generous spattering of freckles, which are most dense around the nose and cheeks. Her eyes are hazel-green, rimmed with a darker green limbal ring and subtly flecked with amber closest to the pupils. She has long, slightly wavy dark chestnut brown hair with warm brown highlights, parted a little to the right. She has an oval face with soft, full cheeks, and medium lips in a gentle, closed-lip smile and acne scarring near the chin",
+    "generatedAt": "2026-02-05T14:35:48.945Z"
+  },
+  "styleReferenceImage": "data/sessions/8db64314-ba87-45b1-8b2a-475e4852fd75/generated/page-01-v1.png",
+  "versionHistory": {
+    "1": [
+      {
+        "version": 1,
+        "generatedAt": "2026-02-05T14:36:03.632Z",
+        "imagePath": "data/sessions/8db64314-ba87-45b1-8b2a-475e4852fd75/generated/page-01-v1.png"
+      }
+    ],
+    "2": [
+      {
+        "version": 1,
+        "generatedAt": "2026-02-05T14:36:19.397Z",
+        "imagePath": "data/sessions/8db64314-ba87-45b1-8b2a-475e4852fd75/generated/page-02-v1.png"
+      }
+    ],
+    "3": [
+      {
+        "version": 1,
+        "generatedAt": "2026-02-05T14:36:37.637Z",
+        "imagePath": "data/sessions/8db64314-ba87-45b1-8b2a-475e4852fd75/generated/page-03-v1.png"
+      }
+    ]
+  },
+  "favoriteVersions": {}
+}

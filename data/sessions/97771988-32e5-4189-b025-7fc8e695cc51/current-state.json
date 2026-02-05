@@ -1,0 +1,74 @@
+{
+  "storyId": "story-003-cat-rescue",
+  "sessionId": "97771988-32e5-4189-b025-7fc8e695cc51",
+  "selectedVersions": {
+    "1": {
+      "version": 1,
+      "generatedAt": "2026-02-05T13:17:17.275Z",
+      "imagePath": "data/sessions/97771988-32e5-4189-b025-7fc8e695cc51/generated/page-01-v1.png"
+    },
+    "2": {
+      "version": 1,
+      "generatedAt": "2026-02-05T13:18:15.045Z",
+      "imagePath": "data/sessions/97771988-32e5-4189-b025-7fc8e695cc51/generated/page-02-v1.png"
+    },
+    "3": {
+      "version": 1,
+      "generatedAt": "2026-02-05T13:18:56.815Z",
+      "imagePath": "data/sessions/97771988-32e5-4189-b025-7fc8e695cc51/generated/page-03-v1.png"
+    }
+  },
+  "regenerationCount": {
+    "1": 1,
+    "2": 1,
+    "3": 1
+  },
+  "lastUpdated": "2026-02-05T13:18:56.815Z",
+  "characterDescription": {
+    "ageRange": "35-40 years old",
+    "skinTone": "light-medium olive skin with warm yellow undertones, freckles concentrated on nose bridge and cheeks, some redness around nose and mouth",
+    "eyeColor": "hazel green-brown eyes with darker limbal ring and subtle golden flecks",
+    "eyeShape": "almond-shaped eyes, slightly downturned at outer corners, moderate upper eyelid exposure",
+    "hairColor": "dark brown hair with warm auburn undertones, sun-bleached lighter brown streaks throughout, especially around the face",
+    "hairTexture": "slightly wavy hair with medium thickness",
+    "hairStyle": "long hair parted slightly off-center to the right, falling loosely around shoulders",
+    "faceShape": "oval face with a slightly wider forehead and a gentle jawline, defined cheekbones",
+    "nose": "medium-sized nose with a straight bridge and a rounded tip, nostrils slightly flared",
+    "lips": "medium-sized lips with a slightly fuller upper lip than the lower, natural rosy pink color",
+    "smile": "slight, closed-lip smile, no teeth visible",
+    "eyebrows": "medium-thick dark brown eyebrows, slightly arched shape, well-groomed",
+    "ears": "partially visible ears close to head",
+    "cheeks": "slightly full cheeks, more pronounced freckles, natural rosiness",
+    "chin": "rounded chin, proportionate to face",
+    "facialProportions": "balanced proportions, with eyes, nose and mouth proportionally sized in relation to the oval face shape",
+    "distinctiveFeatures": "Dense freckles across the nose bridge and cheeks. Slight asymmetry around the mouth - left side of lip appears slightly higher. Very subtle nasolabial folds. Minor dark circles under the eyes.",
+    "overallImpression": "Warm, natural appearance with a relaxed and friendly expression. Features give a healthy and slightly sun-kissed impression.",
+    "fullDescription": "The subject is a woman estimated to be between 35 and 40 years old with light-medium olive skin that displays warm yellow undertones and a concentrated pattern of freckles across the nose and cheeks. Her almond-shaped hazel green-brown eyes are slightly downturned at the outer corners and framed by medium-thick dark brown eyebrows with a subtly arched shape. She has dark brown, slightly wavy hair with warm auburn undertones and sun-bleached lighter streaks, worn long and parted slightly off-center. Her face is oval-shaped with defined cheekbones, and a medium-sized nose featuring a straight bridge and rounded tip. She has a gentle, closed-lip smile, with subtle nasolabial folds beginning to show, enhancing her natural warmth.",
+    "generatedAt": "2026-02-05T13:16:17.698Z"
+  },
+  "styleReferenceImage": "data/sessions/97771988-32e5-4189-b025-7fc8e695cc51/generated/page-01-v1.png",
+  "versionHistory": {
+    "1": [
+      {
+        "version": 1,
+        "generatedAt": "2026-02-05T13:17:17.275Z",
+        "imagePath": "data/sessions/97771988-32e5-4189-b025-7fc8e695cc51/generated/page-01-v1.png"
+      }
+    ],
+    "2": [
+      {
+        "version": 1,
+        "generatedAt": "2026-02-05T13:18:15.045Z",
+        "imagePath": "data/sessions/97771988-32e5-4189-b025-7fc8e695cc51/generated/page-02-v1.png"
+      }
+    ],
+    "3": [
+      {
+        "version": 1,
+        "generatedAt": "2026-02-05T13:18:56.815Z",
+        "imagePath": "data/sessions/97771988-32e5-4189-b025-7fc8e695cc51/generated/page-03-v1.png"
+      }
+    ]
+  },
+  "favoriteVersions": {}
+}

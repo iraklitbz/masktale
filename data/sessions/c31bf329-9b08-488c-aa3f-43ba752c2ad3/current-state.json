@@ -1,0 +1,74 @@
+{
+  "storyId": "story-002-dragon-adventure",
+  "sessionId": "c31bf329-9b08-488c-aa3f-43ba752c2ad3",
+  "selectedVersions": {
+    "1": {
+      "version": 1,
+      "generatedAt": "2026-02-05T13:31:57.613Z",
+      "imagePath": "data/sessions/c31bf329-9b08-488c-aa3f-43ba752c2ad3/generated/page-01-v1.png"
+    },
+    "2": {
+      "version": 1,
+      "generatedAt": "2026-02-05T13:32:14.132Z",
+      "imagePath": "data/sessions/c31bf329-9b08-488c-aa3f-43ba752c2ad3/generated/page-02-v1.png"
+    },
+    "3": {
+      "version": 1,
+      "generatedAt": "2026-02-05T13:32:31.243Z",
+      "imagePath": "data/sessions/c31bf329-9b08-488c-aa3f-43ba752c2ad3/generated/page-03-v1.png"
+    }
+  },
+  "regenerationCount": {
+    "1": 1,
+    "2": 1,
+    "3": 1
+  },
+  "lastUpdated": "2026-02-05T13:32:31.243Z",
+  "characterDescription": {
+    "ageRange": "30-35 years old",
+    "skinTone": "Light beige skin tone with warm undertones and heavy freckling, concentrated on cheeks, nose bridge and forehead. Noticeable uneven pigmentation and some redness around the lower cheeks and chin.",
+    "eyeColor": "Hazel green-brown eyes with a darker limbal ring and subtle gold flecks near the pupil. Overall slightly muted color.",
+    "eyeShape": "Almond-shaped eyes, slightly downturned at the outer corners. The inner corners are slightly hooded. Eyelashes are moderate in length.",
+    "hairColor": "Dark chestnut brown with subtle warm auburn undertones in the light, especially visible in the ends of the hair. Darker roots are visible.",
+    "hairTexture": "Slightly wavy hair with a smooth texture. Hair is not overly thick or voluminous. Hair is fine-to-medium in strand thickness.",
+    "hairStyle": "Long, loose hair parted in the center. The hair falls past the shoulders, slightly framing the face. There are no distinct layers or styling.",
+    "faceShape": "Oval face shape with slightly prominent cheekbones and a rounded jawline. The forehead is medium height and width.",
+    "nose": "Medium-sized nose with a slightly rounded tip and a straight bridge. The nostrils are moderately flared. Takes up roughly 1/4 of the face length.",
+    "lips": "Medium-sized lips with a slightly fuller bottom lip. The lip color is a natural pink shade. The upper lip has a more defined Cupid's bow.",
+    "smile": "Subtle, closed-lip smile with a slight lift in the cheeks. Teeth are not visible.",
+    "eyebrows": "Medium-thick eyebrows, slightly arched and dark brown, matching the hair color. The eyebrows are well-defined but not overly groomed.",
+    "ears": "Ears are not fully visible but appear to be medium-sized and positioned close to the head.",
+    "cheeks": "Full cheeks with a natural rosiness enhanced by freckles. No dimples are visible, even with the slight smile.",
+    "chin": "Rounded, soft chin that is well-proportioned to the rest of the face.",
+    "facialProportions": "Balanced facial proportions with eyes and nose being medium in size relative to the face. The forehead, mid-face and lower-face all have similar lengths.",
+    "distinctiveFeatures": "Dense freckling concentrated on the cheeks, nose bridge, and forehead. Uneven skin pigmentation and slight redness on lower cheeks and chin. Hair has subtle auburn undertones. Subtle dark circles under the eyes.",
+    "overallImpression": "Mature appearance with a natural, effortless beauty. The freckled skin and hazel eyes create a warm and inviting look. The expression is calm and serene.",
+    "fullDescription": "This woman is in her early thirties, characterized by light beige skin with warm undertones heavily freckled across her cheeks, nose, and forehead. Her hazel green-brown eyes, almond-shaped and slightly downturned, feature a darker limbal ring and golden flecks, framed by medium-thick, slightly arched dark brown eyebrows matching her dark chestnut hair with subtle auburn undertones. Her hair is parted in the center and hangs loosely past her shoulders, framing her oval face with slightly prominent cheekbones and a rounded jawline. A medium-sized nose with a rounded tip and a subtle, closed-lip smile complete the balanced facial proportions, with freckles and uneven pigmentation adding to her natural, yet mature appearance.",
+    "generatedAt": "2026-02-05T13:31:40.512Z"
+  },
+  "styleReferenceImage": "data/sessions/c31bf329-9b08-488c-aa3f-43ba752c2ad3/generated/page-01-v1.png",
+  "versionHistory": {
+    "1": [
+      {
+        "version": 1,
+        "generatedAt": "2026-02-05T13:31:57.613Z",
+        "imagePath": "data/sessions/c31bf329-9b08-488c-aa3f-43ba752c2ad3/generated/page-01-v1.png"
+      }
+    ],
+    "2": [
+      {
+        "version": 1,
+        "generatedAt": "2026-02-05T13:32:14.132Z",
+        "imagePath": "data/sessions/c31bf329-9b08-488c-aa3f-43ba752c2ad3/generated/page-02-v1.png"
+      }
+    ],
+    "3": [
+      {
+        "version": 1,
+        "generatedAt": "2026-02-05T13:32:31.243Z",
+        "imagePath": "data/sessions/c31bf329-9b08-488c-aa3f-43ba752c2ad3/generated/page-03-v1.png"
+      }
+    ]
+  },
+  "favoriteVersions": {}
+}

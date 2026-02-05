@@ -98,11 +98,26 @@ export async function optimizeImage(
     format = 'jpeg'
   } = options
 
+  // First check original metadata
+  const originalMetadata = await sharp(imageBuffer).metadata()
+  console.log(`[ImageProcessor] Original image: ${originalMetadata.width}x${originalMetadata.height}, orientation: ${originalMetadata.orientation || 'none'}, format: ${originalMetadata.format}`)
+
   let pipeline = sharp(imageBuffer)
+  
+  // Auto-rotate based on EXIF orientation and strip metadata
+  // This fixes issues with images that have orientation metadata
+  pipeline = pipeline.rotate()
+  
+  // Get metadata after rotation
+  const rotatedBuffer = await pipeline.toBuffer()
+  const rotatedMetadata = await sharp(rotatedBuffer).metadata()
+  console.log(`[ImageProcessor] After rotation: ${rotatedMetadata.width}x${rotatedMetadata.height}`)
+
+  // Re-create pipeline from rotated buffer
+  pipeline = sharp(rotatedBuffer)
 
   // Resize if needed
-  const metadata = await pipeline.metadata()
-  if (metadata.width! > maxWidth || metadata.height! > maxHeight) {
+  if (rotatedMetadata.width! > maxWidth || rotatedMetadata.height! > maxHeight) {
     pipeline = pipeline.resize(maxWidth, maxHeight, {
       fit: 'inside',
       withoutEnlargement: true
@@ -112,7 +127,7 @@ export async function optimizeImage(
   // Convert to desired format with quality
   switch (format) {
     case 'jpeg':
-      pipeline = pipeline.jpeg({ quality })
+      pipeline = pipeline.jpeg({ quality, mozjpeg: true })
       break
     case 'png':
       pipeline = pipeline.png({ quality })
@@ -121,8 +136,20 @@ export async function optimizeImage(
       pipeline = pipeline.webp({ quality })
       break
   }
+  
+  // Strip all metadata to avoid any EXIF issues
+  pipeline = pipeline.withMetadata({ 
+    exif: {}, 
+    icc: undefined, 
+    iptc: undefined, 
+    xmp: undefined
+  })
 
-  return pipeline.toBuffer()
+  const result = await pipeline.toBuffer()
+  const finalMetadata = await sharp(result).metadata()
+  console.log(`[ImageProcessor] Final image: ${finalMetadata.width}x${finalMetadata.height}, size: ${result.length} bytes`)
+  
+  return result
 }
 
 /**
