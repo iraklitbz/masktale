@@ -27,7 +27,8 @@
       "Bash(npm install:*)",
       "Bash(pnpm run build:*)",
       "Bash(npx tsc:*)",
-      "Bash(npx nuxi typecheck:*)"
+      "Bash(npx nuxi typecheck:*)",
+      "Bash(pnpm build:*)"
     ]
   }
 }

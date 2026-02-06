@@ -42,9 +42,13 @@ export default defineNuxtConfig({
     customComponent: 'Icon',
   },
   nitro: {
-    externals: {
-      inline: ['puppeteer']
-    }
+    // Incluir carpeta data/stories en el build para Vercel
+    serverAssets: [
+      {
+        baseName: 'stories',
+        dir: './data/stories'
+      }
+    ]
   },
   runtimeConfig: {
     geminiApiKey: '',

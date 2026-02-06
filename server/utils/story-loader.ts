@@ -1,6 +1,6 @@
 /**
  * Story Loader Utilities
- * Loads story configurations from the filesystem
+ * Loads story configurations from the filesystem or Nitro assets
  */
 
 import fs from 'node:fs/promises'
@@ -10,21 +10,45 @@ import type { StoryConfig, StoryListItem, StoryPage, StoryTexts } from '~/app/ty
 const STORIES_DIR = path.join(process.cwd(), 'data', 'stories')
 
 /**
+ * Check if running in production (serverless)
+ */
+function isProduction(): boolean {
+  return process.env.NODE_ENV === 'production' || !!process.env.VERCEL
+}
+
+/**
+ * Get storage for stories (uses Nitro assets in production)
+ */
+function getStoriesStorage() {
+  return useStorage('assets:stories')
+}
+
+/**
  * Get all available stories (simplified list)
  *
  * @returns Array of story list items
  */
 export async function getAllStories(): Promise<StoryListItem[]> {
   try {
-    const entries = await fs.readdir(STORIES_DIR, { withFileTypes: true })
     const stories: StoryListItem[] = []
 
-    for (const entry of entries) {
-      if (entry.isDirectory()) {
-        try {
-          const config = await loadStoryConfig(entry.name)
+    if (isProduction()) {
+      // Production: use Nitro storage
+      const storage = getStoriesStorage()
+      const keys = await storage.getKeys()
 
-          // Convert to simplified list item
+      // Get unique story IDs from keys like "story-001-first-day-school:config.json"
+      const storyIds = new Set<string>()
+      for (const key of keys) {
+        const parts = key.split(':')
+        if (parts.length >= 1) {
+          storyIds.add(parts[0])
+        }
+      }
+
+      for (const storyId of storyIds) {
+        try {
+          const config = await loadStoryConfig(storyId)
           stories.push({
             id: config.id,
             title: config.title,
@@ -35,7 +59,29 @@ export async function getAllStories(): Promise<StoryListItem[]> {
             pageCount: config.pages.length,
           })
         } catch (error) {
-          console.warn(`[StoryLoader] Failed to load story ${entry.name}:`, error)
+          console.warn(`[StoryLoader] Failed to load story ${storyId}:`, error)
+        }
+      }
+    } else {
+      // Development: use filesystem
+      const entries = await fs.readdir(STORIES_DIR, { withFileTypes: true })
+
+      for (const entry of entries) {
+        if (entry.isDirectory()) {
+          try {
+            const config = await loadStoryConfig(entry.name)
+            stories.push({
+              id: config.id,
+              title: config.title,
+              description: config.description,
+              thumbnail: config.thumbnail,
+              theme: config.metadata.theme,
+              ageRange: config.metadata.ageRange,
+              pageCount: config.pages.length,
+            })
+          } catch (error) {
+            console.warn(`[StoryLoader] Failed to load story ${entry.name}:`, error)
+          }
         }
       }
     }
@@ -56,10 +102,28 @@ export async function getAllStories(): Promise<StoryListItem[]> {
  */
 export async function loadStoryConfig(storyId: string): Promise<StoryConfig> {
   try {
-    const configPath = path.join(STORIES_DIR, storyId, 'config.json')
-    const data = await fs.readFile(configPath, 'utf-8')
-    const config: StoryConfig = JSON.parse(data)
+    let data: string
 
+    if (isProduction()) {
+      // Production: use Nitro storage
+      const storage = getStoriesStorage()
+      const content = await storage.getItem(`${storyId}:config.json`)
+      if (!content) {
+        throw new Error(`Story ${storyId} not found`)
+      }
+      // Content might be already parsed or a string
+      if (typeof content === 'object') {
+        console.log(`[StoryLoader] Loaded story config: ${storyId}`)
+        return content as StoryConfig
+      }
+      data = content as string
+    } else {
+      // Development: use filesystem
+      const configPath = path.join(STORIES_DIR, storyId, 'config.json')
+      data = await fs.readFile(configPath, 'utf-8')
+    }
+
+    const config: StoryConfig = JSON.parse(data)
     console.log(`[StoryLoader] Loaded story config: ${storyId}`)
     return config
   } catch (error: any) {
@@ -115,22 +179,42 @@ export async function getPageConfig(
  */
 export async function getNewPromptTemplate(storyId: string): Promise<string> {
   try {
-    const templatePath = path.join(STORIES_DIR, storyId, 'prompts', 'PROMPT_TEMPLATE_NEW.txt')
+    if (isProduction()) {
+      // Production: use Nitro storage
+      const storage = getStoriesStorage()
 
-    // Try new template first
-    try {
-      const templateText = await fs.readFile(templatePath, 'utf-8')
-      console.log('[StoryLoader] Using NEW generation template (complete image generation)')
-      return templateText.trim()
-    } catch (error: any) {
-      if (error.code === 'ENOENT') {
-        // Fallback to old template if new one doesn't exist
-        console.warn('[StoryLoader] New template not found, falling back to old template')
-        const oldTemplatePath = path.join(STORIES_DIR, storyId, 'prompts', 'PROMPT_TEMPLATE.txt')
-        const templateText = await fs.readFile(oldTemplatePath, 'utf-8')
-        return templateText.trim()
+      // Try new template first
+      let content = await storage.getItem(`${storyId}:prompts:PROMPT_TEMPLATE_NEW.txt`)
+      if (content) {
+        console.log('[StoryLoader] Using NEW generation template (complete image generation)')
+        return String(content).trim()
       }
-      throw error
+
+      // Fallback to old template
+      content = await storage.getItem(`${storyId}:prompts:PROMPT_TEMPLATE.txt`)
+      if (content) {
+        console.warn('[StoryLoader] New template not found, falling back to old template')
+        return String(content).trim()
+      }
+
+      throw new Error(`Prompt template not found for ${storyId}`)
+    } else {
+      // Development: use filesystem
+      const templatePath = path.join(STORIES_DIR, storyId, 'prompts', 'PROMPT_TEMPLATE_NEW.txt')
+
+      try {
+        const templateText = await fs.readFile(templatePath, 'utf-8')
+        console.log('[StoryLoader] Using NEW generation template (complete image generation)')
+        return templateText.trim()
+      } catch (error: any) {
+        if (error.code === 'ENOENT') {
+          console.warn('[StoryLoader] New template not found, falling back to old template')
+          const oldTemplatePath = path.join(STORIES_DIR, storyId, 'prompts', 'PROMPT_TEMPLATE.txt')
+          const templateText = await fs.readFile(oldTemplatePath, 'utf-8')
+          return templateText.trim()
+        }
+        throw error
+      }
     }
   } catch (error) {
     console.error('[StoryLoader] Error reading prompt template:', error)
@@ -155,10 +239,22 @@ export async function getPagePrompt(
       throw new Error(`Page ${pageNumber} not found in story ${storyId}`)
     }
 
-    const promptPath = path.join(STORIES_DIR, storyId, page.promptPath)
-    const promptText = await fs.readFile(promptPath, 'utf-8')
-
-    return promptText.trim()
+    if (isProduction()) {
+      // Production: use Nitro storage
+      const storage = getStoriesStorage()
+      // promptPath is like "prompts/page-01.txt", convert to storage key
+      const storageKey = `${storyId}:${page.promptPath.replace(/\//g, ':')}`
+      const content = await storage.getItem(storageKey)
+      if (!content) {
+        throw new Error(`Prompt not found for page ${pageNumber}`)
+      }
+      return String(content).trim()
+    } else {
+      // Development: use filesystem
+      const promptPath = path.join(STORIES_DIR, storyId, page.promptPath)
+      const promptText = await fs.readFile(promptPath, 'utf-8')
+      return promptText.trim()
+    }
   } catch (error) {
     console.error(`[StoryLoader] Error reading prompt for page ${pageNumber}:`, error)
     throw error
@@ -232,10 +328,27 @@ export async function loadStoryTexts(
   locale: string = 'es'
 ): Promise<StoryTexts> {
   try {
-    const textsPath = path.join(STORIES_DIR, storyId, 'texts', `${locale}.json`)
-    const data = await fs.readFile(textsPath, 'utf-8')
-    const texts: StoryTexts = JSON.parse(data)
+    let data: string
 
+    if (isProduction()) {
+      // Production: use Nitro storage
+      const storage = getStoriesStorage()
+      const content = await storage.getItem(`${storyId}:texts:${locale}.json`)
+      if (!content) {
+        throw new Error(`Story texts not found for ${storyId} in locale ${locale}`)
+      }
+      if (typeof content === 'object') {
+        console.log(`[StoryLoader] Loaded story texts: ${storyId} (${locale})`)
+        return content as StoryTexts
+      }
+      data = content as string
+    } else {
+      // Development: use filesystem
+      const textsPath = path.join(STORIES_DIR, storyId, 'texts', `${locale}.json`)
+      data = await fs.readFile(textsPath, 'utf-8')
+    }
+
+    const texts: StoryTexts = JSON.parse(data)
     console.log(`[StoryLoader] Loaded story texts: ${storyId} (${locale})`)
     return texts
   } catch (error: any) {
