@@ -5,7 +5,7 @@
  * Changes the currently selected version of a page
  */
 
-import { getSession, getCurrentState, saveCurrentState } from '../../../utils/session-manager'
+import { getSession, selectVersion, getVersionCount } from '../../../utils/session-manager'
 
 interface SelectVersionRequest {
   pageNumber: number
@@ -50,43 +50,22 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Get current state
-    const currentState = await getCurrentState(sessionId)
-    if (!currentState) {
-      throw createError({
-        statusCode: 404,
-        statusMessage: 'Current state not found',
-      })
-    }
-
-    // Find the requested version in history
-    const versionHistory = currentState.versionHistory?.[pageNumber]
-    if (!versionHistory) {
-      throw createError({
-        statusCode: 404,
-        statusMessage: `No version history found for page ${pageNumber}`,
-      })
-    }
-
-    const requestedVersion = versionHistory.find(v => v.version === version)
-    if (!requestedVersion) {
+    // Verify version exists
+    const versionCount = await getVersionCount(sessionId, pageNumber)
+    if (version > versionCount) {
       throw createError({
         statusCode: 404,
         statusMessage: `Version ${version} not found for page ${pageNumber}`,
       })
     }
 
-    // Update selected version
-    currentState.selectedVersions[pageNumber] = requestedVersion
-    currentState.lastUpdated = new Date().toISOString()
-
-    await saveCurrentState(sessionId, currentState)
+    // Update selected version in Strapi
+    await selectVersion(sessionId, pageNumber, version)
 
     return {
       success: true,
       pageNumber,
       version,
-      selectedVersion: requestedVersion,
     }
   } catch (error: any) {
     console.error('[SelectVersion] Error:', error)

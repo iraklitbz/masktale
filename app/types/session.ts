@@ -5,7 +5,7 @@
 
 export type SessionStatus =
   | 'created' // Session initialized
-  | 'photo-uploaded' // User photo received
+  | 'photo_uploaded' // User photo received
   | 'generating' // AI generation in progress
   | 'completed' // All pages generated
   | 'expired' // Session timeout
@@ -18,10 +18,7 @@ export interface PhotoMetadata {
 }
 
 export interface UserPhoto {
-  originalPath: string
-  processedPath?: string
-  uploadedAt: string
-  metadata: PhotoMetadata
+  originalPath?: string
   childName?: string // Name of the child protagonist for text interpolation
 }
 
@@ -100,40 +97,21 @@ export interface CharacterDescription {
 }
 
 /**
+ * Selected version info (simplified for Strapi)
+ */
+export interface SelectedVersion {
+  version: number
+  imagePath: string
+}
+
+/**
  * Current state of the story generation
  * Tracks which version of each page is selected
+ * Simplified for Strapi storage
  */
 export interface CurrentState {
-  storyId: string
-  sessionId: string
-  selectedVersions: {
-    [pageNumber: string]: PageVersion
-  }
-  regenerationCount: {
-    [pageNumber: string]: number
-  }
-  // NUEVO: Historial completo de todas las versiones
-  versionHistory?: {
-    [pageNumber: string]: PageVersion[]
-  }
-  // NUEVO: Versiones marcadas como favoritas
-  favoriteVersions?: {
-    [pageNumber: string]: number // version number
-  }
-  // NEW: AI-generated character description for consistency
-  characterDescription?: CharacterDescription
-  // NEW: Path to style reference image (first successful generation)
-  styleReferenceImage?: string
-  // NEW: Custom bubble positions from user editor
-  customBubblePositions?: {
-    [pageNumber: string]: {
-      bubbles: Array<{
-        position: { x: number; y: number }
-        appliedAt: string
-      }>
-      updatedAt: string
-    }
-  }
+  selectedVersions: Record<number, SelectedVersion>
+  favoriteVersions?: Record<number, number>
   lastUpdated: string
 }
 

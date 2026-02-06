@@ -5,14 +5,12 @@
  * Returns the generated image and current bubble positions for editing
  */
 
-import fs from 'node:fs/promises'
-import path from 'node:path'
 import {
   getSession,
   getCurrentState,
-  getGeneratedImagePath,
+  getGeneratedImageBuffer,
 } from '../../../../utils/session-manager'
-import { loadStoryConfig } from '../../../../utils/story-loader'
+import { loadStoryConfig, loadStoryTexts } from '../../../../utils/story-loader'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -56,20 +54,8 @@ export default defineEventHandler(async (event) => {
     }
 
     // Load texts for the locale
-    const textsPath = path.join(
-      process.cwd(),
-      'data',
-      'stories',
-      session.storyId,
-      'texts',
-      `${locale}.json`
-    )
-
-    let texts: any
-    try {
-      const textsContent = await fs.readFile(textsPath, 'utf-8')
-      texts = JSON.parse(textsContent)
-    } catch {
+    const texts = await loadStoryTexts(session.storyId, locale)
+    if (!texts) {
       throw createError({
         statusCode: 404,
         statusMessage: `Texts not found for locale: ${locale}`,
@@ -105,15 +91,11 @@ export default defineEventHandler(async (event) => {
 
     // Get the generated image
     const version = selectedVersion.version || 1
-    const imagePath = getGeneratedImagePath(sessionId, pageNumber, version)
-
-    let imageBuffer: Buffer
-    try {
-      imageBuffer = await fs.readFile(imagePath)
-    } catch {
+    const imageBuffer = await getGeneratedImageBuffer(sessionId, pageNumber, version)
+    if (!imageBuffer) {
       throw createError({
         statusCode: 404,
-        statusMessage: `Generated image not found for page ${pageNumber}`,
+        statusMessage: 'Image not found',
       })
     }
 

@@ -5,7 +5,7 @@
  * Marks a specific version of a page as favorite
  */
 
-import { getSession, getCurrentState, saveCurrentState } from '../../../utils/session-manager'
+import { getSession, setFavorite, getVersionCount } from '../../../utils/session-manager'
 
 interface SetFavoriteRequest {
   pageNumber: number
@@ -43,38 +43,19 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Get current state
-    const currentState = await getCurrentState(sessionId)
-    if (!currentState) {
-      throw createError({
-        statusCode: 404,
-        statusMessage: 'Current state not found',
-      })
-    }
-
-    // Initialize favoriteVersions if needed
-    if (!currentState.favoriteVersions) {
-      currentState.favoriteVersions = {}
-    }
-
-    // Set or unset favorite
-    if (version === null) {
-      delete currentState.favoriteVersions[pageNumber]
-    } else {
+    if (version !== null) {
       // Verify version exists
-      const versionHistory = currentState.versionHistory?.[pageNumber]
-      if (!versionHistory || !versionHistory.find(v => v.version === version)) {
+      const versionCount = await getVersionCount(sessionId, pageNumber)
+      if (version > versionCount) {
         throw createError({
           statusCode: 404,
           statusMessage: `Version ${version} not found for page ${pageNumber}`,
         })
       }
 
-      currentState.favoriteVersions[pageNumber] = version
+      // Set favorite in Strapi
+      await setFavorite(sessionId, pageNumber, version)
     }
-
-    currentState.lastUpdated = new Date().toISOString()
-    await saveCurrentState(sessionId, currentState)
 
     return {
       success: true,

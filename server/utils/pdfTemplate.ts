@@ -1,7 +1,7 @@
 import { readFileSync } from 'fs'
 import { join } from 'path'
-import type { StoryTexts, StoryTypography } from '~/app/types/story'
-import type { Session, CurrentState } from '~/app/types/session'
+import type { StoryTexts, StoryTypography } from '~/types/story'
+import type { Session, CurrentState } from '~/types/session'
 
 export interface PdfTemplateData {
   session: Session

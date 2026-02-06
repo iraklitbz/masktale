@@ -1,0 +1,47 @@
+{
+  "kind": "collectionType",
+  "collectionName": "generated_images",
+  "info": {
+    "singularName": "generated-image",
+    "pluralName": "generated-images",
+    "displayName": "Generated Image",
+    "description": "Imágenes generadas para las sesiones"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "pageNumber": {
+      "type": "integer",
+      "required": true,
+      "min": 1
+    },
+    "version": {
+      "type": "integer",
+      "required": true,
+      "default": 1,
+      "min": 1
+    },
+    "image": {
+      "type": "media",
+      "multiple": false,
+      "required": true,
+      "allowedTypes": ["images"]
+    },
+    "isSelected": {
+      "type": "boolean",
+      "default": false
+    },
+    "isFavorite": {
+      "type": "boolean",
+      "default": false
+    },
+    "session": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::session.session",
+      "inversedBy": "generatedImages"
+    }
+  }
+}

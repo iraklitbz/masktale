@@ -3,7 +3,7 @@
  * Handles session state and localStorage persistence
  */
 
-import type { Session, CurrentState, CreateSessionResponse } from '~/app/types/session'
+import type { Session, CurrentState, CreateSessionResponse } from '~/types/session'
 
 const STORAGE_KEY = 'mask-session-id'
 
@@ -139,6 +139,14 @@ export function useSession() {
       console.log('[useSession] Deleted session:', targetId)
       return true
     } catch (e: any) {
+      // If session not found (404), it might be an old session from filesystem
+      // In that case, we still want to clear local storage
+      if (e.statusCode === 404) {
+        console.warn('[useSession] Session not found on server, clearing local state only:', targetId)
+        clearSession()
+        return true
+      }
+      
       error.value = e.data?.statusMessage || e.message || 'Failed to delete session'
       console.error('[useSession] Error deleting session:', error.value)
       return false

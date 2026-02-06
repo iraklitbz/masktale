@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { StoryListItem } from '~/app/types/story'
+import type { StoryListItem } from '~/types/story'
 
 const props = defineProps<{
   story: StoryListItem

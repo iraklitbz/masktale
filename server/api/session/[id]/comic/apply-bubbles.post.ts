@@ -5,14 +5,12 @@
  * Applies speech bubbles to generated comic images
  */
 
-import fs from 'node:fs/promises'
-import path from 'node:path'
 import {
   getSession,
   getCurrentState,
-  getGeneratedImagePath,
+  getGeneratedImageBuffer,
 } from '../../../../utils/session-manager'
-import { loadStoryConfig } from '../../../../utils/story-loader'
+import { loadStoryConfig, loadStoryTexts } from '../../../../utils/story-loader'
 import { addSpeechBubblesToImage, type SpeechBubbleConfig, type FacePosition } from '../../../../utils/speech-bubble-processor'
 
 interface ApplyBubblesRequest {
@@ -55,20 +53,8 @@ export default defineEventHandler(async (event) => {
     }
 
     // Load texts for the locale
-    const textsPath = path.join(
-      process.cwd(),
-      'data',
-      'stories',
-      session.storyId,
-      'texts',
-      `${locale}.json`
-    )
-
-    let texts: any
-    try {
-      const textsContent = await fs.readFile(textsPath, 'utf-8')
-      texts = JSON.parse(textsContent)
-    } catch {
+    const texts = await loadStoryTexts(session.storyId, locale)
+    if (!texts) {
       throw createError({
         statusCode: 404,
         statusMessage: `Texts not found for locale: ${locale}`,
@@ -147,16 +133,11 @@ export default defineEventHandler(async (event) => {
         continue
       }
 
-      // Get the generated image path
+      // Get the generated image
       const version = selectedVersion.version || 1
-      const imagePath = getGeneratedImagePath(sessionId, page.pageNumber, version)
-
-      // Read the image
-      let imageBuffer: Buffer
-      try {
-        imageBuffer = await fs.readFile(imagePath)
-      } catch {
-        console.error(`[Comic] Could not read image: ${imagePath}`)
+      const imageBuffer = await getGeneratedImageBuffer(sessionId, page.pageNumber, version)
+      if (!imageBuffer) {
+        console.error(`[Comic] Could not read image for page ${page.pageNumber}`)
         continue
       }
 
@@ -177,18 +158,12 @@ export default defineEventHandler(async (event) => {
         facePosition
       )
 
-      // Save to a new file (with-bubbles suffix)
-      const outputDir = path.dirname(imagePath)
-      const outputFilename = `page-${String(page.pageNumber).padStart(2, '0')}-v${version}-comic.png`
-      const outputPath = path.join(outputDir, outputFilename)
-
-      await fs.writeFile(outputPath, processedBuffer)
-      console.log(`[Comic] Saved comic page to: ${outputPath}`)
+      // Return the processed image as base64
+      const imageBase64 = `data:image/png;base64,${processedBuffer.toString('base64')}`
 
       results.push({
         pageNumber: page.pageNumber,
-        originalPath: imagePath,
-        comicPath: outputPath,
+        image: imageBase64,
         bubblesApplied: bubbleConfigs.length,
       })
     }

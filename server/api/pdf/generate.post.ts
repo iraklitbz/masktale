@@ -1,5 +1,4 @@
-import fs from 'node:fs/promises'
-import { getSession, getCurrentState, getGeneratedImagePath } from '../../utils/session-manager'
+import { getSession, getCurrentState, getGeneratedImageBuffer } from '../../utils/session-manager'
 import { loadStoryConfig, loadStoryTexts } from '../../utils/story-loader'
 import { renderPdfTemplate } from '../../utils/pdfTemplate'
 import { generatePdfFromHtml } from '../../utils/puppeteer'
@@ -51,16 +50,15 @@ export default defineEventHandler(async (event) => {
         version = currentState.favoriteVersions[pageNum]
       }
 
-      const imagePath = getGeneratedImagePath(sessionId, pageNum, version)
+      const imageBuffer = await getGeneratedImageBuffer(sessionId, pageNum, version)
 
-      try {
-        const imageBuffer = await fs.readFile(imagePath)
+      if (imageBuffer) {
         const base64 = imageBuffer.toString('base64')
         const mimeType = 'image/png'
         images.set(pageNum, `data:${mimeType};base64,${base64}`)
         console.log(`[PDF] Loaded image for page ${pageNum}, version ${version}`)
-      } catch (error) {
-        console.warn(`[PDF] Could not load image for page ${pageNum}:`, error)
+      } else {
+        console.warn(`[PDF] Could not load image for page ${pageNum}`)
       }
     }
 

@@ -4,7 +4,7 @@
  */
 
 import { GoogleGenAI } from '@google/genai'
-import type { AspectRatio } from '~/app/types/story'
+import type { AspectRatio } from '~/types/story'
 
 /**
  * Get configured Gemini client instance

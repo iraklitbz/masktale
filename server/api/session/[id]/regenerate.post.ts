@@ -5,7 +5,7 @@
  * Regenerates a specific page (wrapper around generate endpoint)
  */
 
-import { getSession, getCurrentState } from '../../../utils/session-manager'
+import { getSession, getVersionCount } from '../../../utils/session-manager'
 import { loadStoryConfig } from '../../../utils/story-loader'
 
 interface RegeneratePageRequest {
@@ -43,17 +43,9 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Get current state
-    const currentState = await getCurrentState(sessionId)
-    if (!currentState) {
-      throw createError({
-        statusCode: 400,
-        statusMessage: 'No pages generated yet. Cannot regenerate.',
-      })
-    }
-
-    // Check if page exists in current state
-    if (!currentState.selectedVersions[pageNumber]) {
+    // Get current version count for this page from Strapi
+    const versionCount = await getVersionCount(sessionId, pageNumber)
+    if (versionCount === 0) {
       throw createError({
         statusCode: 400,
         statusMessage: `Page ${pageNumber} has not been generated yet`,
@@ -62,19 +54,17 @@ export default defineEventHandler(async (event) => {
 
     // Load story config to check max regenerations
     const storyConfig = await loadStoryConfig(session.storyId)
-    const regenCount = currentState.regenerationCount[pageNumber] || 0
 
-    if (regenCount >= storyConfig.settings.maxRegenerations) {
+    if (versionCount >= storyConfig.settings.maxRegenerations) {
       throw createError({
         statusCode: 400,
         statusMessage: `Maximum regenerations (${storyConfig.settings.maxRegenerations}) reached for page ${pageNumber}`,
       })
     }
 
-    console.log(`[Regenerate] Page ${pageNumber} - Attempt ${regenCount + 1}/${storyConfig.settings.maxRegenerations}`)
+    console.log(`[Regenerate] Page ${pageNumber} - Attempt ${versionCount + 1}/${storyConfig.settings.maxRegenerations}`)
 
     // Call the existing generate endpoint with regenerate flag
-    // We'll use $fetch to call our own API internally
     const result = await $fetch(`/api/session/${sessionId}/generate`, {
       method: 'POST',
       body: {
@@ -86,8 +76,8 @@ export default defineEventHandler(async (event) => {
     return {
       success: true,
       pageNumber,
-      newVersion: regenCount + 1,
-      remaining: storyConfig.settings.maxRegenerations - (regenCount + 1),
+      newVersion: versionCount + 1,
+      remaining: storyConfig.settings.maxRegenerations - (versionCount + 1),
       result,
     }
   } catch (error: any) {

@@ -180,7 +180,7 @@ export async function generatePdfWithPDFKit(
 ): Promise<Buffer> {
   const PDFDocument = (await import('pdfkit')).default
   const { loadStoryConfig } = await import('./story-loader')
-  const { getGeneratedImagePath } = await import('./session-manager')
+  const { getGeneratedImageBuffer } = await import('./session-manager')
 
   try {
     console.log(`[generatePdfWithPDFKit] Iniciando generación de PDF para sesión ${sessionId}`)
@@ -245,8 +245,11 @@ export async function generatePdfWithPDFKit(
 
       // Cargar y agregar imagen
       try {
-        const imagePath = getGeneratedImagePath(sessionId, pageNumber, versionToUse)
-        const imageBuffer = await fs.readFile(imagePath)
+        const imageBuffer = await getGeneratedImageBuffer(sessionId, pageNumber, versionToUse)
+        if (!imageBuffer) {
+          console.warn(`[generatePdfWithPDFKit] No se pudo cargar imagen para página ${pageNumber}`)
+          continue
+        }
 
         // Calcular dimensiones manteniendo aspect ratio
         const maxWidth = pageWidth - (margin * 2)

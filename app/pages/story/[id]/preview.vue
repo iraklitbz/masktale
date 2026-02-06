@@ -16,12 +16,6 @@ const sessionId = computed(() => route.params.id as string)
 // Toast notifications
 const toast = useToast()
 
-// PDF generator (for book format)
-const { generatePdf } = usePdfGenerator()
-
-// Comic generator (for comic format)
-const { downloadPdf: downloadComicPdf } = useComicGenerator()
-
 // Cart
 const { addItem, hasItem } = useCart()
 const isInCart = computed(() => hasItem(sessionId.value))
@@ -46,9 +40,6 @@ const {
 // Regeneration state
 const isRegenerating = ref(false)
 const regeneratingPage = ref<number | null>(null)
-
-// PDF generation state
-const isGeneratingPdf = ref(false)
 
 // Confirmation dialog state
 const showConfirmDialog = ref(false)
@@ -250,55 +241,6 @@ const handleAddToCart = async () => {
   } catch (error: any) {
     console.error('[Preview] Add to cart error:', error)
     toast.error('Error', error.message || 'No se pudo añadir al carrito')
-  }
-}
-
-// Handle direct download PDF (works for both book and comic formats)
-const handleDownloadPdf = async () => {
-  if (!session.value || !currentState.value) {
-    toast.error('Error', 'No se pudo cargar la información del cuento')
-    return
-  }
-
-  // Load story config if not loaded
-  if (!storyConfig.value) {
-    await loadStoryTexts()
-  }
-
-  try {
-    isGeneratingPdf.value = true
-
-    // Use different generator based on format
-    if (isComicFormat.value) {
-      const result = await downloadComicPdf({
-        sessionId: sessionId.value,
-        session: session.value,
-        layout: 'classic-2-1',
-        locale: 'es',
-        includeBubbles: true,
-      })
-
-      if (!result.success) {
-        toast.error('Error al generar PDF', result.error || 'No se pudo generar el PDF del comic')
-      }
-    } else {
-      const result = await generatePdf({
-        sessionId: sessionId.value,
-        session: session.value,
-        currentState: currentState.value,
-        useFavorites: true,
-      })
-
-      if (!result.success) {
-        toast.error('Error al generar PDF', result.error || 'No se pudo generar el PDF')
-      }
-    }
-    // Success toast is shown by the composable
-  } catch (error: any) {
-    console.error('[Preview] PDF generation error:', error)
-    toast.error('Error', error.message || 'No se pudo generar el PDF')
-  } finally {
-    isGeneratingPdf.value = false
   }
 }
 

@@ -12,7 +12,7 @@
  */
 
 import { z } from 'zod'
-import type { CheckoutFormData } from '~/types/checkout'
+import type { CheckoutData, Order, OrderItem } from '~/types/checkout'
 import type { CartItem } from '~/types/cart'
 
 // Schema de validación (flexible para aceptar campos extra)
@@ -128,7 +128,7 @@ export default defineEventHandler(async (event) => {
     try {
       order = await createOrderInStrapi(
         paymentIntentId,
-        formData as CheckoutFormData,
+        formData as CheckoutData,
         cartItems as CartItem[],
         total
       )

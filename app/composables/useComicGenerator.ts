@@ -1,8 +1,7 @@
 /**
- * Composable for generating comic pages and PDFs
- * Handles comic composition, preview generation, and PDF download
+ * Composable for generating comic preview
+ * The PDF generation is now handled directly in ComicPreview.vue component
  */
-import type { Session, CurrentState } from '~/types/session'
 
 export interface ComicGeneratorOptions {
   sessionId: string
@@ -16,7 +15,6 @@ export interface ComicPreviewResponse {
   layout: string
   locale: string
   bubblesIncluded: boolean
-  outputPath: string
   imageData: string // base64 data URL
   availableLayouts: string[]
 }
@@ -47,51 +45,7 @@ export function useComicGenerator() {
     }
   }
 
-  /**
-   * Download the comic as a PDF
-   */
-  const downloadPdf = async (options: ComicGeneratorOptions & { session: Session }): Promise<{ success: boolean; error?: string }> => {
-    try {
-      const childName = options.session.userPhoto?.childName || 'Comic'
-
-      toast.info('Generando PDF', 'Esto puede tardar unos segundos...')
-
-      const response = await $fetch<Blob>('/api/pdf/generate-comic', {
-        method: 'POST',
-        body: {
-          sessionId: options.sessionId,
-          layout: options.layout || 'classic-2-1',
-          locale: options.locale || 'es',
-          includeBubbles: options.includeBubbles ?? true,
-        },
-        responseType: 'blob',
-      })
-
-      // Download the PDF
-      const url = URL.createObjectURL(response)
-      const a = document.createElement('a')
-      a.href = url
-      const safeName = childName
-        .replace(/[^a-zA-Z0-9áéíóúñÁÉÍÓÚÑ\s]/g, '')
-        .replace(/\s+/g, '_')
-      a.download = `${safeName}_Comic.pdf`
-      document.body.appendChild(a)
-      a.click()
-      document.body.removeChild(a)
-      URL.revokeObjectURL(url)
-
-      toast.success('PDF generado', 'Comic A4 descargado')
-      return { success: true }
-    } catch (error: any) {
-      console.error('[ComicGenerator] PDF error:', error)
-      const message = error.data?.message || error.message || 'No se pudo generar el PDF del comic'
-      toast.error('Error', message)
-      return { success: false, error: message }
-    }
-  }
-
   return {
     generatePreview,
-    downloadPdf,
   }
 }

@@ -30,7 +30,8 @@
       "Bash(npx nuxi typecheck:*)",
       "Bash(pnpm build:*)",
       "Bash(git commit:*)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(npx nuxt typecheck:*)"
     ]
   }
 }

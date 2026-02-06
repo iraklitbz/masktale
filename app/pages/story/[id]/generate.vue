@@ -26,7 +26,15 @@ onMounted(async () => {
     return
   }
 
-  await loadSession(sessionId)
+  const loaded = await loadSession(sessionId)
+  
+  // Check if session was loaded successfully
+  if (!loaded || !session.value) {
+    toast.error('Sesión no encontrada', 'La sesión ha expirado o no existe. Por favor crea una nueva.')
+    localStorage.removeItem('mask-session-id')
+    router.push('/')
+    return
+  }
 
   if (story.value) {
     totalPages.value = story.value.pages.length

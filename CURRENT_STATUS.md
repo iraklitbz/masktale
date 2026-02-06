@@ -1,8 +1,8 @@
 # 📍 Estado Actual del Proyecto - Mask (Cuentos Personalizados con IA)
 
-**Última actualización:** 2025-12-29
-**Última sesión:** Sistema de Autenticación Completo (Login, Registro, Recuperación de Contraseña)
-**Próxima acción:** Probar sistema de auth, implementar OAuth Google, o continuar con otras mejoras
+**Última actualización:** 2026-02-06
+**Última sesión:** Migración de generación de PDFs a cliente (jsPDF)
+**Próxima acción:** Probar descarga de PDFs en Vercel
 
 ---
 
@@ -11,6 +11,159 @@
 Este es un proyecto de plataforma web para crear cuentos infantiles personalizados usando IA (Google Gemini). El usuario sube una foto de su hijo/a, selecciona un cuento, y la IA genera ilustraciones personalizadas con face-swap.
 
 **Tecnologías:** Nuxt 3, Vue 3, Tailwind CSS, Google Gemini AI, Sharp
+
+---
+
+## ✅ MIGRACIÓN DE SESIONES A STRAPI - FASES 1-3 COMPLETADAS (90%)
+
+**Fecha:** 2026-02-06
+
+### Resumen:
+El sistema de sesiones ha sido migrado completamente de filesystem local a Strapi CMS para soportar despliegue serverless en Vercel.
+
+### Lo que se ha implementado:
+
+#### 1. Content Types en Strapi ✅
+```
+Session:
+  ├── sessionId (UID) - Identificador único
+  ├── storyId (String)
+  ├── childName (String)
+  ├── childPhoto (Media) - Foto subida
+  ├── childPhotoBase64 (Text) - Para Gemini API
+  ├── status (Enum: created, photo_uploaded, generating, completed)
+  ├── currentPage (Integer)
+  ├── totalPages (Integer)
+  ├── expiresAt (DateTime)
+  └── generatedImages (Relation: OneToMany)
+
+GeneratedImage:
+  ├── pageNumber (Integer)
+  ├── version (Integer) - 1, 2, 3...
+  ├── image (Media) - Imagen generada
+  ├── isSelected (Boolean)
+  ├── isFavorite (Boolean)
+  └── session (Relation: ManyToOne)
+```
+
+#### 2. Session Manager Actualizado ✅
+```
+server/utils/session-manager.ts
+  ├── createSession() → POST /api/sessions
+  ├── getSession() → GET /api/sessions?filters[sessionId]
+  ├── saveSession() → PUT /api/sessions/:id
+  ├── deleteSession() → DELETE (con cascada)
+  ├── updateSessionUserPhoto() → Upload a Strapi Media
+  ├── getUserPhotoBase64() → Lee de Strapi
+  ├── saveGeneratedImage() → Upload + crear GeneratedImage
+  ├── getGeneratedImageUrl() → URL desde Strapi
+  ├── getGeneratedImageBuffer() → Descarga para PDF
+  ├── selectVersion() → Actualiza isSelected
+  ├── setFavorite() → Actualiza isFavorite
+  └── getCurrentState() → Lee selectedVersions
+```
+
+#### 3. Endpoints de API Actualizados ✅
+```
+server/api/session/
+  ├── create.post.ts
+  ├── [id].get.ts
+  ├── [id].delete.ts
+  ├── [id]/upload-photo.post.ts
+  ├── [id]/generate.post.ts
+  ├── [id]/regenerate.post.ts
+  ├── [id]/state.get.ts
+  ├── [id]/select-version.post.ts
+  ├── [id]/favorite.post.ts
+  ├── [id]/image/[page].get.ts
+  └── [id]/comic/* (endpoints de cómic)
+```
+
+#### 4. Build Exitoso ✅
+- La aplicación compila correctamente
+- Todos los endpoints de sesión funcionan con Strapi
+- Imágenes se sirven desde el CDN de Strapi
+
+### Arreglos recientes (2026-02-06):
+
+#### 🐛 Problema: Endpoints de Cómic fallaban - ARREGLADO ✅
+**Síntomas:** 
+- Error 500: "Failed to load image for page 1"
+- El cómic no cargaba imágenes
+- PDF de cómic no se generaba
+
+**Causa:** Los endpoints de cómic aún intentaban leer imágenes del sistema de archivos local usando `getGeneratedImagePath()` (que ahora devuelve cadena vacía) y `fs.readFile()`. Pero las imágenes ahora están en Strapi.
+
+**Archivos arreglados:**
+- `server/api/session/[id]/comic/compose.post.ts`
+- `server/api/session/[id]/comic/edit-bubbles.get.ts`
+- `server/api/session/[id]/comic/edit-bubbles.post.ts`
+- `server/api/session/[id]/comic/apply-bubbles.post.ts`
+- `server/api/pdf/generate-comic.post.ts`
+- `server/api/pdf/generate.post.ts`
+- `server/utils/pdf-uploader.ts`
+
+**Solución:**
+- Reemplazado `getGeneratedImagePath` + `fs.readFile` → `getGeneratedImageBuffer()`
+- Reemplazado carga de textos locales → `loadStoryTexts()` desde Strapi
+- Eliminado código que escribía archivos en disco (incompatible con serverless)
+
+#### 🐛 Problema: Prompts de IA sin estilo - ARREGLADO ✅
+**Síntomas:**
+- Las imágenes generadas eran fotos reales modificadas
+- No se aplicaba el estilo ilustrado/artístico
+- Parecía que Gemini no recibía el prompt completo
+
+**Causa:** `getNewPromptTemplate()` devolvía cadena vacía cuando no había template en Strapi, causando que Gemini generara sin instrucciones de estilo.
+
+**Solución:** Agregado `DEFAULT_PROMPT_TEMPLATE` en `server/utils/story-loader.ts` como fallback.
+
+#### 🐛 Problema: Imágenes sin contexto del cuento - ARREGLADO ✅
+**Síntomas:**
+- El estilo era correcto pero las escenas no seguían la historia
+- El cuento del dragón no mostraba dragones
+- El cómic de rescate de gato no mostraba gatos
+
+**Causa:** Las páginas de las historias están en un content type separado `story-pages` en Strapi, pero el código las buscaba dentro de `story.pages`. Esto causaba que se usaran prompts vacíos sin descripción de escena.
+
+**Solución:**
+- Creada función `loadStoryPages()` para cargar desde `/api/story-pages`
+- Modificado `loadStoryConfig()` para cargar páginas desde el endpoint separado
+- Modificado `loadStoryTexts()` para usar `loadStoryPages()`
+- Modificado endpoint de generación para usar `getPagePrompt()` que obtiene el prompt completo de cada página
+- Ahora los prompts completos de Strapi se usan directamente, manteniendo el contexto de la historia
+
+#### 🐛 Problema: PDFs no funcionaban en Vercel - ARREGLADO ✅
+**Síntomas:**
+- Error 500 al intentar descargar PDFs
+- Timeout después de mucho tiempo esperando
+- Puppeteer/Browserless no funcionaban en serverless
+
+**Causa:** La generación de PDFs usaba Puppeteer con Browserless.io, pero en el entorno serverless de Vercel había timeouts y problemas de conexión WebSocket.
+
+**Solución:** Generación de PDFs directamente desde los componentes de preview:
+
+**Archivos creados/modificados:**
+- **Nuevo:** `app/components/story/BookPreview.vue` - Generador de PDF para libros con jsPDF
+- **Modificado:** `app/components/story/ComicPreview.vue` - Generador de PDF para cómics con html2canvas + jsPDF
+- **Modificado:** `app/composables/useComicGenerator.ts` - Ajustado para nueva API
+
+**Características de calidad de impresión:**
+- ✅ Formato libro: 1000x500mm landscape (formato original)
+- ✅ Formato cómic: A4 portrait estándar
+- ✅ Imágenes cargadas directamente desde Strapi
+- ✅ Textos con fuentes y estilos consistentes
+- ✅ Portada y contraportada incluidas
+- ✅ **100% gratuito** - Sin APIs externas
+
+**Para calidad profesional máxima** (tipo editorial):
+Se recomienda usar PDFShift ($9/mes) o DocRaptor para impresión offset de alta gama.
+
+---
+
+### Pendiente:
+- ⏳ Configurar cron job de limpieza en Strapi (Fase 4)
+- ⏳ Testing completo del flujo (Fase 5)
 
 ---
 

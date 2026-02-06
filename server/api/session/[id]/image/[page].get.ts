@@ -4,8 +4,7 @@
  * Query params: version (optional, defaults to current selected version)
  */
 
-import fs from 'node:fs/promises'
-import { getSession, getCurrentState, getGeneratedImagePath } from '../../../../utils/session-manager'
+import { getSession, getCurrentState, getGeneratedImageBuffer } from '../../../../utils/session-manager'
 
 export default defineEventHandler(async (event) => {
   const sessionId = getRouterParam(event, 'id')
@@ -40,10 +39,10 @@ export default defineEventHandler(async (event) => {
   let version = 1
   if (query.version) {
     version = parseInt(query.version as string, 10)
-    if (isNaN(version) || version < 1 || version > 3) {
+    if (isNaN(version) || version < 1 || version > 10) {
       throw createError({
         statusCode: 400,
-        message: 'Invalid version. Must be between 1 and 3',
+        message: 'Invalid version number',
       })
     }
   } else {
@@ -54,29 +53,19 @@ export default defineEventHandler(async (event) => {
     }
   }
 
-  // Get image path
-  const imagePath = getGeneratedImagePath(sessionId, pageNumber, version)
+  // Get image from Strapi
+  const imageBuffer = await getGeneratedImageBuffer(sessionId, pageNumber, version)
 
-  try {
-    // Read image file
-    const imageBuffer = await fs.readFile(imagePath)
-
-    // Set appropriate content type
-    setResponseHeader(event, 'Content-Type', 'image/png')
-    setResponseHeader(event, 'Cache-Control', 'public, max-age=31536000') // Cache for 1 year
-
-    return imageBuffer
-  } catch (error: any) {
-    if (error.code === 'ENOENT') {
-      throw createError({
-        statusCode: 404,
-        message: `Page ${pageNumber} version ${version} not found`,
-      })
-    }
-    console.error('[ImageAPI] Error serving image:', error)
+  if (!imageBuffer) {
     throw createError({
-      statusCode: 500,
-      message: 'Error loading image',
+      statusCode: 404,
+      message: `Page ${pageNumber} version ${version} not found`,
     })
   }
+
+  // Set appropriate content type
+  setResponseHeader(event, 'Content-Type', 'image/png')
+  setResponseHeader(event, 'Cache-Control', 'public, max-age=31536000') // Cache for 1 year
+
+  return imageBuffer
 })

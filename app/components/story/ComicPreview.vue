@@ -16,7 +16,7 @@ const emit = defineEmits<{
 }>()
 
 // Comic generator composable
-const { generatePreview, downloadPdf } = useComicGenerator()
+const { generatePreview } = useComicGenerator()
 
 // State
 const selectedLayout = ref('classic-2-1')
@@ -67,17 +67,79 @@ const handleBubblesToggle = async () => {
   await loadPreview()
 }
 
-// Handle download PDF
+// Handle download PDF using html2canvas (captures the preview exactly as shown)
 const handleDownloadPdf = async () => {
+  const imageContainer = document.querySelector('.comic-image-container img') as HTMLImageElement
+  
+  if (!imageContainer || !comicImageUrl.value) {
+    toast.error('Error', 'No hay imagen del comic para descargar. Espera a que cargue el preview.')
+    return
+  }
+  
   isDownloading.value = true
+  toast.info('Generando PDF', 'Capturando comic...')
+  
   try {
-    await downloadPdf({
-      sessionId: props.sessionId,
-      session: props.session,
-      layout: selectedLayout.value,
-      locale: props.storyTexts.locale || 'es',
-      includeBubbles: includeBubbles.value,
+    // Use html2canvas to capture the preview image
+    const canvas = await html2canvas(imageContainer.parentElement as HTMLElement, {
+      scale: 2, // High quality
+      useCORS: true,
+      allowTaint: true,
+      backgroundColor: '#ffffff',
     })
+    
+    // Create PDF
+    const { jsPDF } = await import('jspdf')
+    const pdf = new jsPDF({
+      orientation: 'portrait',
+      unit: 'mm',
+      format: 'a4',
+    })
+    
+    const pageWidth = 210
+    const pageHeight = 297
+    const margin = 10
+    
+    // Cover page
+    pdf.setFillColor(147, 51, 234)
+    pdf.rect(0, 0, pageWidth, pageHeight, 'F')
+    pdf.setTextColor(255, 255, 255)
+    pdf.setFontSize(36)
+    pdf.text('COMIC', pageWidth / 2, 100, { align: 'center' })
+    pdf.setFontSize(24)
+    const childName = props.session.userPhoto?.childName || 'Protagonista'
+    pdf.text(childName, pageWidth / 2, 140, { align: 'center' })
+    
+    // Comic page with captured image
+    pdf.addPage()
+    
+    // Add the captured canvas as image
+    const imgData = canvas.toDataURL('image/png')
+    const imgWidth = pageWidth - (margin * 2)
+    const imgHeight = (canvas.height * imgWidth) / canvas.width
+    
+    // Center the image on page
+    const x = margin
+    const y = (pageHeight - imgHeight) / 2
+    
+    pdf.addImage(imgData, 'PNG', x, y, imgWidth, imgHeight)
+    
+    // Back cover
+    pdf.addPage()
+    pdf.setFillColor(147, 51, 234)
+    pdf.rect(0, 0, pageWidth, pageHeight, 'F')
+    pdf.setTextColor(255, 255, 255)
+    pdf.setFontSize(24)
+    pdf.text('✨ Fin ✨', pageWidth / 2, pageHeight / 2, { align: 'center' })
+    
+    // Save
+    const safeName = childName.replace(/[^a-zA-Z0-9áéíóúñÁÉÍÓÚÑ\s]/g, '').replace(/\s+/g, '_')
+    pdf.save(`${safeName}_Comic.pdf`)
+    
+    toast.success('PDF generado', 'Comic descargado correctamente')
+  } catch (error: any) {
+    console.error('[ComicPreview] PDF error:', error)
+    toast.error('Error', 'No se pudo generar el PDF')
   } finally {
     isDownloading.value = false
   }

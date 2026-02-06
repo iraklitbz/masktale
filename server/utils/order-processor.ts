@@ -9,7 +9,7 @@
  * - Transiciones de estado
  */
 
-import type { Order, OrderState, OrderItem, CheckoutFormData } from '~/types/checkout'
+import type { Order, OrderState, OrderItem, CheckoutData } from '~/types/checkout'
 import type { CartItem } from '~/types/cart'
 
 /**
@@ -61,7 +61,7 @@ export function isValidTransition(from: OrderState, to: OrderState): boolean {
  */
 export async function createOrderInStrapi(
   paymentIntentId: string,
-  formData: CheckoutFormData,
+  formData: CheckoutData,
   cartItems: CartItem[],
   total: number
 ): Promise<Order> {

@@ -20,6 +20,7 @@
     "@tailwindcss/vite": "4.1.18",
     "@types/form-data": "^2.5.2",
     "@types/pdfkit": "^0.17.4",
+    "html2canvas": "^1.4.1",
     "jspdf": "^3.0.4",
     "nuxt": "4.2.2",
     "pdfkit": "^0.17.2",

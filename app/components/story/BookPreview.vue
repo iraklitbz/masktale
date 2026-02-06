@@ -101,6 +101,119 @@ onMounted(() => {
 onUnmounted(() => {
   window.removeEventListener('keydown', handleKeydown)
 })
+
+// Download PDF with high quality for print
+const isGeneratingPdf = ref(false)
+
+const downloadPdf = async () => {
+  if (isGeneratingPdf.value) return
+  
+  isGeneratingPdf.value = true
+  const toast = useToast()
+  toast.info('Generando PDF', 'Preparando libro en alta calidad...')
+  
+  try {
+    const { jsPDF } = await import('jspdf')
+    
+    // Create high-quality PDF (1000x500mm landscape as original template)
+    const pdf = new jsPDF({
+      orientation: 'landscape',
+      unit: 'mm',
+      format: [1000, 500],
+    })
+    
+    const childName = props.session.userPhoto?.childName || 'Protagonista'
+    
+    // Helper to load image as base64
+    const loadImage = async (url: string): Promise<string> => {
+      const response = await fetch(url)
+      const blob = await response.blob()
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader()
+        reader.onloadend = () => resolve(reader.result as string)
+        reader.onerror = reject
+        reader.readAsDataURL(blob)
+      })
+    }
+    
+    // Cover page (left: gradient, right: first image)
+    pdf.setFillColor(147, 51, 234)
+    pdf.rect(0, 0, 500, 500, 'F')
+    pdf.setTextColor(255, 255, 255)
+    pdf.setFontSize(60)
+    pdf.text(props.storyTexts.cover.title, 250, 200, { align: 'center' })
+    pdf.setFontSize(30)
+    pdf.text(`${props.storyTexts.cover.subtitle} ${childName}`, 250, 280, { align: 'center' })
+    pdf.setFontSize(24)
+    pdf.text(props.storyTexts.cover.tagline, 250, 340, { align: 'center' })
+    
+    // Right side - first page image
+    try {
+      const imgData = await loadImage(getImageUrl(1))
+      pdf.addImage(imgData, 'JPEG', 500, 0, 500, 500)
+    } catch (e) {
+      console.warn('Could not load cover image')
+    }
+    
+    // Story pages
+    for (let i = 0; i < props.storyTexts.pages.length; i++) {
+      const page = props.storyTexts.pages[i]
+      const pageNum = i + 1
+      
+      pdf.addPage()
+      
+      // White background
+      pdf.setFillColor(255, 255, 255)
+      pdf.rect(0, 0, 1000, 500, 'F')
+      
+      // Left side - Image
+      try {
+        const imgData = await loadImage(getImageUrl(pageNum))
+        // Add with proper aspect ratio
+        pdf.addImage(imgData, 'JPEG', 30, 30, 440, 440)
+      } catch (e) {
+        console.warn(`Could not load image for page ${pageNum}`)
+      }
+      
+      // Right side - Text
+      pdf.setTextColor(31, 41, 55)
+      pdf.setFontSize(32)
+      pdf.text(page.title, 520, 80)
+      
+      pdf.setFontSize(20)
+      const text = page.text?.replace(/\{childName\}/g, childName) || ''
+      const splitText = pdf.splitTextToSize(text, 440)
+      pdf.text(splitText, 520, 130)
+      
+      // Page number
+      pdf.setFontSize(16)
+      pdf.text(`${pageNum}`, 950, 470)
+    }
+    
+    // Back cover
+    pdf.addPage()
+    pdf.setFillColor(147, 51, 234)
+    pdf.rect(0, 0, 1000, 500, 'F')
+    pdf.setTextColor(255, 255, 255)
+    pdf.setFontSize(32)
+    const message = props.storyTexts.backCover.message.replace(/\{childName\}/g, childName)
+    const splitMessage = pdf.splitTextToSize(message, 900)
+    pdf.text(splitMessage, 500, 250, { align: 'center' })
+    pdf.setFontSize(24)
+    pdf.text(props.storyTexts.backCover.footer, 500, 400, { align: 'center' })
+    
+    // Save
+    const safeName = childName.replace(/[^a-zA-Z0-9áéíóúñÁÉÍÓÚÑ\s]/g, '').replace(/\s+/g, '_')
+    pdf.save(`${safeName}_Libro.pdf`)
+    
+    toast.success('PDF generado', 'Libro descargado en alta calidad')
+  } catch (error: any) {
+    console.error('[BookPreview] PDF error:', error)
+    toast.error('Error', 'No se pudo generar el PDF')
+  } finally {
+    isGeneratingPdf.value = false
+  }
+}
 </script>
 
 <template>
@@ -286,6 +399,22 @@ onUnmounted(() => {
         <span v-else-if="currentSpread === totalSpreads - 1">Contraportada</span>
         <span v-else>Paginas {{ (currentSpread * 2) - 1 }}-{{ currentSpread * 2 }}</span>
       </div>
+
+      <!-- Download PDF button -->
+      <button
+        class="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg font-semibold transition-all hover:shadow-lg hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+        :disabled="isGeneratingPdf"
+        @click="downloadPdf"
+      >
+        <svg v-if="isGeneratingPdf" class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+        </svg>
+        <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+        </svg>
+        {{ isGeneratingPdf ? 'Generando...' : 'Descargar PDF (Alta Calidad)' }}
+      </button>
 
       <!-- Keyboard hint -->
       <p class="text-white/40 text-xs hidden md:block">

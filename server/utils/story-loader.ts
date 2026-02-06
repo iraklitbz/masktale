@@ -3,7 +3,7 @@
  * Loads story configurations from Strapi CMS
  */
 
-import type { StoryConfig, StoryListItem, StoryPage, StoryTexts } from '~/app/types/story'
+import type { StoryConfig, StoryListItem, StoryPage, StoryTexts } from '~/types/story'
 
 const STRAPI_URL = process.env.STRAPI_URL || process.env.NUXT_PUBLIC_STRAPI_URL || 'https://cms.iraklitbz.dev'
 
@@ -69,19 +69,38 @@ export async function getAllStories(): Promise<StoryListItem[]> {
 }
 
 /**
+ * Load story pages from Strapi
+ */
+async function loadStoryPages(storyId: string): Promise<any[]> {
+  try {
+    const response = await fetchStrapi<{ data: any[] }>(
+      `/api/story-pages?filters[story][slug][$eq]=${storyId}&populate=*&sort=pageNumber:asc`
+    )
+    return response.data || []
+  } catch (error) {
+    console.error(`[StoryLoader] Error loading pages for ${storyId}:`, error)
+    return []
+  }
+}
+
+/**
  * Load a specific story configuration
  */
 export async function loadStoryConfig(storyId: string): Promise<StoryConfig> {
   try {
-    const response = await fetchStrapi<{ data: any[] }>(
-      `/api/stories?filters[slug][$eq]=${storyId}&populate=*`
-    )
+    // Load story and pages in parallel
+    const [storyResponse, pages] = await Promise.all([
+      fetchStrapi<{ data: any[] }>(`/api/stories?filters[slug][$eq]=${storyId}&populate=*`),
+      loadStoryPages(storyId)
+    ])
 
-    if (!response.data || response.data.length === 0) {
+    if (!storyResponse.data || storyResponse.data.length === 0) {
       throw new Error(`Story ${storyId} not found`)
     }
 
-    const story = response.data[0]
+    const story = storyResponse.data[0]
+
+    console.log(`[StoryLoader] Loaded ${pages.length} pages for story ${storyId}`)
 
     // Transform to StoryConfig format
     const config: StoryConfig = {
@@ -110,7 +129,8 @@ export async function loadStoryConfig(storyId: string): Promise<StoryConfig> {
       settings: {
         maxRegenerations: story.settings?.maxRegenerations || 3,
         defaultAspectRatio: convertAspectRatio(story.settings?.defaultAspectRatio || 'ratio_3_4') as any,
-        geminiModel: story.settings?.geminiModel || 'gemini-2.0-flash-exp-image-generation',
+        // Force all stories to use the same model (ignore Strapi setting to avoid deprecated models)
+        geminiModel: 'gemini-2.0-flash-exp-image-generation',
         processingTimeout: story.settings?.processingTimeout || 120,
         imageQuality: story.settings?.imageQuality || {
           compression: 85,
@@ -119,29 +139,27 @@ export async function loadStoryConfig(storyId: string): Promise<StoryConfig> {
         },
         comicSettings: story.settings?.comicSettings || undefined,
       },
-      pages: (story.pages || [])
-        .sort((a: any, b: any) => a.pageNumber - b.pageNumber)
-        .map((page: any) => ({
-          pageNumber: page.pageNumber,
-          promptPath: '',
-          aspectRatio: convertAspectRatio(page.aspectRatio) as any,
-          metadata: {
-            sceneDescription: page.metadata?.sceneDescription || '',
-            emotionalTone: page.metadata?.emotionalTone || 'happy',
-            facePosition: page.metadata?.facePosition || { x: 50, y: 50 },
-            difficulty: page.metadata?.difficulty || 'medium',
-          },
-          speechBubbles: page.speechBubbles?.map((b: any) => ({
-            type: b.type,
-            speaker: b.speaker,
-            position: { x: b.positionX, y: b.positionY },
-            tailDirection: b.tailDirection,
-            size: b.size,
-          })),
+      pages: pages.map((page: any) => ({
+        pageNumber: page.pageNumber,
+        promptPath: '',
+        aspectRatio: convertAspectRatio(page.aspectRatio) as any,
+        metadata: {
+          sceneDescription: page.metadata?.sceneDescription || '',
+          emotionalTone: page.metadata?.emotionalTone || 'happy',
+          facePosition: page.metadata?.facePosition || { x: 50, y: 50 },
+          difficulty: page.metadata?.difficulty || 'medium',
+        },
+        speechBubbles: page.speechBubbles?.map((b: any) => ({
+          type: b.type,
+          speaker: b.speaker,
+          position: { x: b.positionX, y: b.positionY },
+          tailDirection: b.tailDirection,
+          size: b.size,
         })),
+      })),
     }
 
-    console.log(`[StoryLoader] Loaded story config: ${storyId}`)
+    console.log(`[StoryLoader] Loaded story config: ${storyId} with ${pages.length} pages`)
     return config
   } catch (error: any) {
     console.error(`[StoryLoader] Error loading story ${storyId}:`, error)
@@ -179,12 +197,38 @@ export async function getPageConfig(
 }
 
 /**
+ * Default prompt template for image generation
+ */
+const DEFAULT_PROMPT_TEMPLATE = `You are an expert children's book illustrator. Create a beautiful illustration for a children's story.
+
+CHARACTER TO FEATURE:
+{CHARACTER_DESCRIPTION}
+
+SCENE DESCRIPTION:
+{SCENE_DESCRIPTION}
+
+EMOTIONAL TONE: {EMOTIONAL_TONE}
+
+STYLE SPECIFICATIONS:
+{STYLE_PROFILE}
+
+IMPORTANT INSTRUCTIONS:
+1. Create the character with CONSISTENT appearance across all illustrations
+2. Match the illustration style specified above exactly
+3. Show the character's face clearly positioned appropriately in the scene
+4. Use vibrant, child-friendly colors
+5. Create a warm, inviting atmosphere suitable for children's books
+6. The character should be the MAIN FOCUS of the illustration
+7. Background should complement but not overpower the character
+
+Create this illustration in {ILLUSTRATION_STYLE} style.`
+
+/**
  * Get the prompt template for a story
  */
 export async function getNewPromptTemplate(storyId: string): Promise<string> {
   try {
-    // For now, we'll need to store the template in Strapi or use a default
-    // This could be added as a field in the Story content type
+    // Try to get template from Strapi
     const response = await fetchStrapi<{ data: any[] }>(
       `/api/stories?filters[slug][$eq]=${storyId}`
     )
@@ -193,12 +237,13 @@ export async function getNewPromptTemplate(storyId: string): Promise<string> {
       return response.data[0].promptTemplate
     }
 
-    // Fallback: return a generic template
-    console.warn(`[StoryLoader] No prompt template found for ${storyId}, using default`)
-    return ''
+    // Fallback: return default template
+    console.warn(`[StoryLoader] No prompt template found for ${storyId}, using default template`)
+    return DEFAULT_PROMPT_TEMPLATE
   } catch (error) {
     console.error('[StoryLoader] Error reading prompt template:', error)
-    throw error
+    console.warn('[StoryLoader] Using default template due to error')
+    return DEFAULT_PROMPT_TEMPLATE
   }
 }
 
@@ -218,7 +263,11 @@ export async function getPagePrompt(
       throw new Error(`Page ${pageNumber} not found in story ${storyId}`)
     }
 
-    return response.data[0].prompt || ''
+    const page = response.data[0]
+    const prompt = page.prompt || ''
+    
+    console.log(`[StoryLoader] Loaded prompt for page ${pageNumber}:`, prompt.substring(0, 100) + '...')
+    return prompt
   } catch (error) {
     console.error(`[StoryLoader] Error reading prompt for page ${pageNumber}:`, error)
     throw error
@@ -233,32 +282,32 @@ export async function loadStoryTexts(
   locale: string = 'es'
 ): Promise<StoryTexts> {
   try {
-    const response = await fetchStrapi<{ data: any[] }>(
-      `/api/stories?filters[slug][$eq]=${storyId}&populate=*`
-    )
+    // Load story and pages in parallel
+    const [storyResponse, pages] = await Promise.all([
+      fetchStrapi<{ data: any[] }>(`/api/stories?filters[slug][$eq]=${storyId}&populate=*`),
+      loadStoryPages(storyId)
+    ])
 
-    if (!response.data || response.data.length === 0) {
+    if (!storyResponse.data || storyResponse.data.length === 0) {
       throw new Error(`Story texts not found for ${storyId}`)
     }
 
-    const story = response.data[0]
+    const story = storyResponse.data[0]
     const suffix = locale === 'en' ? '_en' : '_es'
     const fallbackSuffix = '_es'
 
     const texts: StoryTexts = {
       locale,
-      pages: (story.pages || [])
-        .sort((a: any, b: any) => a.pageNumber - b.pageNumber)
-        .map((page: any) => ({
-          pageNumber: page.pageNumber,
-          title: page.texts?.[`title${suffix}`] || page.texts?.[`title${fallbackSuffix}`] || '',
-          text: page.texts?.[`text${suffix}`] || page.texts?.[`text${fallbackSuffix}`] || '',
-          speechBubbles: page.speechBubbles?.map((b: any) => ({
-            speaker: b.speaker,
-            type: b.type,
-            text: b[`text${suffix}`] || b[`text${fallbackSuffix}`] || '',
-          })),
+      pages: pages.map((page: any) => ({
+        pageNumber: page.pageNumber,
+        title: page.texts?.[`title${suffix}`] || page.texts?.[`title${fallbackSuffix}`] || '',
+        text: page.texts?.[`text${suffix}`] || page.texts?.[`text${fallbackSuffix}`] || '',
+        speechBubbles: page.speechBubbles?.map((b: any) => ({
+          speaker: b.speaker,
+          type: b.type,
+          text: b[`text${suffix}`] || b[`text${fallbackSuffix}`] || '',
         })),
+      })),
       cover: {
         title: story[`cover_title`] || story.title_es,
         subtitle: story[`cover_subtitle${suffix}`] || story[`cover_subtitle${fallbackSuffix}`] || '',
@@ -270,7 +319,7 @@ export async function loadStoryTexts(
       },
     }
 
-    console.log(`[StoryLoader] Loaded story texts: ${storyId} (${locale})`)
+    console.log(`[StoryLoader] Loaded story texts: ${storyId} (${locale}) with ${pages.length} pages`)
     return texts
   } catch (error: any) {
     console.error(`[StoryLoader] Error loading story texts ${storyId}:`, error)

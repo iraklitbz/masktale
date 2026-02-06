@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { StoryListItem } from '~/app/types/story'
+import type { StoryListItem } from '~/types/story'
 import ExistingBookModal from '~/components/session/ExistingBookModal.vue'
 
 // Use session composable

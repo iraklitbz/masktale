@@ -5,12 +5,10 @@
  * Composes generated images into a comic page layout with panels
  */
 
-import fs from 'node:fs/promises'
-import path from 'node:path'
 import {
   getSession,
   getCurrentState,
-  getGeneratedImagePath,
+  getGeneratedImageBuffer,
 } from '../../../../utils/session-manager'
 import { loadStoryConfig } from '../../../../utils/story-loader'
 import {
@@ -98,21 +96,19 @@ export default defineEventHandler(async (event) => {
         })
       }
 
-      const imagePath = getGeneratedImagePath(
+      const imageBuffer = await getGeneratedImageBuffer(
         sessionId,
         page.pageNumber,
         selectedVersion.version || 1
       )
 
-      try {
-        const imageBuffer = await fs.readFile(imagePath)
-        images.push(imageBuffer)
-      } catch {
+      if (!imageBuffer) {
         throw createError({
           statusCode: 500,
           statusMessage: `Failed to load image for page ${page.pageNumber}`,
         })
       }
+      images.push(imageBuffer)
     }
 
     console.log(`[Comic] Composing ${images.length} images with layout: ${layout}`)
@@ -134,21 +130,10 @@ export default defineEventHandler(async (event) => {
 
     // Add speech bubbles if requested
     if (includeBubbles) {
-      // Load texts for the locale
-      const textsPath = path.join(
-        process.cwd(),
-        'data',
-        'stories',
-        session.storyId,
-        'texts',
-        `${locale}.json`
-      )
-
-      console.log(`[Comic] Loading texts from: ${textsPath}`)
+      console.log(`[Comic] Loading texts for locale: ${locale}`)
 
       try {
-        const textsContent = await fs.readFile(textsPath, 'utf-8')
-        const texts = JSON.parse(textsContent)
+        const texts = await loadStoryTexts(session.storyId, locale)
 
         console.log(`[Comic] Texts loaded. Pages with bubbles:`,
           texts.pages.map((p: any) => ({
@@ -195,23 +180,15 @@ export default defineEventHandler(async (event) => {
       }
     }
 
-    // Save the composed comic
-    const outputDir = path.join(process.cwd(), 'data', 'sessions', sessionId, 'generated')
-    const outputFilename = `comic-${layout}-${locale}.png`
-    const outputPath = path.join(outputDir, outputFilename)
-
-    await fs.writeFile(outputPath, comicBuffer)
-    console.log(`[Comic] Saved composed comic to: ${outputPath}`)
-
-    // Return as base64 for preview
+    // Return as base64 for preview (no guardamos en filesystem para serverless)
     const base64Image = comicBuffer.toString('base64')
+    console.log(`[Comic] Generated comic, size: ${comicBuffer.length} bytes`)
 
     return {
       success: true,
       layout,
       locale,
       bubblesIncluded: includeBubbles,
-      outputPath: path.relative(process.cwd(), outputPath),
       imageData: `data:image/png;base64,${base64Image}`,
       availableLayouts: Object.keys(COMIC_LAYOUTS),
     }

@@ -2,13 +2,10 @@
  * Delete Session Endpoint
  * DELETE /api/session/{sessionId}
  *
- * Deletes a session and all its associated files (images, metadata)
+ * Deletes a session and all its associated data from Strapi
  */
 
-import fs from 'node:fs/promises'
-import path from 'node:path'
-
-const SESSIONS_DIR = path.join(process.cwd(), 'data', 'sessions')
+import { deleteSession } from '../../utils/session-manager'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -21,22 +18,17 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const sessionPath = path.join(SESSIONS_DIR, sessionId)
+    // Delete session from Strapi
+    const deleted = await deleteSession(sessionId)
 
-    // Check if session exists
-    try {
-      await fs.access(sessionPath)
-    } catch {
+    if (!deleted) {
       throw createError({
         statusCode: 404,
         statusMessage: 'Session not found',
       })
     }
 
-    // Delete entire session directory (including all images)
-    await fs.rm(sessionPath, { recursive: true, force: true })
-
-    console.log(`[API] Deleted session ${sessionId} and all associated files`)
+    console.log(`[API] Deleted session ${sessionId} from Strapi`)
 
     return {
       success: true,

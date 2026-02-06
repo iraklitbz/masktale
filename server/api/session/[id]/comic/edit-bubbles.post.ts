@@ -5,12 +5,10 @@
  * Applies custom bubble positions from user editor
  */
 
-import fs from 'node:fs/promises'
-import path from 'node:path'
 import {
   getSession,
   getCurrentState,
-  getGeneratedImagePath,
+  getGeneratedImageBuffer,
 } from '../../../../utils/session-manager'
 import { loadStoryConfig } from '../../../../utils/story-loader'
 import { addSpeechBubblesToImage, type SpeechBubbleConfig } from '../../../../utils/speech-bubble-processor'
@@ -87,15 +85,11 @@ export default defineEventHandler(async (event) => {
 
     // Get the generated image
     const version = selectedVersion.version || 1
-    const imagePath = getGeneratedImagePath(sessionId, pageNumber, version)
-
-    let imageBuffer: Buffer
-    try {
-      imageBuffer = await fs.readFile(imagePath)
-    } catch {
+    const imageBuffer = await getGeneratedImageBuffer(sessionId, pageNumber, version)
+    if (!imageBuffer) {
       throw createError({
         statusCode: 404,
-        statusMessage: `Generated image not found for page ${pageNumber}`,
+        statusMessage: 'Image not found',
       })
     }
 
@@ -118,14 +112,6 @@ export default defineEventHandler(async (event) => {
       // No facePosition = disable smart avoid
     )
 
-    // Save to a new file (custom suffix)
-    const outputDir = path.dirname(imagePath)
-    const outputFilename = `page-${String(pageNumber).padStart(2, '0')}-v${version}-custom.png`
-    const outputPath = path.join(outputDir, outputFilename)
-
-    await fs.writeFile(outputPath, processedBuffer)
-    console.log(`[Comic Editor] Saved custom comic page to: ${outputPath}`)
-
     // Save the custom positions to session state for future reference
     if (!currentState.customBubblePositions) {
       currentState.customBubblePositions = {}
@@ -142,10 +128,13 @@ export default defineEventHandler(async (event) => {
     const { saveCurrentState } = await import('../../../../utils/session-manager')
     await saveCurrentState(sessionId, currentState)
 
+    // Return the processed image as base64
+    const imageBase64 = `data:image/png;base64,${processedBuffer.toString('base64')}`
+
     return {
       success: true,
       pageNumber,
-      customPath: outputPath,
+      image: imageBase64,
       bubblesApplied: bubbleConfigs.length,
     }
   } catch (error: any) {

@@ -5,9 +5,7 @@
  * Generates an A4 portrait PDF with the composed comic page
  */
 
-import fs from 'node:fs/promises'
-import path from 'node:path'
-import { getSession, getCurrentState, getGeneratedImagePath } from '../../utils/session-manager'
+import { getSession, getCurrentState, getGeneratedImageBuffer } from '../../utils/session-manager'
 import { loadStoryConfig, loadStoryTexts } from '../../utils/story-loader'
 import { createComicPage, COMIC_LAYOUTS, type ComicLayoutConfig } from '../../utils/comic-layout-processor'
 import { addSpeechBubblesToImage, type SpeechBubbleConfig } from '../../utils/speech-bubble-processor'
@@ -86,18 +84,16 @@ export default defineEventHandler(async (event) => {
         version = currentState.favoriteVersions[page.pageNumber]
       }
 
-      const imagePath = getGeneratedImagePath(sessionId, page.pageNumber, version)
+      const imageBuffer = await getGeneratedImageBuffer(sessionId, page.pageNumber, version)
 
-      try {
-        const imageBuffer = await fs.readFile(imagePath)
-        images.push(imageBuffer)
-        console.log(`[ComicPDF] Loaded image for page ${page.pageNumber}, version ${version}`)
-      } catch {
+      if (!imageBuffer) {
         throw createError({
           statusCode: 500,
           message: `Failed to load image for page ${page.pageNumber}`,
         })
       }
+      images.push(imageBuffer)
+      console.log(`[ComicPDF] Loaded image for page ${page.pageNumber}, version ${version}`)
     }
 
     console.log(`[ComicPDF] Composing ${images.length} images with layout: ${layout}`)
@@ -113,18 +109,8 @@ export default defineEventHandler(async (event) => {
 
     // 6. Add speech bubbles if requested
     if (includeBubbles) {
-      const textsPath = path.join(
-        process.cwd(),
-        'data',
-        'stories',
-        session.storyId,
-        'texts',
-        `${locale}.json`
-      )
-
       try {
-        const textsContent = await fs.readFile(textsPath, 'utf-8')
-        const texts = JSON.parse(textsContent)
+        const texts = await loadStoryTexts(session.storyId, locale)
 
         const composedBubbles = buildComposedBubbleConfigs(
           storyConfig.pages,

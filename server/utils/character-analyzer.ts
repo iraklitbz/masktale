@@ -5,7 +5,7 @@
  */
 
 import { GoogleGenAI } from '@google/genai'
-import type { CharacterDescription } from '~/app/types/session'
+import type { CharacterDescription } from '~/types/session'
 
 /**
  * Analyzes user photos and generates a detailed character description

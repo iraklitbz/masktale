@@ -5,21 +5,20 @@
  * Generates a single page using Gemini AI
  */
 
-import fs from 'node:fs/promises'
-import path from 'node:path'
 import {
   getSession,
   saveSession,
-  getCurrentState,
-  saveCurrentState,
-  getGeneratedImagePath,
-  getUserPhotoPath,
+  getVersionCount,
+  saveGeneratedImage,
+  getUserPhotoBase64,
 } from '../../../utils/session-manager'
-import { loadStoryConfig, getNewPromptTemplate } from '../../../utils/story-loader'
+import { loadStoryConfig, getPagePrompt } from '../../../utils/story-loader'
 import { generateImageWithRetry } from '../../../utils/gemini'
-import { createImageCollage, optimizeImage } from '../../../utils/image-processor'
 import { buildPromptForPage, getGenerationSummary } from '../../../utils/prompt-builder'
 import { analyzeCharacterFromPhotos } from '../../../utils/character-analyzer'
+
+// In-memory cache for character descriptions (per session)
+const characterDescriptionCache: Record<string, string> = {}
 
 interface GeneratePageRequest {
   pageNumber: number
@@ -76,21 +75,11 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Get or create current state
-    let currentState = await getCurrentState(sessionId)
-    if (!currentState) {
-      currentState = {
-        storyId: session.storyId,
-        sessionId,
-        selectedVersions: {},
-        regenerationCount: {},
-        lastUpdated: new Date().toISOString(),
-      }
-    }
+    // Get current version count for this page from Strapi
+    const currentVersionCount = await getVersionCount(sessionId, pageNumber)
 
     // Check regeneration limit
-    const regenCount = currentState.regenerationCount[pageNumber] || 0
-    if (regenerate && regenCount >= storyConfig.settings.maxRegenerations) {
+    if (regenerate && currentVersionCount >= storyConfig.settings.maxRegenerations) {
       throw createError({
         statusCode: 400,
         statusMessage: `Maximum regenerations (${storyConfig.settings.maxRegenerations}) reached for page ${pageNumber}`,
@@ -98,75 +87,87 @@ export default defineEventHandler(async (event) => {
     }
 
     // Determine version number
-    const versionNumber = regenerate ? regenCount + 1 : 1
+    const versionNumber = currentVersionCount + 1
 
     console.log(
       `[Generate] ${getGenerationSummary(pageNumber, page.metadata, storyConfig.metadata.illustrationStyle)} - Version ${versionNumber}`
     )
 
-    // Update session progress
+    // Update session status
     session.status = 'generating'
-    session.progress.currentPage = pageNumber
     await saveSession(sessionId, session)
 
-    // Load user photos (NO base image needed for new generation mode)
-    const photosDir = getUserPhotoPath(sessionId)
-    const photoFiles = await fs.readdir(photosDir)
-    const userPhotosBase64: string[] = []
-
-    for (const filename of photoFiles) {
-      const filepath = path.join(photosDir, filename)
-      const buffer = await fs.readFile(filepath)
-      
-      // Optimize images before sending to Gemini
-      // This prevents issues with very large DSLR photos (>4K resolution)
-      const optimizedBuffer = await optimizeImage(buffer, {
-        maxWidth: 1024,
-        maxHeight: 1024,
-        quality: 90,
-        format: 'jpeg'
+    // Get user photo base64 from Strapi
+    const photoBase64 = await getUserPhotoBase64(sessionId)
+    if (!photoBase64) {
+      throw createError({
+        statusCode: 400,
+        statusMessage: 'User photo not found in session',
       })
-      
-      userPhotosBase64.push(optimizedBuffer.toString('base64'))
-      console.log(`[Generate] Optimized ${filename}: ${buffer.length} -> ${optimizedBuffer.length} bytes`)
     }
 
+    const userPhotosBase64: string[] = [photoBase64]
+    console.log(`[Generate] Retrieved user photo from Strapi`)
+
     // IMPORTANT: Gemini 3 Pro Image supports up to 5 human reference images!
-    // Send all uploaded photos for better facial recognition (max 3)
-    // The Pro model can analyze multiple angles for improved likeness
     console.log(`[Generate] NEW MODE: Complete generation (NO base image)`)
     console.log(`[Generate] Using Gemini 3 Pro Image with ${userPhotosBase64.length} reference photo(s)`)
-    console.log(`[Generate] Pro model supports up to 5 human images for improved facial accuracy`)
 
-    // Generate character description if this is the first generation
-    // Use ALL photos for comprehensive analysis with Pro model
-    if (!currentState.characterDescription) {
-      console.log('[Generate] No character description found. Analyzing ALL reference photos...')
+    // Generate character description if not cached
+    let characterDescription = characterDescriptionCache[sessionId]
+    if (!characterDescription) {
+      console.log('[Generate] No character description cached. Analyzing reference photo...')
       try {
-        const characterDescription = await analyzeCharacterFromPhotos(userPhotosBase64)
-        currentState.characterDescription = characterDescription
-        await saveCurrentState(sessionId, currentState)
-        console.log('[Generate] Character description generated from multiple angles')
+        const analysisResult = await analyzeCharacterFromPhotos(userPhotosBase64)
+        characterDescription = analysisResult.fullDescription
+        characterDescriptionCache[sessionId] = characterDescription
+        console.log('[Generate] Character description generated and cached')
       } catch (error: any) {
         console.warn('[Generate] Failed to generate character description:', error.message)
         console.warn('[Generate] Continuing without character description...')
       }
     } else {
-      console.log('[Generate] Using existing character description')
+      console.log('[Generate] Using cached character description')
     }
 
-    // Load and build prompt with NEW template (for complete generation)
-    const promptTemplate = await getNewPromptTemplate(session.storyId)
-    const finalPrompt = buildPromptForPage(
-      promptTemplate,
-      page.metadata,
-      storyConfig.metadata.illustrationStyle,
-      storyConfig.metadata.styleProfile,
-      currentState.characterDescription
-    )
+    // Load prompt - try full page prompt first, fallback to template system
+    let finalPrompt: string
+    
+    try {
+      // Try to get the complete prompt from Strapi story-page
+      const pagePrompt = await getPagePrompt(session.storyId, pageNumber)
+      
+      if (pagePrompt && pagePrompt.length > 50) {
+        // Use the complete prompt from Strapi, adding character description
+        finalPrompt = pagePrompt
+        
+        // Add character description if available
+        if (characterDescription) {
+          finalPrompt += `\n\nCHARACTER TO FEATURE:\n${characterDescription}`
+        }
+        
+        console.log(`[Generate] Using complete prompt from Strapi for page ${pageNumber}`)
+      } else {
+        throw new Error('Prompt too short or empty, using template fallback')
+      }
+    } catch (promptError) {
+      // Fallback: use template system
+      console.warn(`[Generate] Falling back to template system for page ${pageNumber}:`, promptError)
+      
+      const { getNewPromptTemplate } = await import('../../../utils/story-loader')
+      const promptTemplate = await getNewPromptTemplate(session.storyId)
+      
+      finalPrompt = buildPromptForPage(
+        promptTemplate,
+        page.metadata,
+        storyConfig.metadata.illustrationStyle,
+        storyConfig.metadata.styleProfile,
+        characterDescription ? { fullDescription: characterDescription } : undefined
+      )
+    }
 
-    if (currentState.characterDescription) {
-      console.log('[Generate] Using character description:', currentState.characterDescription.fullDescription)
+    if (characterDescription) {
+      console.log('[Generate] Using character description')
     }
     if (storyConfig.metadata.styleProfile) {
       console.log('[Generate] Using detailed style profile for consistency')
@@ -174,11 +175,13 @@ export default defineEventHandler(async (event) => {
 
     // Log the full prompt for debugging
     console.log('[Generate] ===== FULL PROMPT START =====')
-    console.log(finalPrompt)
+    console.log(finalPrompt.substring(0, 500) + (finalPrompt.length > 500 ? '...' : ''))
     console.log('[Generate] ===== FULL PROMPT END =====')
 
-    // Generate with Gemini 3 Pro Image - NEW MODE: NO base image, complete generation
-    // Send ALL reference photos (Gemini 3 Pro supports up to 5 human images)
+    // Generate with Gemini - Use fixed model (ignore story config to avoid deprecated models)
+    // The model from story config may be deprecated
+    const WORKING_MODEL = 'gemini-3-pro-image-preview'
+    
     let generatedImageBase64: string
     
     try {
@@ -187,14 +190,14 @@ export default defineEventHandler(async (event) => {
           prompt: finalPrompt,
           userImagesBase64: userPhotosBase64,
           aspectRatio: page.aspectRatio,
-          model: storyConfig.settings.geminiModel,
+          model: WORKING_MODEL,
         },
         3, // max retries
         false // useBaseImage = false (NEW MODE)
       )
     } catch (error: any) {
       // If it fails with character description, try without it as fallback
-      if (currentState.characterDescription && error.message?.includes('Candidate has no content')) {
+      if (characterDescription && error.message?.includes('Candidate has no content')) {
         console.warn('[Generate] Failed with character description, trying without it...')
         
         const fallbackPrompt = buildPromptForPage(
@@ -202,7 +205,7 @@ export default defineEventHandler(async (event) => {
           page.metadata,
           storyConfig.metadata.illustrationStyle,
           storyConfig.metadata.styleProfile,
-          undefined // No character description
+          undefined
         )
         
         console.log('[Generate] ===== FALLBACK PROMPT START =====')
@@ -215,7 +218,7 @@ export default defineEventHandler(async (event) => {
               prompt: fallbackPrompt,
               userImagesBase64: userPhotosBase64,
               aspectRatio: page.aspectRatio,
-              model: storyConfig.settings.geminiModel,
+              model: WORKING_MODEL,
             },
             2, // fewer retries for fallback
             false
@@ -260,68 +263,27 @@ Create an illustration of a heroic adult character in this scene. The character 
       }
     }
 
-    // Save generated image
-    const generatedDir = path.join(
-      process.cwd(),
-      'data',
-      'sessions',
-      sessionId,
-      'generated'
-    )
-    await fs.mkdir(generatedDir, { recursive: true })
-
-    const outputPath = getGeneratedImagePath(sessionId, pageNumber, versionNumber)
+    // Save generated image to Strapi
     const imageBuffer = Buffer.from(generatedImageBase64, 'base64')
-    await fs.writeFile(outputPath, imageBuffer)
+    const imageUrl = await saveGeneratedImage(sessionId, pageNumber, versionNumber, imageBuffer)
 
-    console.log(`[Generate] Saved to ${outputPath}`)
-
-    // Save as style reference if this is the first successful generation
-    if (!currentState.styleReferenceImage && pageNumber === 1 && versionNumber === 1) {
-      currentState.styleReferenceImage = path.relative(process.cwd(), outputPath)
-      console.log('[Generate] Saved first generation as style reference for consistency')
-    }
-
-    // Create version entry
-    const newVersion = {
-      version: versionNumber,
-      generatedAt: new Date().toISOString(),
-      imagePath: path.relative(process.cwd(), outputPath),
-    }
-
-    // Update current state
-    currentState.selectedVersions[pageNumber] = newVersion
-    currentState.regenerationCount[pageNumber] = versionNumber
-
-    // NUEVO: Agregar al historial completo de versiones
-    if (!currentState.versionHistory) {
-      currentState.versionHistory = {}
-    }
-    if (!currentState.versionHistory[pageNumber]) {
-      currentState.versionHistory[pageNumber] = []
-    }
-    currentState.versionHistory[pageNumber].push(newVersion)
-
-    // NUEVO: Inicializar favoriteVersions si no existe
-    if (!currentState.favoriteVersions) {
-      currentState.favoriteVersions = {}
-    }
-
-    await saveCurrentState(sessionId, currentState)
+    console.log(`[Generate] ✅ Saved to Strapi: ${imageUrl}`)
 
     // Update session progress
-    const generatedPages = Object.keys(currentState.selectedVersions).length
-    session.progress.pagesGenerated = generatedPages
-    session.progress.totalPages = storyConfig.pages.length
+    // Re-fetch session to get updated progress from Strapi
+    console.log('[Generate] Updating session progress...')
+    const updatedSession = await getSession(sessionId)
+    const generatedPages = updatedSession?.progress.pagesGenerated || 0
+    
+    console.log(`[Generate] Current progress: ${generatedPages}/${storyConfig.pages.length} pages`)
 
     if (generatedPages >= storyConfig.pages.length) {
       session.status = 'completed'
-      session.progress.completedAt = new Date().toISOString()
+      console.log('[Generate] All pages completed!')
     }
 
     await saveSession(sessionId, session)
-
-    console.log(`[Generate] Progress: ${generatedPages}/${storyConfig.pages.length}`)
+    console.log(`[Generate] ✅ Session updated. Progress: ${generatedPages}/${storyConfig.pages.length}`)
 
     return {
       success: true,

@@ -1,0 +1,60 @@
+{
+  "kind": "collectionType",
+  "collectionName": "sessions",
+  "info": {
+    "singularName": "session",
+    "pluralName": "sessions",
+    "displayName": "Session",
+    "description": "Sesiones de usuario para generación de cuentos"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "sessionId": {
+      "type": "uid",
+      "required": true
+    },
+    "storyId": {
+      "type": "string",
+      "required": true
+    },
+    "childName": {
+      "type": "string"
+    },
+    "childPhoto": {
+      "type": "media",
+      "multiple": false,
+      "required": false,
+      "allowedTypes": ["images"]
+    },
+    "childPhotoBase64": {
+      "type": "text"
+    },
+    "status": {
+      "type": "enumeration",
+      "enum": ["created", "photo_uploaded", "generating", "completed"],
+      "default": "created",
+      "required": true
+    },
+    "currentPage": {
+      "type": "integer",
+      "default": 0
+    },
+    "totalPages": {
+      "type": "integer",
+      "default": 0
+    },
+    "expiresAt": {
+      "type": "datetime",
+      "required": true
+    },
+    "generatedImages": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::generated-image.generated-image",
+      "mappedBy": "session"
+    }
+  }
+}

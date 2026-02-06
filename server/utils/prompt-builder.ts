@@ -3,8 +3,8 @@
  * Builds dynamic prompts by replacing template variables
  */
 
-import type { StoryPage, PageMetadata, StyleProfile } from '~/app/types/story'
-import type { CharacterDescription } from '~/app/types/session'
+import type { StoryPage, PageMetadata, StyleProfile } from '~/types/story'
+import type { CharacterDescription } from '~/types/session'
 import { formatCharacterDescriptionForPrompt } from './character-analyzer'
 
 /**

@@ -2,7 +2,7 @@
  * Composable for managing session state and generated pages
  */
 
-import type { Session, CurrentState } from '~/app/types/session'
+import type { Session, CurrentState } from '~/types/session'
 
 export interface SessionStateData {
   session: Session
@@ -36,32 +36,10 @@ export function useSessionState(sessionId: string) {
       .map(([pageNum, pageVersion]) => ({
         pageNumber: parseInt(pageNum, 10),
         version: pageVersion.version,
-        generatedAt: pageVersion.generatedAt,
         imageUrl: getPageImageUrl(parseInt(pageNum, 10)),
       }))
       .sort((a, b) => a.pageNumber - b.pageNumber)
   })
-
-  /**
-   * Get regeneration count for a specific page
-   */
-  const getRegenerationCount = (pageNumber: number) => {
-    return data.value?.currentState?.regenerationCount?.[pageNumber] || 0
-  }
-
-  /**
-   * Check if a page can be regenerated (max 3 times)
-   */
-  const canRegenerate = (pageNumber: number) => {
-    return getRegenerationCount(pageNumber) < 3
-  }
-
-  /**
-   * Get version history for a specific page
-   */
-  const getVersionHistory = (pageNumber: number) => {
-    return data.value?.currentState?.versionHistory?.[pageNumber] || []
-  }
 
   /**
    * Get favorite version for a specific page
@@ -78,11 +56,35 @@ export function useSessionState(sessionId: string) {
   }
 
   /**
+   * Check if a page can be regenerated (API validates the actual limit)
+   */
+  const canRegenerate = (_pageNumber: number) => {
+    // The API will validate the regeneration limit
+    return true
+  }
+
+  /**
    * Check if a page has multiple versions
    */
   const hasMultipleVersions = (pageNumber: number) => {
-    const history = getVersionHistory(pageNumber)
-    return history.length > 1
+    const version = getCurrentVersion(pageNumber)
+    return version ? version > 1 : false
+  }
+
+  /**
+   * Get version history for a specific page
+   * Note: Simplified implementation - versions are now managed in Strapi
+   */
+  const getVersionHistory = (pageNumber: number) => {
+    const selectedVersion = data.value?.currentState?.selectedVersions?.[pageNumber]
+    if (!selectedVersion) return []
+
+    // Return just the current selected version info
+    // Full history would need a separate API call
+    return [{
+      version: selectedVersion.version,
+      imagePath: selectedVersion.imagePath,
+    }]
   }
 
   /**
@@ -150,14 +152,11 @@ export function useSessionState(sessionId: string) {
     // Methods
     refresh,
     getPageImageUrl,
-    getRegenerationCount,
-    canRegenerate,
-
-    // NUEVO: Version history methods
-    getVersionHistory,
     getFavoriteVersion,
     getCurrentVersion,
+    canRegenerate,
     hasMultipleVersions,
+    getVersionHistory,
     selectVersion,
     setFavoriteVersion,
   }
