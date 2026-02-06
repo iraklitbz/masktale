@@ -41,15 +41,7 @@ export default defineNuxtConfig({
     defaultImport: 'component',
     customComponent: 'Icon',
   },
-  nitro: {
-    // Incluir carpeta data/stories en el build para Vercel
-    serverAssets: [
-      {
-        baseName: 'stories',
-        dir: './data/stories'
-      }
-    ]
-  },
+  nitro: {},
   runtimeConfig: {
     geminiApiKey: '',
     // Stripe (server-side only)

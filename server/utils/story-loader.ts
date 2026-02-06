@@ -1,135 +1,149 @@
 /**
  * Story Loader Utilities
- * Loads story configurations from the filesystem or Nitro assets
+ * Loads story configurations from Strapi CMS
  */
 
-import fs from 'node:fs/promises'
-import path from 'node:path'
 import type { StoryConfig, StoryListItem, StoryPage, StoryTexts } from '~/app/types/story'
 
-const STORIES_DIR = path.join(process.cwd(), 'data', 'stories')
+const STRAPI_URL = process.env.NUXT_PUBLIC_STRAPI_URL || 'https://cms.iraklitbz.dev'
 
 /**
- * Check if running in production (serverless)
+ * Convert Strapi aspectRatio format to app format
  */
-function isProduction(): boolean {
-  return process.env.NODE_ENV === 'production' || !!process.env.VERCEL
+function convertAspectRatio(ratio: string): string {
+  const map: Record<string, string> = {
+    'ratio_3_4': '3:4',
+    'ratio_4_3': '4:3',
+    'ratio_1_1': '1:1',
+    'ratio_16_9': '16:9',
+  }
+  return map[ratio] || '3:4'
 }
 
 /**
- * Get storage for stories (uses Nitro assets in production)
+ * Fetch from Strapi API
  */
-function getStoriesStorage() {
-  return useStorage('assets:stories')
+async function fetchStrapi<T>(endpoint: string): Promise<T> {
+  const response = await fetch(`${STRAPI_URL}${endpoint}`)
+
+  if (!response.ok) {
+    throw new Error(`Strapi error: ${response.status}`)
+  }
+
+  return response.json()
 }
 
 /**
  * Get all available stories (simplified list)
- *
- * @returns Array of story list items
  */
 export async function getAllStories(): Promise<StoryListItem[]> {
   try {
-    const stories: StoryListItem[] = []
+    const response = await fetchStrapi<{ data: any[] }>(
+      '/api/stories?populate=*&sort=createdAt:desc'
+    )
 
-    if (isProduction()) {
-      // Production: use Nitro storage
-      const storage = getStoriesStorage()
-      const keys = await storage.getKeys()
+    const stories = response.data.map((story: any) => ({
+      id: story.slug,
+      title: {
+        es: story.title_es,
+        en: story.title_en || story.title_es,
+      },
+      description: {
+        es: story.description_es,
+        en: story.description_en || story.description_es,
+      },
+      thumbnail: story.thumbnail?.url
+        ? `${STRAPI_URL}${story.thumbnail.url}`
+        : undefined,
+      theme: story.theme,
+      ageRange: story.ageRange,
+      pageCount: story.pages?.length || 0,
+    }))
 
-      // Get unique story IDs from keys like "story-001-first-day-school:config.json"
-      const storyIds = new Set<string>()
-      for (const key of keys) {
-        const parts = key.split(':')
-        if (parts.length >= 1) {
-          storyIds.add(parts[0])
-        }
-      }
-
-      for (const storyId of storyIds) {
-        try {
-          const config = await loadStoryConfig(storyId)
-          stories.push({
-            id: config.id,
-            title: config.title,
-            description: config.description,
-            thumbnail: config.thumbnail,
-            theme: config.metadata.theme,
-            ageRange: config.metadata.ageRange,
-            pageCount: config.pages.length,
-          })
-        } catch (error) {
-          console.warn(`[StoryLoader] Failed to load story ${storyId}:`, error)
-        }
-      }
-    } else {
-      // Development: use filesystem
-      const entries = await fs.readdir(STORIES_DIR, { withFileTypes: true })
-
-      for (const entry of entries) {
-        if (entry.isDirectory()) {
-          try {
-            const config = await loadStoryConfig(entry.name)
-            stories.push({
-              id: config.id,
-              title: config.title,
-              description: config.description,
-              thumbnail: config.thumbnail,
-              theme: config.metadata.theme,
-              ageRange: config.metadata.ageRange,
-              pageCount: config.pages.length,
-            })
-          } catch (error) {
-            console.warn(`[StoryLoader] Failed to load story ${entry.name}:`, error)
-          }
-        }
-      }
-    }
-
-    console.log(`[StoryLoader] Found ${stories.length} stories`)
+    console.log(`[StoryLoader] Found ${stories.length} stories from Strapi`)
     return stories
   } catch (error) {
-    console.error('[StoryLoader] Error loading stories:', error)
+    console.error('[StoryLoader] Error loading stories from Strapi:', error)
     return []
   }
 }
 
 /**
  * Load a specific story configuration
- *
- * @param storyId - Story ID
- * @returns Story configuration
  */
 export async function loadStoryConfig(storyId: string): Promise<StoryConfig> {
   try {
-    let data: string
+    const response = await fetchStrapi<{ data: any[] }>(
+      `/api/stories?filters[slug][$eq]=${storyId}&populate=*`
+    )
 
-    if (isProduction()) {
-      // Production: use Nitro storage
-      const storage = getStoriesStorage()
-      const content = await storage.getItem(`${storyId}:config.json`)
-      if (!content) {
-        throw new Error(`Story ${storyId} not found`)
-      }
-      // Content might be already parsed or a string
-      if (typeof content === 'object') {
-        console.log(`[StoryLoader] Loaded story config: ${storyId}`)
-        return content as StoryConfig
-      }
-      data = content as string
-    } else {
-      // Development: use filesystem
-      const configPath = path.join(STORIES_DIR, storyId, 'config.json')
-      data = await fs.readFile(configPath, 'utf-8')
+    if (!response.data || response.data.length === 0) {
+      throw new Error(`Story ${storyId} not found`)
     }
 
-    const config: StoryConfig = JSON.parse(data)
+    const story = response.data[0]
+
+    // Transform to StoryConfig format
+    const config: StoryConfig = {
+      id: story.slug,
+      version: story.version || '1.0.0',
+      format: story.format || 'book',
+      title: {
+        es: story.title_es,
+        en: story.title_en || story.title_es,
+      },
+      description: {
+        es: story.description_es,
+        en: story.description_en || story.description_es,
+      },
+      metadata: {
+        illustrationStyle: story.illustrationStyle,
+        theme: story.theme,
+        ageRange: story.ageRange,
+        styleProfile: story.styleProfile || undefined,
+      },
+      typography: story.typography ? {
+        kitUrl: story.typography.kitUrl,
+        headline: story.typography.headline,
+        body: story.typography.body,
+      } : undefined,
+      settings: {
+        maxRegenerations: story.settings?.maxRegenerations || 3,
+        defaultAspectRatio: convertAspectRatio(story.settings?.defaultAspectRatio || 'ratio_3_4') as any,
+        geminiModel: story.settings?.geminiModel || 'gemini-2.0-flash-exp-image-generation',
+        processingTimeout: story.settings?.processingTimeout || 120,
+        imageQuality: story.settings?.imageQuality || {
+          compression: 85,
+          maxWidth: 1200,
+          maxHeight: 1600,
+        },
+        comicSettings: story.settings?.comicSettings || undefined,
+      },
+      pages: (story.pages || [])
+        .sort((a: any, b: any) => a.pageNumber - b.pageNumber)
+        .map((page: any) => ({
+          pageNumber: page.pageNumber,
+          promptPath: ''
+          aspectRatio: convertAspectRatio(page.aspectRatio) as any,
+          metadata: {
+            sceneDescription: page.metadata?.sceneDescription || '',
+            emotionalTone: page.metadata?.emotionalTone || 'happy',
+            facePosition: page.metadata?.facePosition || { x: 50, y: 50 },
+            difficulty: page.metadata?.difficulty || 'medium',
+          },
+          speechBubbles: page.speechBubbles?.map((b: any) => ({
+            type: b.type,
+            speaker: b.speaker,
+            position: { x: b.positionX, y: b.positionY },
+            tailDirection: b.tailDirection,
+            size: b.size,
+          })),
+        })),
+    }
+
     console.log(`[StoryLoader] Loaded story config: ${storyId}`)
     return config
   } catch (error: any) {
-    if (error.code === 'ENOENT') {
-      throw new Error(`Story ${storyId} not found`)
-    }
     console.error(`[StoryLoader] Error loading story ${storyId}:`, error)
     throw error
   }
@@ -137,9 +151,6 @@ export async function loadStoryConfig(storyId: string): Promise<StoryConfig> {
 
 /**
  * Check if a story exists
- *
- * @param storyId - Story ID
- * @returns True if story exists
  */
 export async function storyExists(storyId: string): Promise<boolean> {
   try {
@@ -152,10 +163,6 @@ export async function storyExists(storyId: string): Promise<boolean> {
 
 /**
  * Get a specific page configuration
- *
- * @param storyId - Story ID
- * @param pageNumber - Page number (1-based)
- * @returns Page configuration
  */
 export async function getPageConfig(
   storyId: string,
@@ -172,50 +179,23 @@ export async function getPageConfig(
 }
 
 /**
- * Get the NEW generation prompt template (for complete image generation)
- *
- * @param storyId - Story ID
- * @returns Prompt template text
+ * Get the prompt template for a story
  */
 export async function getNewPromptTemplate(storyId: string): Promise<string> {
   try {
-    if (isProduction()) {
-      // Production: use Nitro storage
-      const storage = getStoriesStorage()
+    // For now, we'll need to store the template in Strapi or use a default
+    // This could be added as a field in the Story content type
+    const response = await fetchStrapi<{ data: any[] }>(
+      `/api/stories?filters[slug][$eq]=${storyId}`
+    )
 
-      // Try new template first
-      let content = await storage.getItem(`${storyId}:prompts:PROMPT_TEMPLATE_NEW.txt`)
-      if (content) {
-        console.log('[StoryLoader] Using NEW generation template (complete image generation)')
-        return String(content).trim()
-      }
-
-      // Fallback to old template
-      content = await storage.getItem(`${storyId}:prompts:PROMPT_TEMPLATE.txt`)
-      if (content) {
-        console.warn('[StoryLoader] New template not found, falling back to old template')
-        return String(content).trim()
-      }
-
-      throw new Error(`Prompt template not found for ${storyId}`)
-    } else {
-      // Development: use filesystem
-      const templatePath = path.join(STORIES_DIR, storyId, 'prompts', 'PROMPT_TEMPLATE_NEW.txt')
-
-      try {
-        const templateText = await fs.readFile(templatePath, 'utf-8')
-        console.log('[StoryLoader] Using NEW generation template (complete image generation)')
-        return templateText.trim()
-      } catch (error: any) {
-        if (error.code === 'ENOENT') {
-          console.warn('[StoryLoader] New template not found, falling back to old template')
-          const oldTemplatePath = path.join(STORIES_DIR, storyId, 'prompts', 'PROMPT_TEMPLATE.txt')
-          const templateText = await fs.readFile(oldTemplatePath, 'utf-8')
-          return templateText.trim()
-        }
-        throw error
-      }
+    if (response.data?.[0]?.promptTemplate) {
+      return response.data[0].promptTemplate
     }
+
+    // Fallback: return a generic template
+    console.warn(`[StoryLoader] No prompt template found for ${storyId}, using default`)
+    return ''
   } catch (error) {
     console.error('[StoryLoader] Error reading prompt template:', error)
     throw error
@@ -224,37 +204,21 @@ export async function getNewPromptTemplate(storyId: string): Promise<string> {
 
 /**
  * Get the prompt text for a specific page
- *
- * @param storyId - Story ID
- * @param pageNumber - Page number (1-based)
- * @returns Prompt text with variables as placeholders
  */
 export async function getPagePrompt(
   storyId: string,
   pageNumber: number
 ): Promise<string> {
   try {
-    const page = await getPageConfig(storyId, pageNumber)
-    if (!page) {
+    const response = await fetchStrapi<{ data: any[] }>(
+      `/api/story-pages?filters[story][slug][$eq]=${storyId}&filters[pageNumber][$eq]=${pageNumber}`
+    )
+
+    if (!response.data || response.data.length === 0) {
       throw new Error(`Page ${pageNumber} not found in story ${storyId}`)
     }
 
-    if (isProduction()) {
-      // Production: use Nitro storage
-      const storage = getStoriesStorage()
-      // promptPath is like "prompts/page-01.txt", convert to storage key
-      const storageKey = `${storyId}:${page.promptPath.replace(/\//g, ':')}`
-      const content = await storage.getItem(storageKey)
-      if (!content) {
-        throw new Error(`Prompt not found for page ${pageNumber}`)
-      }
-      return String(content).trim()
-    } else {
-      // Development: use filesystem
-      const promptPath = path.join(STORIES_DIR, storyId, page.promptPath)
-      const promptText = await fs.readFile(promptPath, 'utf-8')
-      return promptText.trim()
-    }
+    return response.data[0].prompt || ''
   } catch (error) {
     console.error(`[StoryLoader] Error reading prompt for page ${pageNumber}:`, error)
     throw error
@@ -262,99 +226,53 @@ export async function getPagePrompt(
 }
 
 /**
- * Get absolute path to a base image
- *
- * @param storyId - Story ID
- * @param pageNumber - Page number (1-based)
- * @returns Absolute path to base image
- */
-export async function getBaseImagePath(
-  storyId: string,
-  pageNumber: number
-): Promise<string> {
-  try {
-    const page = await getPageConfig(storyId, pageNumber)
-    if (!page) {
-      throw new Error(`Page ${pageNumber} not found in story ${storyId}`)
-    }
-
-    return path.join(STORIES_DIR, storyId, page.baseImagePath)
-  } catch (error) {
-    console.error(`[StoryLoader] Error getting base image path:`, error)
-    throw error
-  }
-}
-
-/**
- * Read base image as base64
- *
- * @param storyId - Story ID
- * @param pageNumber - Page number (1-based)
- * @returns Base64-encoded image
- */
-export async function getBaseImageBase64(
-  storyId: string,
-  pageNumber: number
-): Promise<string> {
-  try {
-    const imagePath = await getBaseImagePath(storyId, pageNumber)
-    const buffer = await fs.readFile(imagePath)
-    return buffer.toString('base64')
-  } catch (error) {
-    console.error(`[StoryLoader] Error reading base image:`, error)
-    throw error
-  }
-}
-
-/**
- * Get story directory path
- *
- * @param storyId - Story ID
- * @returns Absolute path to story directory
- */
-export function getStoryPath(storyId: string): string {
-  return path.join(STORIES_DIR, storyId)
-}
-
-/**
  * Load narrative texts for a story in a specific locale
- *
- * @param storyId - Story ID
- * @param locale - Locale code (default: 'es')
- * @returns Story texts with page content, cover, and back cover
  */
 export async function loadStoryTexts(
   storyId: string,
   locale: string = 'es'
 ): Promise<StoryTexts> {
   try {
-    let data: string
+    const response = await fetchStrapi<{ data: any[] }>(
+      `/api/stories?filters[slug][$eq]=${storyId}&populate=*`
+    )
 
-    if (isProduction()) {
-      // Production: use Nitro storage
-      const storage = getStoriesStorage()
-      const content = await storage.getItem(`${storyId}:texts:${locale}.json`)
-      if (!content) {
-        throw new Error(`Story texts not found for ${storyId} in locale ${locale}`)
-      }
-      if (typeof content === 'object') {
-        console.log(`[StoryLoader] Loaded story texts: ${storyId} (${locale})`)
-        return content as StoryTexts
-      }
-      data = content as string
-    } else {
-      // Development: use filesystem
-      const textsPath = path.join(STORIES_DIR, storyId, 'texts', `${locale}.json`)
-      data = await fs.readFile(textsPath, 'utf-8')
+    if (!response.data || response.data.length === 0) {
+      throw new Error(`Story texts not found for ${storyId}`)
     }
 
-    const texts: StoryTexts = JSON.parse(data)
+    const story = response.data[0]
+    const suffix = locale === 'en' ? '_en' : '_es'
+    const fallbackSuffix = '_es'
+
+    const texts: StoryTexts = {
+      locale,
+      pages: (story.pages || [])
+        .sort((a: any, b: any) => a.pageNumber - b.pageNumber)
+        .map((page: any) => ({
+          pageNumber: page.pageNumber,
+          title: page.texts?.[`title${suffix}`] || page.texts?.[`title${fallbackSuffix}`] || '',
+          text: page.texts?.[`text${suffix}`] || page.texts?.[`text${fallbackSuffix}`] || '',
+          speechBubbles: page.speechBubbles?.map((b: any) => ({
+            speaker: b.speaker,
+            type: b.type,
+            text: b[`text${suffix}`] || b[`text${fallbackSuffix}`] || '',
+          })),
+        })),
+      cover: {
+        title: story[`cover_title`] || story.title_es,
+        subtitle: story[`cover_subtitle${suffix}`] || story[`cover_subtitle${fallbackSuffix}`] || '',
+        tagline: story[`cover_tagline${suffix}`] || story[`cover_tagline${fallbackSuffix}`] || '',
+      },
+      backCover: {
+        message: story[`backcover_message${suffix}`] || story[`backcover_message${fallbackSuffix}`] || '',
+        footer: story[`backcover_footer${suffix}`] || story[`backcover_footer${fallbackSuffix}`] || 'Fin',
+      },
+    }
+
     console.log(`[StoryLoader] Loaded story texts: ${storyId} (${locale})`)
     return texts
   } catch (error: any) {
-    if (error.code === 'ENOENT') {
-      throw new Error(`Story texts not found for ${storyId} in locale ${locale}`)
-    }
     console.error(`[StoryLoader] Error loading story texts ${storyId}:`, error)
     throw error
   }
@@ -362,11 +280,6 @@ export async function loadStoryTexts(
 
 /**
  * Interpolate placeholders in text with actual values
- * Replaces {childName} with the provided child name
- *
- * @param text - Text with placeholders
- * @param childName - Child's name to interpolate
- * @returns Text with placeholders replaced
  */
 export function interpolateText(text: string, childName: string): string {
   return text.replace(/\{childName\}/g, childName)

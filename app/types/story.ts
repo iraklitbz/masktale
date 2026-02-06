@@ -208,7 +208,7 @@ export interface BackCoverText {
 
 /**
  * Complete story texts for a specific locale
- * Loaded from /data/stories/{storyId}/texts/{locale}.json
+ * Loaded from Strapi CMS
  */
 export interface StoryTexts {
   locale: string
