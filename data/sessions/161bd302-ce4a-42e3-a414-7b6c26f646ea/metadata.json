@@ -3,7 +3,7 @@
   "storyId": "story-003-cat-rescue",
   "createdAt": "2026-02-04T17:25:32.768Z",
   "expiresAt": "2026-02-05T17:25:32.768Z",
-  "status": "completed",
+  "status": "expired",
   "progress": {
     "totalPages": 3,
     "pagesGenerated": 3,

@@ -4,7 +4,7 @@ let browserInstance: Browser | null = null
 
 export async function getBrowser(): Promise<Browser> {
   if (!browserInstance || !browserInstance.connected) {
-    const browserlessToken = process.env.BROWSERLESS_TOKEN
+    const browserlessToken = process.env.NUXT_BROWSERLESS_TOKEN
 
     if (browserlessToken) {
       // Producción: conectar a Browserless.io

@@ -55,8 +55,6 @@ export default defineNuxtConfig({
     strapiApiToken: '',
     // Resend API Key (server-side only)
     resendApiKey: '',
-    // Browserless.io Token (server-side only)
-    browserlessToken: '',
     public: {
       // Stripe Public Key (client-side)
       stripePublicKey: '',
