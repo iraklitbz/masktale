@@ -123,7 +123,7 @@ export async function loadStoryConfig(storyId: string): Promise<StoryConfig> {
         .sort((a: any, b: any) => a.pageNumber - b.pageNumber)
         .map((page: any) => ({
           pageNumber: page.pageNumber,
-          promptPath: ''
+          promptPath: '',
           aspectRatio: convertAspectRatio(page.aspectRatio) as any,
           metadata: {
             sceneDescription: page.metadata?.sceneDescription || '',
