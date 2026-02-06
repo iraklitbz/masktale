@@ -4,16 +4,28 @@ let browserInstance: Browser | null = null
 
 export async function getBrowser(): Promise<Browser> {
   if (!browserInstance || !browserInstance.connected) {
-    browserInstance = await puppeteer.launch({
-      headless: true,
-      args: [
-        '--no-sandbox',
-        '--disable-setuid-sandbox',
-        '--disable-dev-shm-usage',
-        '--disable-gpu',
-        '--font-render-hinting=none',
-      ],
-    })
+    const browserlessToken = process.env.BROWSERLESS_TOKEN
+
+    if (browserlessToken) {
+      // Producción: conectar a Browserless.io
+      console.log('[Puppeteer] Connecting to Browserless.io...')
+      browserInstance = await puppeteer.connect({
+        browserWSEndpoint: `wss://chrome.browserless.io?token=${browserlessToken}`,
+      })
+    } else {
+      // Local: lanzar Chrome
+      console.log('[Puppeteer] Launching local Chrome...')
+      browserInstance = await puppeteer.launch({
+        headless: true,
+        args: [
+          '--no-sandbox',
+          '--disable-setuid-sandbox',
+          '--disable-dev-shm-usage',
+          '--disable-gpu',
+          '--font-render-hinting=none',
+        ],
+      })
+    }
   }
   return browserInstance
 }
