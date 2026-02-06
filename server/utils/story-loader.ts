@@ -5,7 +5,7 @@
 
 import type { StoryConfig, StoryListItem, StoryPage, StoryTexts } from '~/app/types/story'
 
-const STRAPI_URL = process.env.NUXT_PUBLIC_STRAPI_URL || 'https://cms.iraklitbz.dev'
+const STRAPI_URL = process.env.STRAPI_URL || process.env.NUXT_PUBLIC_STRAPI_URL || 'https://cms.iraklitbz.dev'
 
 /**
  * Convert Strapi aspectRatio format to app format
