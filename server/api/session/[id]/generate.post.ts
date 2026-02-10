@@ -2,7 +2,11 @@
  * Generate Page Endpoint
  * POST /api/session/{sessionId}/generate
  *
- * Generates a single page using Gemini AI
+ * Generates a single page using Gemini AI.
+ *
+ * Flow:
+ * - Page 1: generate character sheet (if missing) → generate page with photo + sheet
+ * - Page 2+: generate page with photo + sheet + page 1 as references
  */
 
 import {
@@ -11,11 +15,16 @@ import {
   getVersionCount,
   saveGeneratedImage,
   getUserPhotoBase64,
+  hasCharacterSheet,
+  saveCharacterSheet,
+  getCharacterSheet,
+  getSelectedPageImageBase64,
 } from '../../../utils/session-manager'
 import { loadStoryConfig, getPagePrompt } from '../../../utils/story-loader'
 import { generateImageWithRetry } from '../../../utils/gemini'
-import { buildPromptForPage, getGenerationSummary } from '../../../utils/prompt-builder'
+import { buildPromptForPage, getGenerationSummary, addConsistencyInstructions } from '../../../utils/prompt-builder'
 import { analyzeCharacterFromPhotos } from '../../../utils/character-analyzer'
+import { generateCharacterSheet } from '../../../utils/character-sheet'
 
 // In-memory cache for character descriptions (per session)
 const characterDescriptionCache: Record<string, string> = {}
@@ -64,7 +73,7 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Load story config
+    // Load story config (all style info comes from Strapi)
     const storyConfig = await loadStoryConfig(session.storyId)
     const page = storyConfig.pages.find(p => p.pageNumber === pageNumber)
 
@@ -106,19 +115,20 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const userPhotosBase64: string[] = [photoBase64]
     console.log(`[Generate] Retrieved user photo from Strapi`)
 
-    // IMPORTANT: Gemini 3 Pro Image supports up to 5 human reference images!
-    console.log(`[Generate] NEW MODE: Complete generation (NO base image)`)
-    console.log(`[Generate] Using Gemini 3 Pro Image with ${userPhotosBase64.length} reference photo(s)`)
+    // Use the model configured in Strapi for this story
+    const storyModel = storyConfig.settings.geminiModel
+    console.log(`[Generate] Using model from Strapi: ${storyModel}`)
 
-    // Generate character description if not cached
+    // ─────────────────────────────────────────────────────
+    // Generate character description (text) if not cached
+    // ─────────────────────────────────────────────────────
     let characterDescription = characterDescriptionCache[sessionId]
     if (!characterDescription) {
       console.log('[Generate] No character description cached. Analyzing reference photo...')
       try {
-        const analysisResult = await analyzeCharacterFromPhotos(userPhotosBase64)
+        const analysisResult = await analyzeCharacterFromPhotos([photoBase64])
         characterDescription = analysisResult.fullDescription
         characterDescriptionCache[sessionId] = characterDescription
         console.log('[Generate] Character description generated and cached')
@@ -130,22 +140,91 @@ export default defineEventHandler(async (event) => {
       console.log('[Generate] Using cached character description')
     }
 
-    // Load prompt - try full page prompt first, fallback to template system
+    // ─────────────────────────────────────────────────────
+    // Character Sheet: generate if missing (page 1 triggers it)
+    // ─────────────────────────────────────────────────────
+    let characterSheetBase64: string | null = null
+
+    const sheetExists = await hasCharacterSheet(sessionId)
+
+    if (!sheetExists) {
+      // Generate character sheet on first page generation
+      console.log('[Generate] No character sheet found. Generating character sheet...')
+      try {
+        characterSheetBase64 = await generateCharacterSheet(
+          [photoBase64],
+          storyConfig,
+          characterDescription
+        )
+
+        // Save to Strapi as pageNumber=0
+        const sheetBuffer = Buffer.from(characterSheetBase64, 'base64')
+        await saveCharacterSheet(sessionId, sheetBuffer)
+        console.log('[Generate] Character sheet generated and saved to Strapi')
+      } catch (error: any) {
+        console.warn('[Generate] Failed to generate character sheet:', error.message)
+        console.warn('[Generate] Continuing without character sheet (graceful fallback)')
+        characterSheetBase64 = null
+      }
+    } else {
+      // Retrieve existing character sheet
+      console.log('[Generate] Retrieving existing character sheet from Strapi...')
+      characterSheetBase64 = await getCharacterSheet(sessionId)
+      if (characterSheetBase64) {
+        console.log('[Generate] Character sheet retrieved successfully')
+      } else {
+        console.warn('[Generate] Character sheet exists but could not be retrieved')
+      }
+    }
+
+    // ─────────────────────────────────────────────────────
+    // Page 1 reference: for pages 2+ get the selected page 1 image
+    // ─────────────────────────────────────────────────────
+    let page1Base64: string | null = null
+
+    if (pageNumber > 1) {
+      console.log('[Generate] Page 2+: retrieving page 1 as visual reference...')
+      page1Base64 = await getSelectedPageImageBase64(sessionId, 1)
+      if (page1Base64) {
+        console.log('[Generate] Page 1 reference retrieved successfully')
+      } else {
+        console.warn('[Generate] Could not retrieve page 1 reference')
+      }
+    }
+
+    // ─────────────────────────────────────────────────────
+    // Build reference images array: photo + sheet + page1
+    // Gemini supports up to 5 images; we use max 3
+    // ─────────────────────────────────────────────────────
+    const referenceImages: string[] = [photoBase64]
+
+    if (characterSheetBase64) {
+      referenceImages.push(characterSheetBase64)
+    }
+    if (page1Base64) {
+      referenceImages.push(page1Base64)
+    }
+
+    console.log(`[Generate] Reference images: ${referenceImages.length} (photo${characterSheetBase64 ? ' + sheet' : ''}${page1Base64 ? ' + page1' : ''})`)
+
+    // ─────────────────────────────────────────────────────
+    // Build prompt
+    // ─────────────────────────────────────────────────────
     let finalPrompt: string
-    
+
     try {
       // Try to get the complete prompt from Strapi story-page
       const pagePrompt = await getPagePrompt(session.storyId, pageNumber)
-      
+
       if (pagePrompt && pagePrompt.length > 50) {
         // Use the complete prompt from Strapi, adding character description
         finalPrompt = pagePrompt
-        
+
         // Add character description if available
         if (characterDescription) {
           finalPrompt += `\n\nCHARACTER TO FEATURE:\n${characterDescription}`
         }
-        
+
         console.log(`[Generate] Using complete prompt from Strapi for page ${pageNumber}`)
       } else {
         throw new Error('Prompt too short or empty, using template fallback')
@@ -153,18 +232,27 @@ export default defineEventHandler(async (event) => {
     } catch (promptError) {
       // Fallback: use template system
       console.warn(`[Generate] Falling back to template system for page ${pageNumber}:`, promptError)
-      
+
       const { getNewPromptTemplate } = await import('../../../utils/story-loader')
       const promptTemplate = await getNewPromptTemplate(session.storyId)
-      
+
       finalPrompt = buildPromptForPage(
         promptTemplate,
         page.metadata,
         storyConfig.metadata.illustrationStyle,
         storyConfig.metadata.styleProfile,
-        characterDescription ? { fullDescription: characterDescription } : undefined
+        characterDescription ? { fullDescription: characterDescription } as any : undefined
       )
     }
+
+    // ─────────────────────────────────────────────────────
+    // Add consistency instructions when reference images are present
+    // ─────────────────────────────────────────────────────
+    finalPrompt = addConsistencyInstructions(finalPrompt, {
+      hasCharacterSheet: !!characterSheetBase64,
+      hasPage1Reference: !!page1Base64,
+      referenceImageCount: referenceImages.length,
+    })
 
     if (characterDescription) {
       console.log('[Generate] Using character description')
@@ -182,27 +270,26 @@ export default defineEventHandler(async (event) => {
     console.log(finalPrompt.substring(0, 500) + (finalPrompt.length > 500 ? '...' : ''))
     console.log('[Generate] ===== FULL PROMPT END =====')
 
-    // Use the model configured in Strapi for this story
-    const storyModel = storyConfig.settings.geminiModel
-    console.log(`[Generate] Using model from Strapi: ${storyModel}`)
-
+    // ─────────────────────────────────────────────────────
+    // Generate image with all reference images
+    // ─────────────────────────────────────────────────────
     let generatedImageBase64: string
 
     try {
       generatedImageBase64 = await generateImageWithRetry(
         {
           prompt: finalPrompt,
-          userImagesBase64: userPhotosBase64,
+          userImagesBase64: referenceImages,
           aspectRatio: page.aspectRatio,
           model: storyModel,
         },
         3, // max retries
-        false // useBaseImage = false (NEW MODE)
+        false // useBaseImage = false (prompt-only generation)
       )
     } catch (error: any) {
-      // If it fails with character description, try without it as fallback
-      if (characterDescription && error.message?.includes('Candidate has no content')) {
-        console.warn('[Generate] Failed with character description, trying without it...')
+      // If it fails with all references, try with just the user photo as fallback
+      if (referenceImages.length > 1 && error.message?.includes('Candidate has no content')) {
+        console.warn('[Generate] Failed with reference images, trying with photo only...')
 
         const { getNewPromptTemplate } = await import('../../../utils/story-loader')
         const fallbackTemplate = await getNewPromptTemplate(session.storyId)
@@ -222,7 +309,7 @@ export default defineEventHandler(async (event) => {
         generatedImageBase64 = await generateImageWithRetry(
           {
             prompt: fallbackPrompt,
-            userImagesBase64: userPhotosBase64,
+            userImagesBase64: [photoBase64],
             aspectRatio: page.aspectRatio,
             model: storyModel,
           },
@@ -238,14 +325,14 @@ export default defineEventHandler(async (event) => {
     const imageBuffer = Buffer.from(generatedImageBase64, 'base64')
     const imageUrl = await saveGeneratedImage(sessionId, pageNumber, versionNumber, imageBuffer)
 
-    console.log(`[Generate] ✅ Saved to Strapi: ${imageUrl}`)
+    console.log(`[Generate] Saved to Strapi: ${imageUrl}`)
 
     // Update session progress
     // Re-fetch session to get updated progress from Strapi
     console.log('[Generate] Updating session progress...')
     const updatedSession = await getSession(sessionId)
     const generatedPages = updatedSession?.progress.pagesGenerated || 0
-    
+
     console.log(`[Generate] Current progress: ${generatedPages}/${storyConfig.pages.length} pages`)
 
     if (generatedPages >= storyConfig.pages.length) {
@@ -254,7 +341,7 @@ export default defineEventHandler(async (event) => {
     }
 
     await saveSession(sessionId, session)
-    console.log(`[Generate] ✅ Session updated. Progress: ${generatedPages}/${storyConfig.pages.length}`)
+    console.log(`[Generate] Session updated. Progress: ${generatedPages}/${storyConfig.pages.length}`)
 
     return {
       success: true,

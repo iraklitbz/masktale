@@ -532,6 +532,80 @@ export async function getVersionCount(sessionId: string, pageNumber: number): Pr
   }
 }
 
+/**
+ * Check if a character sheet exists for this session (pageNumber=0)
+ */
+export async function hasCharacterSheet(sessionId: string): Promise<boolean> {
+  try {
+    const strapiSession = await getStrapiSessionId(sessionId)
+    if (!strapiSession) return false
+
+    const response = await fetchStrapi<{ data: any[] }>(
+      `/api/generated-images?filters[session][id][$eq]=${strapiSession.id}&filters[pageNumber][$eq]=0`
+    )
+
+    return !!(response.data && response.data.length > 0)
+  } catch {
+    return false
+  }
+}
+
+/**
+ * Save a character sheet as GeneratedImage with pageNumber=0
+ */
+export async function saveCharacterSheet(
+  sessionId: string,
+  imageBuffer: Buffer
+): Promise<string> {
+  console.log(`[SessionManager] Saving character sheet for session ${sessionId}`)
+  return saveGeneratedImage(sessionId, 0, 1, imageBuffer)
+}
+
+/**
+ * Get the character sheet image as base64 (pageNumber=0)
+ * Returns null if no character sheet exists
+ */
+export async function getCharacterSheet(sessionId: string): Promise<string | null> {
+  try {
+    const buffer = await getGeneratedImageBuffer(sessionId, 0, 1)
+    if (!buffer) return null
+    return buffer.toString('base64')
+  } catch {
+    return null
+  }
+}
+
+/**
+ * Get the selected image for a specific page as base64
+ * Finds the version marked as isSelected for that page
+ */
+export async function getSelectedPageImageBase64(
+  sessionId: string,
+  pageNumber: number
+): Promise<string | null> {
+  try {
+    const strapiSession = await getStrapiSessionId(sessionId)
+    if (!strapiSession) return null
+
+    const response = await fetchStrapi<{ data: any[] }>(
+      `/api/generated-images?filters[session][id][$eq]=${strapiSession.id}&filters[pageNumber][$eq]=${pageNumber}&filters[isSelected][$eq]=true&populate=image`
+    )
+
+    if (!response.data || response.data.length === 0 || !response.data[0].image) {
+      return null
+    }
+
+    const imageUrl = `${STRAPI_URL}${response.data[0].image.url}`
+    const imageResponse = await fetch(imageUrl)
+    if (!imageResponse.ok) return null
+
+    const arrayBuffer = await imageResponse.arrayBuffer()
+    return Buffer.from(arrayBuffer).toString('base64')
+  } catch {
+    return null
+  }
+}
+
 // Legacy function for backwards compatibility - returns empty string
 export function getGeneratedImagePath(
   sessionId: string,

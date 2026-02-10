@@ -96,6 +96,59 @@ Match the person's facial features exactly from the second image. Give them a ${
 }
 
 /**
+ * Options for adding visual consistency instructions
+ */
+export interface ConsistencyOptions {
+  hasCharacterSheet: boolean
+  hasPage1Reference: boolean
+  /** Total number of reference images being sent (user photo + sheet + page1) */
+  referenceImageCount: number
+}
+
+/**
+ * Add visual consistency instructions to a prompt when reference images
+ * (character sheet and/or page 1) are provided alongside the user photo.
+ *
+ * Tells Gemini which image is which so it can use them correctly.
+ *
+ * @param prompt - The existing prompt text
+ * @param options - Which reference images are present
+ * @returns Augmented prompt with consistency instructions
+ */
+export function addConsistencyInstructions(
+  prompt: string,
+  options: ConsistencyOptions
+): string {
+  if (!options.hasCharacterSheet && !options.hasPage1Reference) {
+    return prompt
+  }
+
+  const parts: string[] = []
+
+  // Explain image ordering to Gemini
+  parts.push('\nREFERENCE IMAGES PROVIDED:')
+  parts.push('- Image 1: Real photograph of the child (use for facial features and physical identity)')
+
+  if (options.hasCharacterSheet && options.hasPage1Reference) {
+    parts.push('- Image 2: Character reference sheet — the child illustrated in this story\'s art style (use for EXACT appearance consistency: hair, skin tone, proportions, clothing style)')
+    parts.push('- Image 3: Previously generated page from this same story (use for visual continuity: same style, same character rendering)')
+  } else if (options.hasCharacterSheet) {
+    parts.push('- Image 2: Character reference sheet — the child illustrated in this story\'s art style (use for EXACT appearance consistency)')
+  } else if (options.hasPage1Reference) {
+    parts.push('- Image 2: Previously generated page from this same story (use for visual continuity)')
+  }
+
+  parts.push('')
+  parts.push('VISUAL CONSISTENCY RULES (CRITICAL):')
+  parts.push('- The child MUST look IDENTICAL across all pages: same hair color, same hairstyle, same skin tone, same eye color, same facial features')
+  parts.push('- Do NOT change the character\'s clothing, accessories, or hairstyle unless the scene explicitly requires it')
+  parts.push('- Maintain the EXACT SAME art style, color palette, line work, and rendering technique as shown in the reference images')
+  parts.push('- The character\'s proportions (head size, body build) must remain consistent')
+
+  return prompt + parts.join('\n')
+}
+
+/**
  * Validate that all required variables are present in template
  *
  * @param promptTemplate - Template to validate
