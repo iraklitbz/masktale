@@ -32,14 +32,14 @@ export async function generateImageWithGemini(params: {
   baseImageBase64: string
   userImagesBase64: string | string[]
   aspectRatio?: AspectRatio
-  model?: string
+  model: string
 }): Promise<string> {
   const {
     prompt,
     baseImageBase64,
     userImagesBase64,
     aspectRatio = '3:4',
-    model = 'gemini-2.5-flash-image'
+    model,
   } = params
 
   const ai = getGeminiClient()
@@ -157,13 +157,13 @@ export async function generateImageFromPromptOnly(params: {
   prompt: string
   userImagesBase64: string | string[]
   aspectRatio?: AspectRatio
-  model?: string
+  model: string
 }): Promise<string> {
   const {
     prompt,
     userImagesBase64,
     aspectRatio = '3:4',
-    model = 'gemini-2.5-flash-image'
+    model,
   } = params
 
   const ai = getGeminiClient()

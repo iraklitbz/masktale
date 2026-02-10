@@ -182,19 +182,19 @@ export default defineEventHandler(async (event) => {
     console.log(finalPrompt.substring(0, 500) + (finalPrompt.length > 500 ? '...' : ''))
     console.log('[Generate] ===== FULL PROMPT END =====')
 
-    // Generate with Gemini - Use fixed model (ignore story config to avoid deprecated models)
-    // The model from story config may be deprecated
-    const WORKING_MODEL = 'gemini-3-pro-image-preview'
-    
+    // Use the model configured in Strapi for this story
+    const storyModel = storyConfig.settings.geminiModel
+    console.log(`[Generate] Using model from Strapi: ${storyModel}`)
+
     let generatedImageBase64: string
-    
+
     try {
       generatedImageBase64 = await generateImageWithRetry(
         {
           prompt: finalPrompt,
           userImagesBase64: userPhotosBase64,
           aspectRatio: page.aspectRatio,
-          model: WORKING_MODEL,
+          model: storyModel,
         },
         3, // max retries
         false // useBaseImage = false (NEW MODE)
@@ -203,65 +203,32 @@ export default defineEventHandler(async (event) => {
       // If it fails with character description, try without it as fallback
       if (characterDescription && error.message?.includes('Candidate has no content')) {
         console.warn('[Generate] Failed with character description, trying without it...')
-        
+
+        const { getNewPromptTemplate } = await import('../../../utils/story-loader')
+        const fallbackTemplate = await getNewPromptTemplate(session.storyId)
+
         const fallbackPrompt = buildPromptForPage(
-          promptTemplate,
+          fallbackTemplate,
           page.metadata,
           storyConfig.metadata.illustrationStyle,
           storyConfig.metadata.styleProfile,
           undefined
         )
-        
+
         console.log('[Generate] ===== FALLBACK PROMPT START =====')
         console.log(fallbackPrompt)
         console.log('[Generate] ===== FALLBACK PROMPT END =====')
-        
-        try {
-          generatedImageBase64 = await generateImageWithRetry(
-            {
-              prompt: fallbackPrompt,
-              userImagesBase64: userPhotosBase64,
-              aspectRatio: page.aspectRatio,
-              model: WORKING_MODEL,
-            },
-            2, // fewer retries for fallback
-            false
-          )
-        } catch (fallbackError: any) {
-          // Try with alternative model
-          console.warn('[Generate] Failed with primary model, trying alternative model...')
-          
-          try {
-            generatedImageBase64 = await generateImageWithRetry(
-              {
-                prompt: fallbackPrompt,
-                userImagesBase64: userPhotosBase64,
-                aspectRatio: page.aspectRatio,
-                model: 'gemini-2.0-flash-exp-image-generation', // Alternative model
-              },
-              2,
-              false
-            )
-          } catch (altModelError: any) {
-            // Last resort: try without reference images (text only)
-            console.warn('[Generate] Failed with alternative model, trying text-only generation...')
-            
-            const textOnlyPrompt = `${fallbackPrompt}
 
-Create an illustration of a heroic adult character in this scene. The character should look warm and approachable.`
-            
-            generatedImageBase64 = await generateImageWithRetry(
-              {
-                prompt: textOnlyPrompt,
-                userImagesBase64: [], // NO reference images
-                aspectRatio: page.aspectRatio,
-                model: storyConfig.settings.geminiModel,
-              },
-              2,
-              false
-            )
-          }
-        }
+        generatedImageBase64 = await generateImageWithRetry(
+          {
+            prompt: fallbackPrompt,
+            userImagesBase64: userPhotosBase64,
+            aspectRatio: page.aspectRatio,
+            model: storyModel,
+          },
+          2, // fewer retries for fallback
+          false
+        )
       } else {
         throw error
       }
