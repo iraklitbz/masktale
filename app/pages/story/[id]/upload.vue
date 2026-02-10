@@ -21,7 +21,72 @@ const childName = ref('')
 
 const MAX_FILES = 3
 const MAX_SIZE = 10 * 1024 * 1024 // 10MB
+const MAX_UPLOAD_SIZE = 4 * 1024 * 1024 // 4MB - Vercel body limit
+const COMPRESS_TARGET = 1200 // max dimension in px
+const COMPRESS_QUALITY = 0.8
 const ALLOWED_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']
+
+/**
+ * Compress an image using canvas before uploading.
+ * Resizes to max 1200px and converts to JPEG at 0.8 quality.
+ */
+function compressImage(file: File): Promise<File> {
+  return new Promise((resolve, reject) => {
+    const img = new Image()
+    const url = URL.createObjectURL(file)
+
+    img.onload = () => {
+      URL.revokeObjectURL(url)
+
+      let { width, height } = img
+
+      // Only resize if larger than target
+      if (width > COMPRESS_TARGET || height > COMPRESS_TARGET) {
+        if (width > height) {
+          height = Math.round((height * COMPRESS_TARGET) / width)
+          width = COMPRESS_TARGET
+        } else {
+          width = Math.round((width * COMPRESS_TARGET) / height)
+          height = COMPRESS_TARGET
+        }
+      }
+
+      const canvas = document.createElement('canvas')
+      canvas.width = width
+      canvas.height = height
+
+      const ctx = canvas.getContext('2d')
+      if (!ctx) {
+        reject(new Error('Could not get canvas context'))
+        return
+      }
+
+      ctx.drawImage(img, 0, 0, width, height)
+
+      canvas.toBlob(
+        (blob) => {
+          if (!blob) {
+            reject(new Error('Could not compress image'))
+            return
+          }
+          const compressed = new File([blob], file.name.replace(/\.\w+$/, '.jpg'), {
+            type: 'image/jpeg',
+          })
+          resolve(compressed)
+        },
+        'image/jpeg',
+        COMPRESS_QUALITY,
+      )
+    }
+
+    img.onerror = () => {
+      URL.revokeObjectURL(url)
+      reject(new Error('Could not load image'))
+    }
+
+    img.src = url
+  })
+}
 
 // Load session on mount
 onMounted(async () => {
@@ -135,9 +200,14 @@ async function uploadPhotos() {
   error.value = null
 
   try {
-    // Create FormData
+    // Compress images before uploading (avoids Vercel 413 limit)
+    const compressedFiles = await Promise.all(
+      uploadedFiles.value.map(file => compressImage(file)),
+    )
+
+    // Create FormData with compressed files
     const formData = new FormData()
-    uploadedFiles.value.forEach((file, index) => {
+    compressedFiles.forEach((file, index) => {
       formData.append(`photo-${index}`, file)
     })
     // Add child name to form data
