@@ -148,9 +148,9 @@ export async function getSession(sessionId: string): Promise<Session | null> {
       return null
     }
 
-    // Count generated images for progress
+    // Count generated images for progress (exclude character sheet at pageNumber=0)
     const imagesResponse = await fetchStrapi<{ data: any[] }>(
-      `/api/generated-images?filters[session][sessionId][$eq]=${sessionId}&filters[isSelected][$eq]=true`
+      `/api/generated-images?filters[session][sessionId][$eq]=${sessionId}&filters[isSelected][$eq]=true&filters[pageNumber][$gt]=0`
     )
     const pagesGenerated = imagesResponse.data?.length || 0
 
@@ -445,6 +445,9 @@ export async function getCurrentState(sessionId: string): Promise<CurrentState |
 
     for (const img of imagesResponse.data || []) {
       const pageNum = img.pageNumber
+
+      // Skip character sheet (pageNumber=0) — it's not a story page
+      if (pageNum === 0) continue
 
       // Track all versions for each page, mark selected
       if (img.isSelected) {
