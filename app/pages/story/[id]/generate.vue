@@ -14,6 +14,7 @@ const totalPages = ref(5)
 const error = ref<string | null>(null)
 const generatedImages = ref<Record<number, string>>({})
 const pageStatus = ref<Record<number, 'pending' | 'generating' | 'completed' | 'error'>>({})
+const preparingCharacter = ref(false) // True while generating character sheet on page 1
 
 // Load session and story
 const { data: story } = await useFetch(`/api/story/${storyId}`)
@@ -90,6 +91,11 @@ async function generatePage(pageNum: number, isRetry = false) {
   pageStatus.value[pageNum] = 'generating'
   currentPage.value = pageNum
 
+  // Page 1 also generates the character sheet, so show extra step
+  if (pageNum === 1 && !isRetry) {
+    preparingCharacter.value = true
+  }
+
   try {
     const response = await $fetch(
       `/api/session/${session.value.id}/generate`,
@@ -111,6 +117,8 @@ async function generatePage(pageNum: number, isRetry = false) {
     console.error(`Error generating page ${pageNum}:`, e)
     pageStatus.value[pageNum] = 'error'
     toast.error(`Página ${pageNum} falló`, e.message || 'Error al generar la página')
+  } finally {
+    preparingCharacter.value = false
   }
 }
 
@@ -297,9 +305,42 @@ const generationFinished = computed(() => {
         </div>
       </div>
 
+      <!-- Character Sheet Preparation Step -->
+      <Transition name="fade" mode="out-in">
+        <div v-if="preparingCharacter" key="preparing" class="mb-8 rounded-2xl bg-white p-8 shadow-lg">
+          <div class="mb-4 flex items-center gap-3">
+            <div class="flex h-12 w-12 items-center justify-center rounded-full bg-indigo-100">
+              <span class="text-2xl">🧒</span>
+            </div>
+            <div>
+              <h3 class="text-lg font-bold text-gray-900">
+                Preparando personaje...
+              </h3>
+              <p class="text-sm text-gray-600">
+                Creando la ficha visual del personaje para mantener consistencia en todas las páginas
+              </p>
+            </div>
+          </div>
+
+          <!-- Loading Animation -->
+          <div class="flex items-center justify-center py-8">
+            <div class="relative">
+              <div class="h-20 w-20 animate-spin rounded-full border-4 border-indigo-200 border-t-indigo-600" />
+              <div class="absolute inset-0 flex items-center justify-center">
+                <span class="text-2xl">🎨</span>
+              </div>
+            </div>
+          </div>
+
+          <p class="text-center text-sm text-gray-500">
+            Esto solo ocurre una vez y ayuda a que tu hijo/a se vea igual en todas las páginas...
+          </p>
+        </div>
+      </Transition>
+
       <!-- Current Page Info -->
       <Transition name="fade" mode="out-in">
-        <div v-if="generating && currentPageData" key="generating" class="mb-8 rounded-2xl bg-white p-8 shadow-lg">
+        <div v-if="generating && currentPageData && !preparingCharacter" key="generating" class="mb-8 rounded-2xl bg-white p-8 shadow-lg">
         <div class="mb-4 flex items-center gap-3">
           <div class="flex h-12 w-12 items-center justify-center rounded-full bg-purple-100">
             <span class="text-2xl">🎨</span>
