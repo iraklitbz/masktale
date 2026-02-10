@@ -24,9 +24,12 @@ const {
   isLoaded: fontsLoaded,
 } = useStoryFonts()
 
-// Load fonts when component mounts
+// Load fonts and preload images when component mounts
 onMounted(async () => {
-  await loadTypography(props.typography)
+  await Promise.all([
+    loadTypography(props.typography),
+    preloadAllImages(),
+  ])
 })
 
 // Get child name
@@ -56,6 +59,34 @@ const getImageUrl = (pageNumber: number): string => {
   }
 
   return `/api/session/${props.sessionId}/image/${pageNumber}?version=${version}`
+}
+
+// Preload all images on mount so navigation is instant
+const preloadedImages = ref<Record<number, string>>({})
+const imagesReady = ref(false)
+
+const preloadAllImages = async () => {
+  const totalPages = props.storyTexts.pages.length
+  const promises: Promise<void>[] = []
+
+  for (let i = 1; i <= totalPages; i++) {
+    if (!props.currentState.selectedVersions[i]) continue
+    const url = getImageUrl(i)
+    promises.push(
+      new Promise<void>((resolve) => {
+        const img = new Image()
+        img.onload = () => {
+          preloadedImages.value[i] = url
+          resolve()
+        }
+        img.onerror = () => resolve()
+        img.src = url
+      }),
+    )
+  }
+
+  await Promise.all(promises)
+  imagesReady.value = true
 }
 
 // Get page text for current spread
@@ -94,13 +125,8 @@ const handleKeydown = (e: KeyboardEvent) => {
   }
 }
 
-onMounted(() => {
-  window.addEventListener('keydown', handleKeydown)
-})
-
-onUnmounted(() => {
-  window.removeEventListener('keydown', handleKeydown)
-})
+onMounted(() => window.addEventListener('keydown', handleKeydown))
+onUnmounted(() => window.removeEventListener('keydown', handleKeydown))
 
 // Download PDF with high quality for print
 const isGeneratingPdf = ref(false)
@@ -285,33 +311,38 @@ const downloadPdf = async () => {
         <!-- STORY SPREADS (Immersive design) -->
         <template v-else-if="currentSpread > 0 && currentSpread < totalSpreads - 1">
           <div class="relative w-full h-full">
-            <!-- Background image -->
+            <!-- Background image (preloaded for instant navigation) -->
             <div class="absolute top-0 right-0 w-[60%] h-full">
-              <img
-                v-if="currentPageText && currentState.selectedVersions[currentPageText.pageNumber]"
-                :src="getImageUrl(currentPageText.pageNumber)"
-                :alt="`Ilustracion pagina ${currentPageText.pageNumber}`"
-                class="w-full h-full object-cover"
-              >
-              <div v-else class="w-full h-full bg-gray-200" />
+              <Transition name="page-fade" mode="out-in">
+                <img
+                  v-if="currentPageText && currentState.selectedVersions[currentPageText.pageNumber]"
+                  :key="currentPageText.pageNumber"
+                  :src="getImageUrl(currentPageText.pageNumber)"
+                  :alt="`Ilustracion pagina ${currentPageText.pageNumber}`"
+                  class="w-full h-full object-cover"
+                >
+                <div v-else class="w-full h-full bg-gray-200" />
+              </Transition>
             </div>
             <!-- Text overlay with gradient -->
             <div class="absolute top-0 left-0 w-[55%] h-full flex items-center justify-start pl-6 md:pl-10 bg-gradient-to-r from-white from-60% via-white/95 via-75% to-transparent">
-              <div class="max-w-[85%] text-left">
-                <h2
-                  class="text-lg md:text-xl lg:text-3xl text-purple-600 mb-3 md:mb-4"
-                  :style="headlineStyle"
-                >
-                  {{ currentPageText?.title }}
-                </h2>
-                <div class="w-12 h-0.5 bg-gradient-to-r from-purple-600 to-pink-500 mb-4 md:mb-6 rounded" />
-                <p
-                  class="text-sm md:text-base lg:text-lg leading-relaxed text-gray-700"
-                  :style="bodyStyle"
-                >
-                  {{ interpolateText(currentPageText?.text || '') }}
-                </p>
-              </div>
+              <Transition name="page-fade" mode="out-in">
+                <div :key="currentSpread" class="max-w-[85%] text-left">
+                  <h2
+                    class="text-lg md:text-xl lg:text-3xl text-purple-600 mb-3 md:mb-4"
+                    :style="headlineStyle"
+                  >
+                    {{ currentPageText?.title }}
+                  </h2>
+                  <div class="w-12 h-0.5 bg-gradient-to-r from-purple-600 to-pink-500 mb-4 md:mb-6 rounded" />
+                  <p
+                    class="text-sm md:text-base lg:text-lg leading-relaxed text-gray-700"
+                    :style="bodyStyle"
+                  >
+                    {{ interpolateText(currentPageText?.text || '') }}
+                  </p>
+                </div>
+              </Transition>
             </div>
             <!-- Page numbers -->
             <span class="absolute bottom-4 left-[25%] -translate-x-1/2 text-sm text-gray-400">
@@ -423,3 +454,15 @@ const downloadPdf = async () => {
     </div>
   </div>
 </template>
+
+<style scoped>
+.page-fade-enter-active,
+.page-fade-leave-active {
+  transition: opacity 0.25s ease;
+}
+
+.page-fade-enter-from,
+.page-fade-leave-to {
+  opacity: 0;
+}
+</style>
