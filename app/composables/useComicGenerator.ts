@@ -8,6 +8,7 @@ export interface ComicGeneratorOptions {
   layout?: string
   locale?: string
   includeBubbles?: boolean
+  quality?: 'preview' | 'full'
 }
 
 export interface ComicPreviewResponse {
@@ -33,6 +34,7 @@ export function useComicGenerator() {
           layout: options.layout || 'classic-2-1',
           locale: options.locale || 'es',
           includeBubbles: options.includeBubbles ?? true,
+          quality: options.quality || 'preview',
         },
       })
 

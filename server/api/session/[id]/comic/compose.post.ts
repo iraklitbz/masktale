@@ -5,6 +5,7 @@
  * Composes generated images into a comic page layout with panels
  */
 
+import sharp from 'sharp'
 import {
   getSession,
   getCurrentState,
@@ -25,6 +26,7 @@ interface ComposeComicRequest {
   layout?: string // Layout template name (default: 'classic-2-1')
   locale?: string // Language for speech bubbles (default: 'es')
   includeBubbles?: boolean // Whether to add speech bubbles (default: true)
+  quality?: 'preview' | 'full' // preview = fast/low-res, full = A4@300dpi (default: 'preview')
 }
 
 export default defineEventHandler(async (event) => {
@@ -43,6 +45,7 @@ export default defineEventHandler(async (event) => {
       layout = 'classic-2-1',
       locale = 'es',
       includeBubbles = true,
+      quality = 'preview',
     } = body
 
     // Get session
@@ -85,9 +88,8 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Load all generated images
-    const images: Buffer[] = []
-    for (const page of storyConfig.pages) {
+    // Load all generated images in parallel
+    const imagePromises = storyConfig.pages.map(async (page) => {
       const selectedVersion = currentState.selectedVersions[page.pageNumber]
       if (!selectedVersion) {
         throw createError({
@@ -108,21 +110,25 @@ export default defineEventHandler(async (event) => {
           statusMessage: `Failed to load image for page ${page.pageNumber}`,
         })
       }
-      images.push(imageBuffer)
-    }
+      return imageBuffer
+    })
 
-    console.log(`[Comic] Composing ${images.length} images with layout: ${layout}`)
+    const images = await Promise.all(imagePromises)
+
+    console.log(`[Comic] Composing ${images.length} images with layout: ${layout} (quality: ${quality})`)
 
     // Verify layout exists
     if (!COMIC_LAYOUTS[layout]) {
       console.warn(`[Comic] Layout '${layout}' not found, using 'classic-2-1'`)
     }
 
-    // Layout config from story settings
+    // Layout config — use reduced dimensions for preview
+    const isPreview = quality === 'preview'
     const layoutConfig: ComicLayoutConfig = {
       borderWidth: storyConfig.settings.comicSettings?.bubbleBorderWidth || 6,
       borderColor: storyConfig.settings.comicSettings?.bubbleBorderColor || '#000000',
       backgroundColor: '#FFFFFF',
+      ...(isPreview ? { width: 828, height: 1170, gutterSize: 8, margin: 16, borderWidth: 2 } : {}),
     }
 
     // Create comic page
@@ -180,16 +186,21 @@ export default defineEventHandler(async (event) => {
       }
     }
 
-    // Return as base64 for preview (no guardamos en filesystem para serverless)
-    const base64Image = comicBuffer.toString('base64')
-    console.log(`[Comic] Generated comic, size: ${comicBuffer.length} bytes`)
+    // For preview, convert to JPEG (much smaller than PNG)
+    const outputBuffer = isPreview
+      ? await sharp(comicBuffer).jpeg({ quality: 80 }).toBuffer()
+      : comicBuffer
+    const mimeType = isPreview ? 'image/jpeg' : 'image/png'
+
+    const base64Image = outputBuffer.toString('base64')
+    console.log(`[Comic] Generated comic (${quality}), size: ${outputBuffer.length} bytes`)
 
     return {
       success: true,
       layout,
       locale,
       bubblesIncluded: includeBubbles,
-      imageData: `data:image/png;base64,${base64Image}`,
+      imageData: `data:${mimeType};base64,${base64Image}`,
       availableLayouts: Object.keys(COMIC_LAYOUTS),
     }
   } catch (error: any) {

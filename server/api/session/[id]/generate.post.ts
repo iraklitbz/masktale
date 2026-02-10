@@ -173,6 +173,10 @@ export default defineEventHandler(async (event) => {
       console.log('[Generate] Using detailed style profile for consistency')
     }
 
+    // Ensure generated images never include speech bubbles or text overlays
+    // (speech bubbles are composited via HTML in the frontend)
+    finalPrompt += `\n\nCRITICAL: Do NOT include any speech bubbles, dialogue balloons, text overlays, captions, or written words in the image. The image must be a clean illustration with NO text or speech bubbles of any kind. Leave space where dialogue might go, but do NOT draw any bubbles or text.`
+
     // Log the full prompt for debugging
     console.log('[Generate] ===== FULL PROMPT START =====')
     console.log(finalPrompt.substring(0, 500) + (finalPrompt.length > 500 ? '...' : ''))
