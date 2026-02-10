@@ -64,7 +64,7 @@ async function createImageCollage(imagesBase64: string[]): Promise<string> {
 }
 
 export default defineEventHandler(async (event) => {
-  const {prompt, userImages} = await readBody(event)
+  const {prompt, userImages, model} = await readBody(event)
   const config = useRuntimeConfig()
 
   const ai = new GoogleGenAI({
@@ -114,7 +114,7 @@ export default defineEventHandler(async (event) => {
     console.log(`Enviando al modelo: test.jpg + collage de ${imageCount} foto(s)...`)
 
     const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash-image',
+      model: model || 'gemini-2.5-flash-image',
       contents,
       config: {
         responseModalities: ['IMAGE'],

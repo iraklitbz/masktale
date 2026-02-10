@@ -129,8 +129,7 @@ export async function loadStoryConfig(storyId: string): Promise<StoryConfig> {
       settings: {
         maxRegenerations: story.settings?.maxRegenerations || 3,
         defaultAspectRatio: convertAspectRatio(story.settings?.defaultAspectRatio || 'ratio_3_4') as any,
-        // Force all stories to use the same model (ignore Strapi setting to avoid deprecated models)
-        geminiModel: 'gemini-2.0-flash-exp-image-generation',
+        geminiModel: story.settings?.geminiModel || 'gemini-2.5-flash-image',
         processingTimeout: story.settings?.processingTimeout || 120,
         imageQuality: story.settings?.imageQuality || {
           compression: 85,
