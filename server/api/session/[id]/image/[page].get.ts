@@ -65,7 +65,7 @@ export default defineEventHandler(async (event) => {
 
   // Set appropriate content type
   setResponseHeader(event, 'Content-Type', 'image/png')
-  setResponseHeader(event, 'Cache-Control', 'public, max-age=31536000') // Cache for 1 year
+  setResponseHeader(event, 'Cache-Control', 'no-cache, no-store, must-revalidate')
 
   return imageBuffer
 })

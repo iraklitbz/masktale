@@ -137,6 +137,10 @@ export async function loadStoryConfig(storyId: string): Promise<StoryConfig> {
           maxHeight: 1600,
         },
         comicSettings: story.settings?.comicSettings || undefined,
+        faceSwap: {
+          enabled: !!story.settings?.faceSwap,
+          model: story.settings?.faceSwapModel || undefined,
+        },
       },
       pages: pages.map((page: any) => ({
         pageNumber: page.pageNumber,
