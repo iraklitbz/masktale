@@ -36,7 +36,7 @@ export function useSessionState(sessionId: string) {
       .map(([pageNum, pageVersion]) => ({
         pageNumber: parseInt(pageNum, 10),
         version: pageVersion.version,
-        imageUrl: getPageImageUrl(parseInt(pageNum, 10)),
+        imageUrl: getPageImageUrl(parseInt(pageNum, 10), pageVersion.version),
       }))
       .sort((a, b) => a.pageNumber - b.pageNumber)
   })

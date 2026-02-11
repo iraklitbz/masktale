@@ -305,10 +305,22 @@ export async function saveGeneratedImage(
       }),
     })
   } else {
-    // Create new
-    // If this is version 1, mark as selected by default
-    const isSelected = version === 1
+    // New version: always mark as selected and deselect previous versions
+    // First, deselect any currently selected version for this page
+    const selectedResponse = await fetchStrapi<{ data: any[] }>(
+      `/api/generated-images?filters[session][documentId][$eq]=${strapiSession.documentId}&filters[pageNumber][$eq]=${pageNumber}&filters[isSelected][$eq]=true`
+    )
 
+    for (const prev of selectedResponse.data || []) {
+      await fetchStrapi(`/api/generated-images/${prev.documentId}`, {
+        method: 'PUT',
+        body: JSON.stringify({
+          data: { isSelected: false }
+        }),
+      })
+    }
+
+    // Create new version as selected
     await fetchStrapi('/api/generated-images', {
       method: 'POST',
       body: JSON.stringify({
@@ -316,7 +328,7 @@ export async function saveGeneratedImage(
           pageNumber,
           version,
           image: uploaded.id,
-          isSelected,
+          isSelected: true,
           isFavorite: false,
           session: strapiSession.documentId,
         }

@@ -25,6 +25,7 @@ import { generateImageWithRetry } from '../../../utils/gemini'
 import { buildPromptForPage, getGenerationSummary, addConsistencyInstructions } from '../../../utils/prompt-builder'
 import { analyzeCharacterFromPhotos } from '../../../utils/character-analyzer'
 import { generateCharacterSheet } from '../../../utils/character-sheet'
+import { faceSwapWithRetry, faceRestoreWithRetry } from '../../../utils/face-swap'
 
 // In-memory cache for character descriptions (per session)
 const characterDescriptionCache: Record<string, string> = {}
@@ -263,7 +264,9 @@ export default defineEventHandler(async (event) => {
 
     // Ensure generated images never include speech bubbles or text overlays
     // (speech bubbles are composited via HTML in the frontend)
-    finalPrompt += `\n\nCRITICAL: Do NOT include any speech bubbles, dialogue balloons, text overlays, captions, or written words in the image. The image must be a clean illustration with NO text or speech bubbles of any kind. Leave space where dialogue might go, but do NOT draw any bubbles or text.`
+    // Placed BOTH at the start and end of the prompt for maximum emphasis
+    const noBubblesInstruction = `ABSOLUTE RULE — ZERO TEXT OR BUBBLES: The generated image must contain ZERO speech bubbles, ZERO dialogue balloons, ZERO thought bubbles, ZERO text overlays, ZERO captions, ZERO written words, ZERO onomatopoeia, and ZERO letters of any kind. Generate ONLY a clean illustration. Speech bubbles will be added separately afterward. Any text or bubble in the image is a critical failure.`
+    finalPrompt = `${noBubblesInstruction}\n\n${finalPrompt}\n\n${noBubblesInstruction}`
 
     // Log the full prompt for debugging
     console.log('[Generate] ===== FULL PROMPT START =====')
@@ -319,6 +322,25 @@ export default defineEventHandler(async (event) => {
       } else {
         throw error
       }
+    }
+
+    // ─────────────────────────────────────────────────────
+    // Face-swap: post-process if enabled for this story
+    // Only applies to story pages (not character sheet, page 0)
+    // ─────────────────────────────────────────────────────
+    console.log(`[Generate] Face-swap config:`, JSON.stringify(storyConfig.settings.faceSwap))
+
+    if (storyConfig.settings.faceSwap?.enabled) {
+      console.log(`[Generate] Face-swap enabled for story ${session.storyId}. Processing...`)
+      generatedImageBase64 = await faceSwapWithRetry(
+        generatedImageBase64,
+        photoBase64,
+        storyConfig.settings.faceSwap.model,
+      )
+
+      // Face restoration: clean up artifacts and improve facial detail
+      console.log(`[Generate] Running face restoration (GFPGAN)...`)
+      generatedImageBase64 = await faceRestoreWithRetry(generatedImageBase64)
     }
 
     // Save generated image to Strapi

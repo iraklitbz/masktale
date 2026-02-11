@@ -134,6 +134,11 @@ export interface ComicSettings {
   textColor?: string
 }
 
+export interface FaceSwapSettings {
+  enabled: boolean
+  model?: string // e.g. 'cdingram/face-swap'
+}
+
 export interface StorySettings {
   maxRegenerations: number
   defaultAspectRatio: AspectRatio
@@ -141,6 +146,7 @@ export interface StorySettings {
   processingTimeout: number // Seconds
   imageQuality: ImageQuality
   comicSettings?: ComicSettings // Comic format only
+  faceSwap?: FaceSwapSettings
 }
 
 export interface StoryConfig {
