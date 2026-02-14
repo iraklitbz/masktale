@@ -123,29 +123,59 @@ export function addConsistencyInstructions(
     return prompt
   }
 
-  const parts: string[] = []
-
-  // Explain image ordering to Gemini
-  parts.push('\nREFERENCE IMAGES PROVIDED:')
-  parts.push('- Image 1: Real photograph of the child (use for facial features and physical identity)')
+  const parts: string[] = ['\nREFERENCE IMAGES:']
+  parts.push('- Image 1: Photo of the child (facial reference)')
 
   if (options.hasCharacterSheet && options.hasPage1Reference) {
-    parts.push('- Image 2: Character reference sheet — the child illustrated in this story\'s art style (use for EXACT appearance consistency: hair, skin tone, proportions, clothing style)')
-    parts.push('- Image 3: Previously generated page from this same story (use for visual continuity: same style, same character rendering)')
+    parts.push('- Image 2: Character sheet in this art style (appearance reference)')
+    parts.push('- Image 3: Previous page (style continuity)')
   } else if (options.hasCharacterSheet) {
-    parts.push('- Image 2: Character reference sheet — the child illustrated in this story\'s art style (use for EXACT appearance consistency)')
+    parts.push('- Image 2: Character sheet in this art style (appearance reference)')
   } else if (options.hasPage1Reference) {
-    parts.push('- Image 2: Previously generated page from this same story (use for visual continuity)')
+    parts.push('- Image 2: Previous page (style continuity)')
   }
 
-  parts.push('')
-  parts.push('VISUAL CONSISTENCY RULES (CRITICAL):')
-  parts.push('- The child MUST look IDENTICAL across all pages: same hair color, same hairstyle, same skin tone, same eye color, same facial features')
-  parts.push('- Do NOT change the character\'s clothing, accessories, or hairstyle unless the scene explicitly requires it')
-  parts.push('- Maintain the EXACT SAME art style, color palette, line work, and rendering technique as shown in the reference images')
-  parts.push('- The character\'s proportions (head size, body build) must remain consistent')
+  parts.push('Keep the child looking identical across all pages.')
 
   return prompt + parts.join('\n')
+}
+
+/**
+ * Add eye rendering instructions to a prompt.
+ * Ensures Gemini generates realistic, well-defined eyes that are compatible
+ * with face-swap post-processing and avoid common artifacts (spots, discoloration).
+ *
+ * Applied globally to all stories — current and future.
+ *
+ * @param prompt - The existing prompt text
+ * @param faceSwapEnabled - Whether face-swap will be applied (adds extra instructions)
+ * @returns Augmented prompt with eye rendering rules
+ */
+export function addEyeRenderingInstructions(prompt: string, faceSwapEnabled: boolean): string {
+  // Don't add if the prompt already has eye instructions
+  if (prompt.toLowerCase().includes('eye rendering') || prompt.toLowerCase().includes('eye detail')) {
+    return prompt
+  }
+
+  const baseEyeInstructions = `
+
+EYE RENDERING (IMPORTANT - avoid artifacts):
+- Eyes must have REALISTIC HUMAN proportions — NOT oversized anime/cartoon eyes
+- Render clear, well-defined iris with natural color matching the reference photo
+- Pupils must be round, centered, and properly sized
+- White sclera should be clean with subtle natural shading, no spots or discoloration
+- Both eyes must be symmetrical, same size, looking in the same direction
+- Natural eye reflections (single small catchlight per eye)
+- NO heavy dark circles, NO unnatural shadows around the eye area
+- Eyelids and eyelashes rendered with realistic detail`
+
+  const faceSwapExtra = faceSwapEnabled
+    ? `
+- Eye area skin should be smooth and well-lit, matching the rest of the face
+- Keep eye size and shape close to the reference photo for face-swap compatibility`
+    : ''
+
+  return prompt + baseEyeInstructions + faceSwapExtra
 }
 
 /**

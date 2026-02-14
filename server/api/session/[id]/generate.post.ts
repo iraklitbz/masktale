@@ -22,7 +22,7 @@ import {
 } from '../../../utils/session-manager'
 import { loadStoryConfig, getPagePrompt } from '../../../utils/story-loader'
 import { generateImageWithRetry } from '../../../utils/gemini'
-import { buildPromptForPage, getGenerationSummary, addConsistencyInstructions } from '../../../utils/prompt-builder'
+import { buildPromptForPage, getGenerationSummary, addConsistencyInstructions, addEyeRenderingInstructions } from '../../../utils/prompt-builder'
 import { analyzeCharacterFromPhotos } from '../../../utils/character-analyzer'
 import { generateCharacterSheet } from '../../../utils/character-sheet'
 import { faceSwapWithRetry, faceRestoreWithRetry } from '../../../utils/face-swap'
@@ -142,41 +142,11 @@ export default defineEventHandler(async (event) => {
     }
 
     // ─────────────────────────────────────────────────────
-    // Character Sheet: generate if missing (page 1 triggers it)
+    // Character Sheet: skipped — consistency comes from the prompt + photo
+    // (same approach as the test page that produced the best results)
     // ─────────────────────────────────────────────────────
-    let characterSheetBase64: string | null = null
-
-    const sheetExists = await hasCharacterSheet(sessionId)
-
-    if (!sheetExists) {
-      // Generate character sheet on first page generation
-      console.log('[Generate] No character sheet found. Generating character sheet...')
-      try {
-        characterSheetBase64 = await generateCharacterSheet(
-          [photoBase64],
-          storyConfig,
-          characterDescription
-        )
-
-        // Save to Strapi as pageNumber=0
-        const sheetBuffer = Buffer.from(characterSheetBase64, 'base64')
-        await saveCharacterSheet(sessionId, sheetBuffer)
-        console.log('[Generate] Character sheet generated and saved to Strapi')
-      } catch (error: any) {
-        console.warn('[Generate] Failed to generate character sheet:', error.message)
-        console.warn('[Generate] Continuing without character sheet (graceful fallback)')
-        characterSheetBase64 = null
-      }
-    } else {
-      // Retrieve existing character sheet
-      console.log('[Generate] Retrieving existing character sheet from Strapi...')
-      characterSheetBase64 = await getCharacterSheet(sessionId)
-      if (characterSheetBase64) {
-        console.log('[Generate] Character sheet retrieved successfully')
-      } else {
-        console.warn('[Generate] Character sheet exists but could not be retrieved')
-      }
-    }
+    const characterSheetBase64: string | null = null
+    console.log('[Generate] Character sheet skipped (prompt-only mode)')
 
     // ─────────────────────────────────────────────────────
     // Page 1 reference: for pages 2+ get the selected page 1 image
@@ -218,12 +188,12 @@ export default defineEventHandler(async (event) => {
       const pagePrompt = await getPagePrompt(session.storyId, pageNumber)
 
       if (pagePrompt && pagePrompt.length > 50) {
-        // Use the complete prompt from Strapi, adding character description
+        // Use the complete prompt from Strapi as-is
         finalPrompt = pagePrompt
 
-        // Add character description if available
-        if (characterDescription) {
-          finalPrompt += `\n\nCHARACTER TO FEATURE:\n${characterDescription}`
+        // Only add character description if prompt has the placeholder
+        if (characterDescription && pagePrompt.includes('{CHARACTER_DESCRIPTION}')) {
+          finalPrompt = finalPrompt.replace(/\{CHARACTER_DESCRIPTION\}/g, characterDescription)
         }
 
         console.log(`[Generate] Using complete prompt from Strapi for page ${pageNumber}`)
@@ -255,6 +225,10 @@ export default defineEventHandler(async (event) => {
       referenceImageCount: referenceImages.length,
     })
 
+    // Add eye rendering instructions (global — avoids eye artifacts in face-swap)
+    const faceSwapEnabled = !!storyConfig.settings.faceSwap?.enabled
+    finalPrompt = addEyeRenderingInstructions(finalPrompt, faceSwapEnabled)
+
     if (characterDescription) {
       console.log('[Generate] Using character description')
     }
@@ -262,11 +236,10 @@ export default defineEventHandler(async (event) => {
       console.log('[Generate] Using detailed style profile for consistency')
     }
 
-    // Ensure generated images never include speech bubbles or text overlays
-    // (speech bubbles are composited via HTML in the frontend)
-    // Placed BOTH at the start and end of the prompt for maximum emphasis
-    const noBubblesInstruction = `ABSOLUTE RULE — ZERO TEXT OR BUBBLES: The generated image must contain ZERO speech bubbles, ZERO dialogue balloons, ZERO thought bubbles, ZERO text overlays, ZERO captions, ZERO written words, ZERO onomatopoeia, and ZERO letters of any kind. Generate ONLY a clean illustration. Speech bubbles will be added separately afterward. Any text or bubble in the image is a critical failure.`
-    finalPrompt = `${noBubblesInstruction}\n\n${finalPrompt}\n\n${noBubblesInstruction}`
+    // Add no-text rule only if the prompt doesn't already include it
+    if (!finalPrompt.toLowerCase().includes('no speech bubbles')) {
+      finalPrompt += `\n\nIMPORTANT: NO text, NO speech bubbles, NO words of any kind in the image.`
+    }
 
     // Log the full prompt for debugging
     console.log('[Generate] ===== FULL PROMPT START =====')
@@ -338,8 +311,12 @@ export default defineEventHandler(async (event) => {
         storyConfig.settings.faceSwap.model,
       )
 
-      // Face restoration: clean up artifacts and improve facial detail
-      console.log(`[Generate] Running face restoration (GFPGAN)...`)
+      // Wait for Replicate rate-limit to reset before next call
+      console.log(`[Generate] Waiting 10s for Replicate rate-limit reset...`)
+      await new Promise(resolve => setTimeout(resolve, 10_000))
+
+      // Face restoration: clean up face-swap artifacts while preserving illustrated style
+      console.log(`[Generate] Running face restoration (CodeFormer)...`)
       generatedImageBase64 = await faceRestoreWithRetry(generatedImageBase64)
     }
 
