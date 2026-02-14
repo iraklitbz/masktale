@@ -7,6 +7,7 @@ import Replicate from 'replicate'
 
 const DEFAULT_SWAP_MODEL = 'cdingram/face-swap'
 const GFPGAN_MODEL = 'tencentarc/gfpgan:0fbacf7afc6c144e5be9767cff80f25aff23e52b0708f17e20f9879b2f21516c'
+const CODEFORMER_MODEL = 'sczhou/codeformer:cc4956dd26fa5a7185d5660cc9100fab1b8070a1d1654a8bb5eb6d443b020bb2'
 
 /**
  * Known models config: version hashes and input parameter names
@@ -138,7 +139,7 @@ export async function faceSwapWithRetry(
   generatedImageBase64: string,
   facePhotoBase64: string,
   model?: string,
-  maxRetries = 2,
+  maxRetries = 3,
 ): Promise<string> {
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
@@ -147,7 +148,8 @@ export async function faceSwapWithRetry(
     } catch (error: any) {
       console.warn(`[FaceSwap] Attempt ${attempt} failed:`, error.message)
       if (attempt < maxRetries) {
-        const delay = Math.pow(2, attempt) * 1000
+        const retryMatch = error.message?.match(/retry_after[":]\s*(\d+)/)
+        const delay = retryMatch ? (parseInt(retryMatch[1]) + 2) * 1000 : 10_000
         console.log(`[FaceSwap] Retrying in ${delay / 1000}s...`)
         await new Promise(resolve => setTimeout(resolve, delay))
       }
@@ -159,8 +161,42 @@ export async function faceSwapWithRetry(
 }
 
 // ─────────────────────────────────────────────────────
-// Face Restoration (GFPGAN)
+// Face Restoration
 // ─────────────────────────────────────────────────────
+
+export type RestoreModel = 'codeformer' | 'gfpgan'
+
+/**
+ * Restore/enhance face quality using CodeFormer
+ * Superior to GFPGAN for eye artifacts, natural skin, and detail preservation
+ *
+ * @param imageBase64 - Image with face to restore (base64)
+ * @param fidelity - 0 = max quality (more AI correction), 1 = max fidelity (preserve input). Default 0.5
+ * @returns Base64-encoded image with restored face
+ */
+export async function faceRestoreCodeFormer(
+  imageBase64: string,
+  fidelity = 0.5,
+): Promise<string> {
+  const replicate = getReplicateClient()
+
+  console.log(`[FaceRestore] Restoring face with CodeFormer (fidelity=${fidelity})`)
+  console.log(`[FaceRestore] Input size: ${Math.round(imageBase64.length / 1024)}KB`)
+
+  const imageUri = `data:image/jpeg;base64,${imageBase64}`
+
+  const output = await runWithTimeout(replicate, CODEFORMER_MODEL, {
+    image: imageUri,
+    codeformer_fidelity: fidelity,
+    background_enhance: true,
+    face_upsample: true,
+    upscale: 2,
+  }, 60_000)
+
+  const base64Result = await outputToBase64(output)
+  console.log(`[FaceRestore] CodeFormer success! Result size: ${Math.round(base64Result.length / 1024)}KB`)
+  return base64Result
+}
 
 /**
  * Restore/enhance face quality using GFPGAN v1.4
@@ -169,7 +205,7 @@ export async function faceSwapWithRetry(
  * @param imageBase64 - Image with face to restore (base64)
  * @returns Base64-encoded image with restored face
  */
-export async function faceRestore(imageBase64: string): Promise<string> {
+export async function faceRestoreGFPGAN(imageBase64: string): Promise<string> {
   const replicate = getReplicateClient()
 
   console.log(`[FaceRestore] Restoring face with GFPGAN v1.4`)
@@ -181,11 +217,26 @@ export async function faceRestore(imageBase64: string): Promise<string> {
     img: imageUri,
     version: 'v1.4',
     scale: 2,
-  }, 30_000) // 30s timeout — GFPGAN is fast (~3s)
+  }, 30_000)
 
   const base64Result = await outputToBase64(output)
-  console.log(`[FaceRestore] Success! Result size: ${Math.round(base64Result.length / 1024)}KB`)
+  console.log(`[FaceRestore] GFPGAN success! Result size: ${Math.round(base64Result.length / 1024)}KB`)
   return base64Result
+}
+
+/**
+ * Unified face restore dispatcher
+ * Routes to CodeFormer (default) or GFPGAN based on model param
+ */
+export async function faceRestore(
+  imageBase64: string,
+  model: RestoreModel = 'codeformer',
+  codeformerFidelity = 0.5,
+): Promise<string> {
+  if (model === 'gfpgan') {
+    return faceRestoreGFPGAN(imageBase64)
+  }
+  return faceRestoreCodeFormer(imageBase64, codeformerFidelity)
 }
 
 /**
@@ -194,16 +245,19 @@ export async function faceRestore(imageBase64: string): Promise<string> {
  */
 export async function faceRestoreWithRetry(
   imageBase64: string,
-  maxRetries = 2,
+  maxRetries = 3,
+  model: RestoreModel = 'codeformer',
+  codeformerFidelity = 0.5,
 ): Promise<string> {
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
-      console.log(`[FaceRestore] Attempt ${attempt}/${maxRetries}`)
-      return await faceRestore(imageBase64)
+      console.log(`[FaceRestore] Attempt ${attempt}/${maxRetries} (${model})`)
+      return await faceRestore(imageBase64, model, codeformerFidelity)
     } catch (error: any) {
       console.warn(`[FaceRestore] Attempt ${attempt} failed:`, error.message)
       if (attempt < maxRetries) {
-        const delay = Math.pow(2, attempt) * 1000
+        const retryMatch = error.message?.match(/retry_after[":]\s*(\d+)/)
+        const delay = retryMatch ? (parseInt(retryMatch[1]) + 2) * 1000 : 10_000
         console.log(`[FaceRestore] Retrying in ${delay / 1000}s...`)
         await new Promise(resolve => setTimeout(resolve, delay))
       }

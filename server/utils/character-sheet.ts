@@ -41,26 +41,13 @@ ${styleProfile.artisticReferences ? `- Artistic References: ${styleProfile.artis
     ? `CHARACTER DETAILS:\n${characterDescription}`
     : `Study the reference photo(s) carefully and capture every physical detail of this child.`
 
-  return `You are creating a CHARACTER REFERENCE SHEET for a children's story illustration.
-
-PURPOSE: This image will be used as a VISUAL REFERENCE to ensure the character looks IDENTICAL across all pages of the story.
+  return `You are an expert children's book illustrator. Create a character reference illustration of the child from the reference photo.
 
 ${styleSection}
 
 ${characterSection}
 
-INSTRUCTIONS:
-1. Draw the child from the reference photo(s) in a NEUTRAL STANDING POSE
-2. Show the child from the waist up, facing slightly to the right (3/4 view)
-3. Use a PLAIN, SIMPLE background (solid light color or very subtle gradient)
-4. The child should wear SIMPLE, NEUTRAL clothing (plain t-shirt or similar)
-5. Capture EVERY physical detail: exact hair color, hairstyle, skin tone, eye color, facial features, freckles, dimples, etc.
-6. The illustration MUST be in the EXACT art style specified above — this is critical for consistency
-7. The face should be CLEARLY VISIBLE and well-lit, taking up a significant portion of the image
-8. Do NOT add any text, labels, speech bubbles, or annotations
-9. Do NOT add any fantasy elements, props, or story-specific items — this is a neutral reference
-
-The goal is a clean, clear character reference that captures this specific child's appearance in the story's art style.`
+Draw the child from the waist up in a neutral standing pose (3/4 view), plain light background. Capture every physical detail: hair color, hairstyle, skin tone, eye color, facial features. The face should be clearly visible and well-lit. Use the art style specified above. NO text, NO labels, NO speech bubbles.`
 }
 
 /**

@@ -40,7 +40,20 @@
       "Bash(TOKEN='627f6d9c3a97080d12060a7ed2dfbb1ec04e4e7068a178c785bee25d1d02b34f8af24e224344b3bbd4e89e9a958a7322be7c03ee873d0661e1b84c6bb9a2fb1cbca58fc06d2c3c24f6aaeea3876139561a019c516860bccacd9f05ff1702b43693728a2ffe71bc50b04ebb64c6a493025d1906d9171b73b8a78541322aa4f533')",
       "WebFetch(domain:replicate.com)",
       "WebFetch(domain:www.aimodels.fyi)",
-      "WebFetch(domain:github.com)"
+      "WebFetch(domain:github.com)",
+      "Bash(1 cat /tmp/cap_story.json)",
+      "Bash(node scripts/update-caperucita-prompts.mjs:*)",
+      "Bash(node:*)",
+      "Bash(wc:*)",
+      "Bash(head:*)",
+      "mcp__playwright__browser_navigate",
+      "mcp__playwright__browser_wait_for",
+      "mcp__playwright__browser_snapshot",
+      "mcp__playwright__browser_console_messages",
+      "mcp__playwright__browser_take_screenshot",
+      "mcp__playwright__browser_file_upload",
+      "mcp__playwright__browser_close",
+      "mcp__playwright__browser_click"
     ]
   }
 }

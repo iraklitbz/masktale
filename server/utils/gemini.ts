@@ -184,10 +184,15 @@ export async function generateImageFromPromptOnly(params: {
     })),
   ]
 
+  // Use TEXT + IMAGE modalities for flash models (they may want to return text alongside)
+  const useTextAndImage = model.includes('flash')
+  const responseModalities = useTextAndImage ? ['TEXT', 'IMAGE'] : ['IMAGE']
+
   console.log(`[Gemini] Generating NEW image from prompt with ${userImageArray.length} reference photo(s)`)
   console.log(`[Gemini] Mode: Complete generation (NO base image)`)
   console.log(`[Gemini] Model: ${model}`)
   console.log(`[Gemini] Aspect ratio: ${aspectRatio}`)
+  console.log(`[Gemini] Response modalities: ${responseModalities.join(', ')}`)
   console.log(`[Gemini] Image sizes: ${userImageArray.map((img, i) => `img${i+1}=${Math.round(img.length/1024)}KB`).join(', ')}`)
 
   try {
@@ -195,7 +200,7 @@ export async function generateImageFromPromptOnly(params: {
       model,
       contents,
       config: {
-        responseModalities: ['IMAGE'],
+        responseModalities: responseModalities as any,
         imageConfig: {
           aspectRatio,
         },
@@ -216,15 +221,33 @@ export async function generateImageFromPromptOnly(params: {
       throw new Error('First candidate is undefined')
     }
 
+    // Debug: log candidate details
+    console.log('[Gemini] Candidate details:', JSON.stringify({
+      hasContent: !!candidate.content,
+      finishReason: candidate.finishReason,
+      safetyRatings: candidate.safetyRatings,
+    }))
+
     if (!candidate.content) {
-      throw new Error('Candidate has no content')
+      const finishReason = candidate.finishReason || 'unknown'
+      const safetyRatings = candidate.safetyRatings
+
+      const isSafetyBlock = finishReason?.toLowerCase().includes('safety') ||
+                            finishReason?.toLowerCase().includes('block') ||
+                            safetyRatings?.some((r: any) => r.probability === 'HIGH' || r.blocked)
+
+      if (isSafetyBlock) {
+        throw new Error(`SAFETY_BLOCK: Image generation blocked by safety filters. Finish reason: ${finishReason}`)
+      }
+
+      throw new Error(`Candidate has no content. Finish reason: ${finishReason}`)
     }
 
     if (!candidate.content.parts || candidate.content.parts.length === 0) {
       throw new Error('Candidate content has no parts')
     }
 
-    // Extract generated image from response
+    // Extract generated image from response — check both image and text parts
     for (const part of candidate.content.parts) {
       if (part.inlineData) {
         const imageData = part.inlineData.data
@@ -233,7 +256,9 @@ export async function generateImageFromPromptOnly(params: {
       }
     }
 
-    throw new Error('No image was generated in the response')
+    // Log what parts we actually got
+    const partTypes = candidate.content.parts.map((p: any) => p.text ? 'text' : p.inlineData ? 'image' : 'unknown')
+    throw new Error(`No image in response. Parts received: ${partTypes.join(', ')}`)
   } catch (error: any) {
     console.error('[Gemini] Error generating image:', error.message)
     throw error
