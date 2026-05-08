@@ -154,6 +154,24 @@ export async function getSession(sessionId: string): Promise<Session | null> {
     )
     const pagesGenerated = imagesResponse.data?.length || 0
 
+    // childName field may contain a JSON-encoded object with extra custom vars
+    let parsedChildName: string | undefined
+    let customVars: Record<string, string> | undefined
+    if (data.childName) {
+      try {
+        const parsed = JSON.parse(data.childName)
+        if (parsed && typeof parsed === 'object' && parsed.name) {
+          parsedChildName = parsed.name
+          const { name: _name, ...rest } = parsed
+          if (Object.keys(rest).length > 0) customVars = rest
+        } else {
+          parsedChildName = data.childName
+        }
+      } catch {
+        parsedChildName = data.childName
+      }
+    }
+
     const session: Session = {
       id: data.sessionId,
       storyId: data.storyId,
@@ -166,8 +184,9 @@ export async function getSession(sessionId: string): Promise<Session | null> {
         errors: [],
       },
       userPhoto: data.childName ? {
-        childName: data.childName,
+        childName: parsedChildName,
         originalPath: data.childPhoto?.url ? `${STRAPI_URL}${data.childPhoto.url}` : '',
+        customVars,
       } : undefined,
     }
 
@@ -187,11 +206,18 @@ export async function saveSession(sessionId: string, session: Session): Promise<
     throw new Error(`Session ${sessionId} not found in Strapi`)
   }
 
+  // Re-encode childName + customVars as JSON to preserve all custom variables
+  const childNameToStore = session.userPhoto?.childName
+    ? (session.userPhoto.customVars && Object.keys(session.userPhoto.customVars).length > 0
+        ? JSON.stringify({ name: session.userPhoto.childName, ...session.userPhoto.customVars })
+        : session.userPhoto.childName)
+    : undefined
+
   const updateData = {
     data: {
       status: session.status,
       totalPages: session.progress?.totalPages || 0,
-      childName: session.userPhoto?.childName,
+      ...(childNameToStore !== undefined ? { childName: childNameToStore } : {}),
     }
   }
 
@@ -224,18 +250,27 @@ export async function updateSessionStatus(
 }
 
 /**
- * Update session with user photo info
+ * Update session with user photo info.
+ * Extra story-specific variables (city, kuscheltier, etc.) are stored as JSON
+ * inside the childName field so no Strapi schema changes are required.
  */
 export async function updateSessionUserPhoto(
   sessionId: string,
   childName: string,
   photoBuffer: Buffer,
-  photoBase64: string
+  photoBase64: string,
+  extraVars?: Record<string, string>
 ): Promise<void> {
   const strapiSession = await getStrapiSessionId(sessionId)
   if (!strapiSession) {
     throw new Error(`Session ${sessionId} not found`)
   }
+
+  // Encode extra vars into the childName field as JSON when present
+  const storedChildName =
+    extraVars && Object.keys(extraVars).length > 0
+      ? JSON.stringify({ name: childName, ...extraVars })
+      : childName
 
   // Upload photo to Strapi Media Library
   const uploaded = await uploadToStrapi(photoBuffer, `${sessionId}-photo.png`, 'image/png')
@@ -244,7 +279,7 @@ export async function updateSessionUserPhoto(
     method: 'PUT',
     body: JSON.stringify({
       data: {
-        childName,
+        childName: storedChildName,
         childPhoto: uploaded.id,
         childPhotoBase64: photoBase64,
         status: 'photo_uploaded',
@@ -252,7 +287,7 @@ export async function updateSessionUserPhoto(
     }),
   })
 
-  console.log(`[SessionManager] Updated session ${sessionId} with user photo`)
+  console.log(`[SessionManager] Updated session ${sessionId} with user photo${extraVars ? ' + custom vars' : ''}`)
 }
 
 /**

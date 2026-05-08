@@ -123,6 +123,18 @@ export interface StoryTypography {
 /**
  * Comic-specific settings for speech bubbles and styling
  */
+/**
+ * Custom input field for stories that need extra personalization
+ * (e.g. city name, stuffed animal name)
+ */
+export interface CustomInput {
+  id: string // Form field key, e.g. 'city', 'kuscheltier'
+  label_es: string
+  label_en?: string
+  placeholder?: string
+  required?: boolean
+}
+
 export interface ComicSettings {
   addSpeechBubbles?: boolean
   bubbleStyle?: 'classic' | 'modern'
@@ -147,6 +159,7 @@ export interface StorySettings {
   imageQuality: ImageQuality
   comicSettings?: ComicSettings // Comic format only
   faceSwap?: FaceSwapSettings
+  customInputs?: CustomInput[] // Extra personalization inputs beyond childName
 }
 
 export interface StoryConfig {

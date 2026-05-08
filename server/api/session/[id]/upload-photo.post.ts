@@ -43,9 +43,10 @@ export default defineEventHandler(async (event) => {
 
     const warnings: string[] = []
 
-    // Extract childName and photo from form data
+    // Extract childName, custom vars, and photo from form data
     let childName = ''
     let photoFile: { data: Buffer; type: string } | null = null
+    const extraVars: Record<string, string> = {}
 
     for (const item of formData) {
       if (item.name === 'childName' && item.data) {
@@ -55,6 +56,9 @@ export default defineEventHandler(async (event) => {
         if (!photoFile) {
           photoFile = { data: item.data, type: item.type }
         }
+      } else if (item.name && item.data && !item.type) {
+        // Text field that is not childName → custom story variable
+        extraVars[item.name] = item.data.toString('utf-8').trim()
       }
     }
 
@@ -112,8 +116,14 @@ export default defineEventHandler(async (event) => {
     console.log(`[API] Child name: "${childName || 'not provided'}"`)
     console.log(`[API] Optimized photo: ${photoFile.data.length} -> ${optimizedBuffer.length} bytes`)
 
-    // Update session in Strapi with photo
-    await updateSessionUserPhoto(sessionId, childName, optimizedBuffer, photoBase64)
+    // Update session in Strapi with photo (and any extra custom vars)
+    await updateSessionUserPhoto(
+      sessionId,
+      childName,
+      optimizedBuffer,
+      photoBase64,
+      Object.keys(extraVars).length > 0 ? extraVars : undefined
+    )
 
     console.log(`[API] Uploaded photo for session ${sessionId} to Strapi`)
 

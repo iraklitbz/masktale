@@ -11,8 +11,14 @@ export interface PdfTemplateData {
   images: Map<number, string> // pageNumber -> base64 data URL
 }
 
-function interpolateText(text: string, childName: string): string {
-  return text.replace(/\{childName\}/g, childName)
+function interpolateText(text: string, childName: string, customVars?: Record<string, string>): string {
+  let result = text.replace(/\{childName\}/g, childName)
+  if (customVars) {
+    for (const [key, value] of Object.entries(customVars)) {
+      result = result.replace(new RegExp(`\\{${key}\\}`, 'g'), value)
+    }
+  }
+  return result
 }
 
 function generateFontImports(typography?: StoryTypography): string {
@@ -67,7 +73,8 @@ function generateStorySpread(
   pageText: { pageNumber: number; title: string; text: string },
   image: string,
   childName: string,
-  spreadIndex: number
+  spreadIndex: number,
+  customVars?: Record<string, string>
 ): string {
   const leftPageNum = spreadIndex * 2 - 1
   const rightPageNum = spreadIndex * 2
@@ -81,7 +88,7 @@ function generateStorySpread(
       <div class="story-content">
         <h2 class="story-title">${pageText.title}</h2>
         <div class="story-divider"></div>
-        <p class="story-text">${interpolateText(pageText.text, childName)}</p>
+        <p class="story-text">${interpolateText(pageText.text, childName, customVars)}</p>
       </div>
     </div>
     <span class="page-number" style="left: 25%; color: #9ca3af;">${leftPageNum}</span>
@@ -91,7 +98,8 @@ function generateStorySpread(
 
 function generateBackCoverSpread(
   data: PdfTemplateData,
-  childName: string
+  childName: string,
+  customVars?: Record<string, string>
 ): string {
   const { storyTexts, images } = data
   const lastPageNum = storyTexts.pages.length
@@ -101,7 +109,7 @@ function generateBackCoverSpread(
   <div class="spread">
     <div class="page bg-light">
       <div class="backcover-content">
-        <p class="backcover-message">${interpolateText(storyTexts.backCover.message, childName)}</p>
+        <p class="backcover-message">${interpolateText(storyTexts.backCover.message, childName, customVars)}</p>
         <div class="backcover-divider"></div>
         <h2 class="backcover-footer">${storyTexts.backCover.footer}</h2>
       </div>
@@ -119,6 +127,7 @@ export function renderPdfTemplate(data: PdfTemplateData): string {
   let template = readFileSync(templatePath, 'utf-8')
 
   const childName = data.session.userPhoto?.childName || 'Protagonista'
+  const customVars = data.session.userPhoto?.customVars
   const { storyTexts, typography, images } = data
 
   // Generate font imports
@@ -136,11 +145,11 @@ export function renderPdfTemplate(data: PdfTemplateData): string {
   for (let i = 0; i < storyTexts.pages.length; i++) {
     const pageText = storyTexts.pages[i]
     const image = images.get(pageText.pageNumber) || ''
-    spreads.push(generateStorySpread(pageText, image, childName, i + 1))
+    spreads.push(generateStorySpread(pageText, image, childName, i + 1, customVars))
   }
 
   // Back cover spread
-  spreads.push(generateBackCoverSpread(data, childName))
+  spreads.push(generateBackCoverSpread(data, childName, customVars))
 
   // Replace placeholders
   template = template.replace(/\{\{fontImports\}\}/g, fontImports)

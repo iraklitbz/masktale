@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useDropZone, useFileDialog } from '@vueuse/core'
+import type { CustomInput } from '~/types/story'
 
 const route = useRoute()
 const router = useRouter()
@@ -18,6 +19,10 @@ const uploading = ref(false)
 const uploadProgress = ref(0)
 const error = ref<string | null>(null)
 const childName = ref('')
+
+// Dynamic custom inputs from story config
+const customInputFields = ref<CustomInput[]>([])
+const customInputValues = ref<Record<string, string>>({})
 
 const MAX_FILES = 3
 const MAX_SIZE = 10 * 1024 * 1024 // 10MB
@@ -88,14 +93,29 @@ function compressImage(file: File): Promise<File> {
   })
 }
 
-// Load session on mount
+// Load session and story config on mount
 onMounted(async () => {
   const sessionId = localStorage.getItem('mask-session-id')
   if (sessionId) {
     await loadSession(sessionId)
   } else {
-    // No session, redirect to home
     router.push('/')
+    return
+  }
+
+  // Load story config to get any custom input fields
+  try {
+    const config = await $fetch(`/api/story/${storyId}`)
+    const inputs = (config as any).settings?.customInputs
+    if (Array.isArray(inputs) && inputs.length > 0) {
+      customInputFields.value = inputs
+      // Initialize all values to empty string
+      for (const field of inputs) {
+        customInputValues.value[field.id] = ''
+      }
+    }
+  } catch {
+    // Non-critical: proceed without custom inputs
   }
 })
 
@@ -189,6 +209,16 @@ async function uploadPhotos() {
     return
   }
 
+  // Validate required custom inputs
+  for (const field of customInputFields.value) {
+    if (field.required && !customInputValues.value[field.id]?.trim()) {
+      const label = field.label_es || field.id
+      error.value = `Por favor ingresa: ${label}`
+      toast.warning('Campo requerido', `Debes ingresar: ${label}`)
+      return
+    }
+  }
+
   if (!session.value) {
     error.value = 'No hay sesión activa'
     toast.error('Error de sesión', 'No hay una sesión activa. Por favor reinicia el proceso')
@@ -212,6 +242,13 @@ async function uploadPhotos() {
     })
     // Add child name to form data
     formData.append('childName', childName.value.trim())
+
+    // Add any custom story fields (city, kuscheltier, etc.)
+    for (const [key, value] of Object.entries(customInputValues.value)) {
+      if (value.trim()) {
+        formData.append(key, value.trim())
+      }
+    }
 
     // Simulate progress
     const progressInterval = setInterval(() => {
@@ -248,7 +285,14 @@ async function uploadPhotos() {
 
 // Computed
 const canUploadMore = computed(() => uploadedFiles.value.length < MAX_FILES)
-const canContinue = computed(() => uploadedFiles.value.length > 0 && childName.value.trim() !== '' && !uploading.value)
+const canContinue = computed(() => {
+  if (uploadedFiles.value.length === 0 || !childName.value.trim() || uploading.value) return false
+  // Check all required custom fields are filled
+  for (const field of customInputFields.value) {
+    if (field.required && !customInputValues.value[field.id]?.trim()) return false
+  }
+  return true
+})
 </script>
 
 <template>
@@ -314,6 +358,25 @@ const canContinue = computed(() => uploadedFiles.value.length > 0 && childName.v
           class="w-full rounded-lg border-2 border-gray-200 px-4 py-3 text-lg transition-colors focus:border-purple-500 focus:outline-none"
           :class="{ 'border-red-300': error && !childName.trim() }"
           maxlength="50"
+        >
+      </div>
+
+      <!-- Dynamic custom inputs (city, kuscheltier, etc.) -->
+      <div
+        v-for="field in customInputFields"
+        :key="field.id"
+        class="mb-8 rounded-2xl bg-white p-6 shadow-sm"
+      >
+        <label :for="field.id" class="mb-2 block text-lg font-semibold text-gray-900">
+          {{ field.label_es }}
+        </label>
+        <input
+          :id="field.id"
+          v-model="customInputValues[field.id]"
+          type="text"
+          :placeholder="field.placeholder || ''"
+          class="w-full rounded-lg border-2 border-gray-200 px-4 py-3 text-lg transition-colors focus:border-purple-500 focus:outline-none"
+          maxlength="80"
         >
       </div>
 

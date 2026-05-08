@@ -196,6 +196,20 @@ export default defineEventHandler(async (event) => {
           finalPrompt = finalPrompt.replace(/\{CHARACTER_DESCRIPTION\}/g, characterDescription)
         }
 
+        // Replace child name placeholder
+        const childName = session.userPhoto?.childName || ''
+        if (childName) {
+          finalPrompt = finalPrompt.replace(/\{CHILD_NAME\}/g, childName)
+        }
+
+        // Replace any custom story variables (e.g. {CITY}, {KUSCHELTIER})
+        const customVars = session.userPhoto?.customVars || {}
+        for (const [key, value] of Object.entries(customVars)) {
+          const upperKey = key.toUpperCase()
+          finalPrompt = finalPrompt.replace(new RegExp(`\\{${upperKey}\\}`, 'g'), value)
+          finalPrompt = finalPrompt.replace(new RegExp(`\\{${key}\\}`, 'g'), value)
+        }
+
         console.log(`[Generate] Using complete prompt from Strapi for page ${pageNumber}`)
       } else {
         throw new Error('Prompt too short or empty, using template fallback')
