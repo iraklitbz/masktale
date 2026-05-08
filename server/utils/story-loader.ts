@@ -4,6 +4,7 @@
  */
 
 import type { StoryConfig, StoryListItem, StoryPage, StoryTexts } from '~/types/story'
+import { STORY_CUSTOM_INPUTS } from '../config/story-custom-inputs'
 
 const STRAPI_URL = process.env.STRAPI_URL || process.env.NUXT_PUBLIC_STRAPI_URL || 'https://cms.iraklitbz.dev'
 
@@ -141,6 +142,7 @@ export async function loadStoryConfig(storyId: string): Promise<StoryConfig> {
           enabled: !!story.settings?.faceSwap,
           model: story.settings?.faceSwapModel || undefined,
         },
+        customInputs: STORY_CUSTOM_INPUTS[story.slug] || undefined,
       },
       pages: pages.map((page: any) => ({
         pageNumber: page.pageNumber,
@@ -331,8 +333,15 @@ export async function loadStoryTexts(
 }
 
 /**
- * Interpolate placeholders in text with actual values
+ * Interpolate placeholders in text with actual values.
+ * Supports {childName} and any extra custom story variables (e.g. {city}, {kuscheltier}).
  */
-export function interpolateText(text: string, childName: string): string {
-  return text.replace(/\{childName\}/g, childName)
+export function interpolateText(text: string, childName: string, customVars?: Record<string, string>): string {
+  let result = text.replace(/\{childName\}/g, childName)
+  if (customVars) {
+    for (const [key, value] of Object.entries(customVars)) {
+      result = result.replace(new RegExp(`\\{${key}\\}`, 'g'), value)
+    }
+  }
+  return result
 }

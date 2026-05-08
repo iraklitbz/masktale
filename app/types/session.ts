@@ -20,6 +20,7 @@ export interface PhotoMetadata {
 export interface UserPhoto {
   originalPath?: string
   childName?: string // Name of the child protagonist for text interpolation
+  customVars?: Record<string, string> // Extra story-specific vars (e.g. city, kuscheltier)
 }
 
 export interface GenerationError {
